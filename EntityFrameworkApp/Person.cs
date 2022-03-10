@@ -99,6 +99,10 @@ namespace EntityFrameworkApp
             }
 
         }
+        public bool AddPerson() {
+
+            return true;
+        }
         public Person? Find(string name) {
             Person person;
             Address address;
