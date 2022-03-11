@@ -17,14 +17,16 @@ namespace Program // Note: actual namespace depends on the project name.
     {
         private const string token = "5156337859:AAFswaM91RTFckRSgA45jrhyKmYA77E0k14";
         private static TelegramBot telegramBot = new TelegramBot();
-        private static BotState botState;
+        private static BotState botState = BotState.common;
         private static Person? person = new Person();
         static async Task Main(string[] args)
         {
             ////
-
-            //person.test();
-            //var p = person.Find("Артем");
+            //person.AddPerson();
+            Person? p = null;
+            person.test();
+            //person.AddallPersons();
+            p = person.Find("Артем");
             ////
 
             var botClient = new TelegramBotClient(token);
@@ -103,7 +105,7 @@ namespace Program // Note: actual namespace depends on the project name.
                 default:
                     if (botState == BotState.find)
                     {
-                        person =  person.Find(messageText);
+                        person = new Person().Find(messageText);
                         if (person is null)
                         {
                             message = await botClient.SendTextMessageAsync(
@@ -113,19 +115,31 @@ namespace Program // Note: actual namespace depends on the project name.
                                 );
                             break;
                         }
-                        message = await botClient.SendPhotoAsync(
-                            chatId: chatId,
-                            photo: person.photo
-                            );
+                        else
+                        {
+                            message = await botClient.SendPhotoAsync(
+                                chatId: chatId,
+                                photo: person.photo
+                                );
+                            message = await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                parseMode: ParseMode.MarkdownV2,
+                                text: person.Print(),
+                                replyMarkup: HomeButtons()
+                                ); ;
+                            botState = BotState.common;
+                        }
+
+                    }
+                    if (botState == BotState.common) {
                         message = await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             parseMode: ParseMode.MarkdownV2,
-                            text: person.Print(),
-                            replyMarkup: GetButtons()
-                            );
-                        botState = BotState.common;
+                            text: "Choose mode",
+                            replyMarkup: HomeButtons()
+                            ); ;
                     }
-                    break;
+                        break;
             }
             //Message sentMessage = await botClient.SendTextMessageAsync(
             //    chatId: chatId,

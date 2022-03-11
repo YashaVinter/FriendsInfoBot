@@ -11,14 +11,17 @@ namespace EntityFrameworkApp
     public class ApplicationContext : DbContext
     {
         public DbSet<User> Users => Set<User>();
-        public DbSet<Person> Persons => Set<Person>();
-        public DbSet<Address> Addresses => Set<Address>();
+        public DbSet<Person> Persons { get; set; } = null!;
+        public DbSet<Address> Addresses { get; set; } = null!;
         //public DbSet<Add>
         public ApplicationContext() => Database.EnsureCreated();
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite("Data Source=TelegramBotDB.db");
+        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Person>().HasIndex(a => a.name).IsUnique();
         }
     }
 
@@ -53,64 +56,98 @@ namespace EntityFrameworkApp
         public Address? address { get; set; }
         public string Print()
         {
+            var emoji = char.ConvertFromUtf32(0x1F4A5);
             return $"\t*Персонаж:* {name} *Возраст:* {age}\n*Место жительства:*\n" +
                 $"*Город:* {address.city}\n*Улица:* {address.street} *Дом:* {address.home}\n*Квартира:* {address.flat} *Подъезд:* {address.entrance} *Этаж:* {address.floor}" +
-                $"\n{char.ConvertFromUtf32(0x1F4A5)}*Заметки:*{char.ConvertFromUtf32(0x1F4A5)}\n {notes}";
+                $"\n{emoji}*Заметки:*{emoji}\n {notes}";
         }
-        private static List<Person> persons = new List<Person> {
-            new Person {
-                name = "Артем", age = 24, debt = 0, address = { city = "Екатеринбург", street = " Волгоградская", entrance = 1, flat = 39, floor = 5, home = 184 },
-                photo = "http://sun9-3.userapi.com/s/v1/ig2/frNJIc-HZBxVxJlmGCjpyqgwvHLyd8RcHrkvecwcUQsXohlCc21ksRqYLovjAJlkvXxRBGyXPRl3ENemvD65xlEL.jpg?size=400x598&quality=95&crop=68,0,280,419&ava=1",
-                notes = "Программист, ТНН, АртБабБек"
-            }
-        };
         public void test() {
+
+        }
+        private static class DbData
+        {
+            public static Address YanAdr = new Address { city = "Заречный", street = "Комунальная", entrance = 1, flat = 3, floor = 3, home = 1 };
+            public static Person Yan = new Person
+            {
+                name = "Ян",
+                age = 24,
+                debt = 10580,
+                address = YanAdr,
+                notes = "Яня, Атомщик, опелевод",
+                photo = "https://sun9-53.userapi.com/sun9-66/impf/c846417/v846417975/148899/Q607m_E6GGM.jpg?size=807x563&quality=96&sign=166ea468ac706c2dfdc3a6f169c50478&type=album"
+            };
+            public static Address PolinaAdr = new Address { city = "Екатеринбург", street = "Новгородцевой", entrance = 12, flat = 402, floor = 2, home = 11 };
+            public static Person Polina = new Person
+            {
+                name = "Полина",
+                age = 22,
+                debt = 0,
+                address = PolinaAdr,
+                notes = "Веган, ветош",
+                photo = "https://sun9-51.userapi.com/impg/IP4LoYkuiLZg1IAgYZlINa95GH71_VaczqvT-Q/8FIpF2uicXA.jpg?size=1393x1920&quality=96&sign=2fce3dc29258a856f40441dd0d929020&type=album"
+            };
+            public static Address ArtemAdr = new Address { city = "Екатеринбург", street = "Волгоградская", entrance = 1, flat = 39, floor = 5, home = 184 };
+            public static Person Artem = new Person
+            {
+                name = "Артем",
+                age = 24,
+                debt = 0,
+                address = ArtemAdr,
+                notes = "Программист, ТНН, АртБабБек",
+                photo = "http://sun9-3.userapi.com/s/v1/ig2/frNJIc-HZBxVxJlmGCjpyqgwvHLyd8RcHrkvecwcUQsXohlCc21ksRqYLovjAJlkvXxRBGyXPRl3ENemvD65xlEL.jpg?size=400x598&quality=95&crop=68,0,280,419&ava=1"
+            };
+        }
+
+        public bool AddallPersons() {
             using (ApplicationContext db = new ApplicationContext())
             {
-                // создаем два объекта User
+                //recreated Database
                 db.Database.EnsureDeleted();
                 db.Database.EnsureCreated();
-
-
-                Address address1 = new Address { city = "Екатеринбург", street = "Волгоградская", entrance = 1, flat = 39, floor = 5, home = 184 };
-                Person Artem = new Person { name = "Артем", age = 24, debt = 0, address = address1, notes = "Программист, ТНН, АртБабБек",
-                    photo = "http://sun9-3.userapi.com/s/v1/ig2/frNJIc-HZBxVxJlmGCjpyqgwvHLyd8RcHrkvecwcUQsXohlCc21ksRqYLovjAJlkvXxRBGyXPRl3ENemvD65xlEL.jpg?size=400x598&quality=95&crop=68,0,280,419&ava=1" };
-
-                // добавляем их в бд
-
-                db.Persons.Add(Artem);
-
+                // adding all persons in DbData
+                var persons = new List<Person> 
+                { 
+                    DbData.Yan, DbData.Polina, DbData.Artem
+                };
+                db.Persons.AddRange(persons);
                 db.SaveChanges();
-                Console.WriteLine("Объекты успешно сохранены");
-
-                var art = db.Persons.FirstOrDefault();
-                art = db.Persons.Where(a => a.name == "Артем").FirstOrDefault();
-
-                var ph = art.address.street;
-
-                // получаем объекты из бд и выводим на консоль
-                var users = db.Users.ToList();
-                var persons = db.Persons.ToList();
-                Console.WriteLine("Список объектов:");
-                foreach (Person p in persons)
-                {
-                    Console.WriteLine($" {p.Id} {p.name} {p.age}  ");
-                }
             }
-
-        }
-        public bool AddPerson() {
-
             return true;
         }
-        public Person? Find(string name) {
-            Person person;
-            Address address;
+        public bool AddPerson(Person person) {
             using (ApplicationContext db = new ApplicationContext())
             {
-                address = db.Addresses.FirstOrDefault();
-                person = db.Persons.FirstOrDefault();
-                person = db.Persons.Where(p => p.name == name).FirstOrDefault();
+                if (db.Persons.Contains(person))
+                {
+                    return false;
+                }
+                db.Persons.Add(person);
+                db.SaveChanges();
+            }
+                return true;
+        }
+        public bool UpdatePerson(Person person)
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                if (db.Persons.Contains(person))
+                {
+                    return false;
+                }
+                Person existperson = db.Persons.Where(a => a.Id == person.Id).FirstOrDefault();
+                existperson = person;
+                db.SaveChanges();
+            }
+            return true;
+        }
+
+        public Person? Find(string name) {
+            Person? person;
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                //var v1 = db.Persons.Include(p => p.address).Where(p = > p.)
+                person = db.Persons.Where(p => p.name == name).Include(p => p.address).FirstOrDefault();
+                
             }
             return person;
         }
@@ -118,31 +155,3 @@ namespace EntityFrameworkApp
 
 }
 
-
-//using (ApplicationContext db = new ApplicationContext())
-//{
-//    // создаем два объекта User
-//    User tom = new User { Name = "Tom", Age = 33 };
-//    User alice = new User { Name = "Alice", Age = 26 };
-//    User bob = new User {Name="Bob", Age = 21 };
-
-//    // добавляем их в бд
-//    db.Users.Add(tom);
-//    db.Users.Add(alice);
-//    db.SaveChanges();
-//    Console.WriteLine("Объекты успешно сохранены");
-
-
-//    db.Add(bob);
-//    db.Remove(tom);
-//    db.Remove(alice);
-//    db.SaveChanges();
-
-//    // получаем объекты из бд и выводим на консоль
-//    var users = db.Users.ToList();
-//    Console.WriteLine("Список объектов:");
-//    foreach (User u in users)
-//    {
-//        Console.WriteLine($"{u.Id}.{u.Name} - {u.Age}");
-//    }
-//}
