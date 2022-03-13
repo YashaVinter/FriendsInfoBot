@@ -14,10 +14,12 @@ namespace EntityFrameworkApp
         public StateMachine() { 
             //treeNode.
         }
-        public void changeStateName() {
-            string name = "one";
+        public void AddStateAction(string stateName, Action<string> action, string command) {
+            smData.AddAction(stateName, action, command);
 
-            smData.FindState(name);
+        }
+        public void ExecuteCurrentCommand() {
+            smData.ExecuteCommand(currentState);
         }
 
         public void test() {
@@ -39,15 +41,15 @@ namespace EntityFrameworkApp
             // start
             StateMachine stateMachine = new StateMachine();
 
-            stateMachine.smData.SetTransition("one", new List<StateTransition>() {
-                new StateTransition("one","two"),
-                new StateTransition("one","three"),
+            stateMachine.smData.SetTransition("one", new List<string>() {
+                "onetwo",
+                "onethree",
             });
-            stateMachine.smData.SetTransition("two", new List<StateTransition>() {
-                new StateTransition("two","four")
+            stateMachine.smData.SetTransition("two", new List<string>() {
+                "twofour"
             });
-            stateMachine.smData.SetTransition("three", new List<StateTransition>() {
-                new StateTransition("three","four")
+            stateMachine.smData.SetTransition("three", new List<string>() {
+                "threefour"
             });
 
             stateMachine.smData.SetStateForStateTransition("onetwo", "one", "two");
@@ -60,7 +62,11 @@ namespace EntityFrameworkApp
             State state = new State("state");
             state.Notify += new SMCommands().OneCommand;
 
-            state.DoCommands("write");
+            //state.DoCommands();
+
+            stateMachine.AddStateAction("one", new SMCommands().OneCommand, "write one!");
+            stateMachine.currentState = "one";
+            stateMachine.ExecuteCurrentCommand();
 
             //stateMachine.SMData.SetTransition("one", new List<StateTransition>());
             //stateMachine.currentState = one;
@@ -71,16 +77,15 @@ namespace EntityFrameworkApp
     public class State
     {   
         public string name { get; set; }
+        public string command { get; set; }
         //List<StateTransition> transitionTo { get; set; } = null!;
-        public List<StateTransition> transitionFrom { get; set; } = null!;
+        public List<string> transitionFrom { get; set; } = null!;
         public State(string name) {
             this.name = name;
         }
 
-
-        public delegate void StateHandler(string message);
-        public event StateHandler? Notify;
-        public void DoCommands(string command) {
+        public event Action<string>? Notify;
+        public void DoCommands() {
             Notify?.Invoke(command);
         }
     }
@@ -88,7 +93,8 @@ namespace EntityFrameworkApp
     {
         public string name { get; set; }
         public string initState { get; set; } = null!;
-        public string finalState { get; set; }= null!;
+        public string finalState { get; set; } = null!;
+        public string criteria { get; set; } = null!;
         public StateTransition(string initState, string finalState)
         {
             this.name = initState+ finalState;
@@ -96,6 +102,11 @@ namespace EntityFrameworkApp
             this.finalState = finalState;
         }
 
+        public Func<string,bool> func;
+        public bool TransitionCriteria(string s) {
+            Func<string, bool> f = str => { return str == ""; };
+            return true;
+        }
     }
     public enum CurrentStateInfo { 
         init,
@@ -134,11 +145,18 @@ namespace EntityFrameworkApp
         public SMData() {
             //states.First(st => st.name == "");
         }
-        public void FindState(String name)
-        {
-
+        public void AddAction(string stateName, Action<string> action, string command) {
+            stateDictionary[stateName].Notify += action;
+            stateDictionary[stateName].command = command;
         }
-        public void SetTransition(string stateName, List<StateTransition> transitions) {
+
+
+        public void RemoveAction(string stateName, Action<string> action) =>
+            stateDictionary[stateName].Notify += action;
+        public void ExecuteCommand(string stateName) {
+            stateDictionary[stateName].DoCommands();
+        }
+        public void SetTransition(string stateName, List<string> transitions) {
             stateDictionary[stateName].transitionFrom = transitions;
         }
         public void SetStateForStateTransition(string stateTransitionName, string initState, string finalState)
