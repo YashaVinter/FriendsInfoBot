@@ -16,19 +16,25 @@ namespace Program // Note: actual namespace depends on the project name.
     internal class Program
     {
         private const string token = "5156337859:AAFswaM91RTFckRSgA45jrhyKmYA77E0k14";
-        private static TelegramBot telegramBot = new TelegramBot();
+        private static FriendsBot friendsBot = new FriendsBot(token);
         private static BotState botState = BotState.common;
         private static Person? person = new Person();
         static async Task Main(string[] args)
         {
             ////
             //person.AddPerson();
-            Person? p = null;
-            person.test();
-            //person.AddallPersons();
-            p = person.Find("Артем");
-            ////
+            //Person? p = null;
 
+            StateMachine stateMachine = new StateMachine();
+            stateMachine.test();
+            //person.test();
+            //person.AddAllPersons();
+            //p = person.Find("Артем");
+            //----//
+
+            //await friendsBot.SendTextMessageAsync("");
+
+            //-----//
             var botClient = new TelegramBotClient(token);
 
             using var cts = new CancellationTokenSource();
@@ -54,6 +60,25 @@ namespace Program // Note: actual namespace depends on the project name.
             cts.Cancel();
 
         }
+        private static async Task HandleUpdateAsync1(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            // Only process Message updates: https://core.telegram.org/bots/api#message
+            if (update.Type != UpdateType.Message)
+                return;
+            // Only process text messages
+            if (update.Message!.Type != MessageType.Text)
+                return;
+
+            var chatId = update.Message.Chat.Id;
+            var messageText = update.Message.Text;
+            var user = update.Message.From;
+
+            Console.WriteLine($"Received a '{messageText}' message from {user}.");
+
+            // Echo received message text
+            Message message = new Message();
+            friendsBot.Answer(update);
+        }
         private static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             // Only process Message updates: https://core.telegram.org/bots/api#message
@@ -65,8 +90,9 @@ namespace Program // Note: actual namespace depends on the project name.
 
             var chatId = update.Message.Chat.Id;
             var messageText = update.Message.Text;
+            var user = update.Message.From;
 
-            Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
+            Console.WriteLine($"Received a '{messageText}' message from {user}.");
 
             // Echo received message text
             Message message = new Message();
@@ -137,20 +163,10 @@ namespace Program // Note: actual namespace depends on the project name.
                             parseMode: ParseMode.MarkdownV2,
                             text: "Choose mode",
                             replyMarkup: HomeButtons()
-                            ); ;
+                            );
                     }
                         break;
             }
-            //Message sentMessage = await botClient.SendTextMessageAsync(
-            //    chatId: chatId,
-            //    text: "You said:\n" + messageText,
-            //    cancellationToken: cancellationToken);
-            //sentMessage = await botClient.SendTextMessageAsync(
-            //    chatId: chatId,
-            //    text: "buttons",
-            //    replyMarkup: HomeButtons()
-            //    );
-            
         }
 
         private static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

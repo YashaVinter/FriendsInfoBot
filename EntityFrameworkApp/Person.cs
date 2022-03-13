@@ -57,7 +57,7 @@ namespace EntityFrameworkApp
         public string Print()
         {
             var emoji = char.ConvertFromUtf32(0x1F4A5);
-            return $"\t*Персонаж:* {name} *Возраст:* {age}\n*Место жительства:*\n" +
+            return $"\t*Имя:* {name} *Возраст:* {age}\n*Место жительства:*\n" +
                 $"*Город:* {address.city}\n*Улица:* {address.street} *Дом:* {address.home}\n*Квартира:* {address.flat} *Подъезд:* {address.entrance} *Этаж:* {address.floor}" +
                 $"\n{emoji}*Заметки:*{emoji}\n {notes}";
         }
@@ -98,7 +98,7 @@ namespace EntityFrameworkApp
             };
         }
 
-        public bool AddallPersons() {
+        public bool AddAllPersons() {
             using (ApplicationContext db = new ApplicationContext())
             {
                 //recreated Database
@@ -142,14 +142,10 @@ namespace EntityFrameworkApp
         }
 
         public Person? Find(string name) {
-            Person? person;
             using (ApplicationContext db = new ApplicationContext())
             {
-                //var v1 = db.Persons.Include(p => p.address).Where(p = > p.)
-                person = db.Persons.Where(p => p.name == name).Include(p => p.address).FirstOrDefault();
-                
+                return db.Persons.Where(p => p.name == name).Include(p => p.address).FirstOrDefault();
             }
-            return person;
         }
     }
 
