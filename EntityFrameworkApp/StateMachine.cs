@@ -52,10 +52,10 @@ namespace EntityFrameworkApp
                 "threefour"
             });
 
-            stateMachine.smData.SetStateForStateTransition("onetwo", "one", "two");
-            stateMachine.smData.SetStateForStateTransition("onethree", "one", "three");
-            stateMachine.smData.SetStateForStateTransition("twofour", "two", "four");
-            stateMachine.smData.SetStateForStateTransition("threefour", "three", "four");
+            stateMachine.smData.SetStateForStateTransition("one", "two");
+            stateMachine.smData.SetStateForStateTransition("one", "three");
+            stateMachine.smData.SetStateForStateTransition("two", "four");
+            stateMachine.smData.SetStateForStateTransition("three", "four");
             // end creating
             stateMachine.currentState = "one";
 
@@ -79,7 +79,7 @@ namespace EntityFrameworkApp
         public string name { get; set; }
         public string command { get; set; }
         //List<StateTransition> transitionTo { get; set; } = null!;
-        public List<string> transitionFrom { get; set; } = null!;
+        public List<string> transitionNames { get; set; } = null!;//from this State
         public State(string name) {
             this.name = name;
         }
@@ -102,7 +102,7 @@ namespace EntityFrameworkApp
             this.finalState = finalState;
         }
 
-        public Func<string,bool> func;
+        public Func<string,bool>? func;
         public bool TransitionCriteria(string s) {
             Func<string, bool> f = str => { return str == ""; };
             return true;
@@ -157,10 +157,11 @@ namespace EntityFrameworkApp
             stateDictionary[stateName].DoCommands();
         }
         public void SetTransition(string stateName, List<string> transitions) {
-            stateDictionary[stateName].transitionFrom = transitions;
+            stateDictionary[stateName].transitionNames = transitions;
         }
-        public void SetStateForStateTransition(string stateTransitionName, string initState, string finalState)
+        public void SetStateForStateTransition(string initState, string finalState)
         {
+            string stateTransitionName = initState + finalState;
             stateTransitionDictionary[stateTransitionName].initState = initState;
             stateTransitionDictionary[stateTransitionName].finalState = finalState;
         }
