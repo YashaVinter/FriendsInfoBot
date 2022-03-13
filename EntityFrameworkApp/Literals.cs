@@ -18,4 +18,20 @@ namespace EntityFrameworkApp
         public const string help = "Help";
 
     }
+    public static class SMStates
+    {
+        public const string one = "one";
+        public const string two = "two";
+        public const string three = "three";
+        public const string four = "four";
+
+    }
+    public static class SMTransitions
+    {
+        public const string onetwo = "onetwo";
+        public const string onethree = "onethree";
+        public const string twothree = "twothree";
+        public const string threefour = "threefour";
+
+    }
 }

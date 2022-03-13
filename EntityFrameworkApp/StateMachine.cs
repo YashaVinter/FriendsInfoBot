@@ -14,30 +14,17 @@ namespace EntityFrameworkApp
         public StateMachine() { 
             //treeNode.
         }
-        public void AddStateAction(string stateName, Action<string> action, string command) {
-            smData.AddAction(stateName, action, command);
 
-        }
         public void ExecuteCurrentCommand() {
-            smData.ExecuteCommand(currentState);
+            smData.ExecuteStateCommand(currentState);
+        }
+        public void AddTransitionCriteria(string transitionName, Func<string, bool> FCriteria)
+        {
+
+            //stateTransitionDictionary[transitionName].FCriteria = FCriteria;
         }
 
         public void test() {
-            //State one = new State();
-            //State two = new State();
-            //State three = new State();
-            //State four = new State();
-
-            //StateTransition onetwo = new StateTransition(ref one, ref two);
-            //StateTransition onethree = new StateTransition(ref one, ref three);
-            //StateTransition twofour = new StateTransition(ref two, ref four);
-            //StateTransition threefour = new StateTransition(ref three, ref four);
-
-            //one.transitionFrom = new List<StateTransition> { onetwo, onethree };
-            //two.transitionFrom = new List<StateTransition> { twofour };
-            //three.transitionFrom = new List<StateTransition> { threefour };
-            //four.transitionFrom = new List<StateTransition> { };
-
             // start
             StateMachine stateMachine = new StateMachine();
 
@@ -57,16 +44,32 @@ namespace EntityFrameworkApp
             stateMachine.smData.SetStateForStateTransition("two", "four");
             stateMachine.smData.SetStateForStateTransition("three", "four");
             // end creating
-            stateMachine.currentState = "one";
+            //test
+            Func<string, bool> f = str => { return str == ""; };
+            StateTransition stateTransition = new StateTransition("1", "2");
+            stateTransition.FCriteria = f;
+            stateTransition.FCriteria = TransitionCriteria.onetwoCriteria;
+            
 
             State state = new State("state");
-            state.Notify += new SMCommands().OneCommand;
+            state.Notify += SMCommands.OneCommand;
 
             //state.DoCommands();
+            string command = "two";
 
-            stateMachine.AddStateAction("one", new SMCommands().OneCommand, "write one!");
+            stateMachine.smData.AddTransitionCriteria("onetwo", TransitionCriteria.onetwoCriteria);
+            stateMachine.smData.AddTransitionCriteria("onethree", TransitionCriteria.onethreeCriteria);
+            bool b;
+            b = stateMachine.smData.CheckTransition("one", "two");
+            b = stateMachine.smData.CheckTransition("one", "three");
+            b = stateMachine.smData.CheckTransition("one", "four");
+
+            b = stateMachine.smData.CheckTransition(SMStates.one, SMStates.two);
+
+            stateMachine.smData.AddAction("one", SMCommands.OneCommand, "write one!");
             stateMachine.currentState = "one";
             stateMachine.ExecuteCurrentCommand();
+            stateMachine.smData.ExecuteStateCommand("one");
 
             //stateMachine.SMData.SetTransition("one", new List<StateTransition>());
             //stateMachine.currentState = one;
@@ -75,8 +78,8 @@ namespace EntityFrameworkApp
         }
     }
     public class State
-    {   
-        public string name { get; set; }
+    {
+        public readonly string name;
         public string command { get; set; }
         //List<StateTransition> transitionTo { get; set; } = null!;
         public List<string> transitionNames { get; set; } = null!;//from this State
@@ -91,22 +94,18 @@ namespace EntityFrameworkApp
     }
     public class StateTransition
     {
-        public string name { get; set; }
+        public readonly string name;
         public string initState { get; set; } = null!;
         public string finalState { get; set; } = null!;
-        public string criteria { get; set; } = null!;
         public StateTransition(string initState, string finalState)
         {
             this.name = initState+ finalState;
             this.initState = initState;
             this.finalState = finalState;
         }
+        
+        public Func<string,bool>? FCriteria { get; set; } = null!;
 
-        public Func<string,bool>? func;
-        public bool TransitionCriteria(string s) {
-            Func<string, bool> f = str => { return str == ""; };
-            return true;
-        }
     }
     public enum CurrentStateInfo { 
         init,
@@ -153,24 +152,53 @@ namespace EntityFrameworkApp
 
         public void RemoveAction(string stateName, Action<string> action) =>
             stateDictionary[stateName].Notify += action;
-        public void ExecuteCommand(string stateName) {
+        public void ExecuteStateCommand(string stateName) {
             stateDictionary[stateName].DoCommands();
         }
-        public void SetTransition(string stateName, List<string> transitions) {
+        public void SetTransition(string stateName, List<string> transitions) {//rename
             stateDictionary[stateName].transitionNames = transitions;
         }
         public void SetStateForStateTransition(string initState, string finalState)
-        {
+        { //rename
             string stateTransitionName = initState + finalState;
             stateTransitionDictionary[stateTransitionName].initState = initState;
             stateTransitionDictionary[stateTransitionName].finalState = finalState;
         }
+
+        public bool CheckTransition(string stateName, string command)
+        {
+            bool isTransit = false;
+            var transitions = stateDictionary[stateName].transitionNames;
+            foreach (var transition in transitions)
+            {
+                isTransit = stateTransitionDictionary[transition].FCriteria(command);
+                if (isTransit == true) break;
+            }
+            return isTransit;
+        }
+        public void AddTransitionCriteria(string transitionName, Func<string, bool> FCriteria) {
+            stateTransitionDictionary[transitionName].FCriteria = FCriteria;
+        }
+        public void test() {
+            
+        }
     }
-    public class SMCommands
+    public static class SMCommands
     {
-        public void OneCommand(string st) {
+        public static void OneCommand(string st) {
             Console.WriteLine(st);
         }
+        public static void TwoCommand(string st)
+        {
+            Console.WriteLine(st);
+        }
+    }
+    public static class TransitionCriteria
+    {
+        public static bool onetwoCriteria(string str)  { return str == "two"; }
+        public static bool onethreeCriteria(string str) { return str == "three"; }
+        public static bool twofourCriteria(string str) { return str == SMStates.four; }
+
     }
     public enum EState
     {
