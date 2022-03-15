@@ -65,7 +65,10 @@ namespace EntityFrameworkAppTest
             }
             stateMachine.Execute("");
 
-            
+
+            var v = stateMachine.transitionDictionary[one].Criteria;
+            stateMachine.transitionDictionary[one].Criteria = v;
+
 
             int a = 1;
 

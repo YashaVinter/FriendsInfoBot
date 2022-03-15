@@ -15,7 +15,9 @@ namespace EntityFrameworkApp.StateMachine
             states = new List<string>()
             {
                 States.home,
-                States.home
+                States.find,
+                States.edit,
+                States.help
             };
 
             
