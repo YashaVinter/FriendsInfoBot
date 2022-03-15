@@ -22,11 +22,12 @@ namespace Program // Note: actual namespace depends on the project name.
         static async Task Main(string[] args)
         {
             ////
+            new EntityFrameworkAppTest.Test();
             //person.AddPerson();
             //Person? p = null;
 
-            StateMachine stateMachine = new StateMachine();
-            stateMachine.test();
+            //StateMachine stateMachine = new StateMachine();
+            //stateMachine.test();
             //person.test();
             //person.AddAllPersons();
             //p = person.Find("Артем");

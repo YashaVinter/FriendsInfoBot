@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkApp
 {
-    public class StateMachine
+    public class StateMachineOld
     {
         public string currentState { get; set; } = null;
         public SMData smData { get; set; } = new SMData();
-        public StateMachine() { 
+        public StateMachineOld() { 
             //treeNode.
         }
 
@@ -26,7 +26,7 @@ namespace EntityFrameworkApp
 
         public void test() {
             // start
-            StateMachine stateMachine = new StateMachine();
+            StateMachineOld stateMachine = new StateMachineOld();
 
             stateMachine.smData.SetTransition("one", new List<string>() {
                 "onetwo",
