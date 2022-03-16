@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace EntityFrameworkApp
+namespace EntityFrameworkApp.DataBase
 {
     public class ApplicationContext : DbContext
     {
         public DbSet<User> Users => Set<User>();
         public DbSet<Person> Persons { get; set; } = null!;
         public DbSet<Address> Addresses { get; set; } = null!;
-        //public DbSet<Add>
+        public string dbPath = @"C:\Users\User\source\repos\EntityFrameworkApp\EntityFrameworkApp\TelegramBotDB.db";
         public ApplicationContext() => Database.EnsureCreated();
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=TelegramBotDB.db");
+            optionsBuilder.UseSqlite($"Data Source={dbPath}");// TelegramBotDB / TelegramBotDB
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -145,6 +145,12 @@ namespace EntityFrameworkApp
             using (ApplicationContext db = new ApplicationContext())
             {
                 return db.Persons.Where(p => p.name == name).Include(p => p.address).FirstOrDefault();
+            }
+        }
+        public List<Person> AllPesons() {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                return db.Persons.Select(p => p).ToList();
             }
         }
     }

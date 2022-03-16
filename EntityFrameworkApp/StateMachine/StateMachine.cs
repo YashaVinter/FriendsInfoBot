@@ -4,214 +4,145 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-namespace EntityFrameworkApp
+namespace EntityFrameworkApp.StateMachine
 {
-    public class StateMachineOld
-    {
-        public string currentState { get; set; } = null;
-        public SMData smData { get; set; } = new SMData();
-        public StateMachineOld() { 
-            //treeNode.
-        }
 
-        public void ExecuteCurrentCommand() {
-            smData.ExecuteStateCommand(currentState);
-        }
-        public void AddTransitionCriteria(string transitionName, Func<string, bool> FCriteria)
+    public class State : IState
+    {
+        public string name { get; set; }
+        public List<ITransition> transitions { get; set; } = null!;
+
+        public event Action<string>? action = null;
+
+        public State(string name)
         {
-
-            //stateTransitionDictionary[transitionName].FCriteria = FCriteria;
-        }
-
-        public void test() {
-            // start
-            StateMachineOld stateMachine = new StateMachineOld();
-
-            stateMachine.smData.SetTransition("one", new List<string>() {
-                "onetwo",
-                "onethree",
-            });
-            stateMachine.smData.SetTransition("two", new List<string>() {
-                "twofour"
-            });
-            stateMachine.smData.SetTransition("three", new List<string>() {
-                "threefour"
-            });
-
-            stateMachine.smData.SetStateForStateTransition("one", "two");
-            stateMachine.smData.SetStateForStateTransition("one", "three");
-            stateMachine.smData.SetStateForStateTransition("two", "four");
-            stateMachine.smData.SetStateForStateTransition("three", "four");
-            // end creating
-            //test
-            Func<string, bool> f = str => { return str == ""; };
-            StateTransition stateTransition = new StateTransition("1", "2");
-            stateTransition.FCriteria = f;
-            stateTransition.FCriteria = TransitionCriteria.onetwoCriteria;
-            
-
-            State state = new State("state");
-            state.Notify += SMCommands.OneCommand;
-
-            //state.DoCommands();
-            string command = "two";
-
-            stateMachine.smData.AddTransitionCriteria("onetwo", TransitionCriteria.onetwoCriteria);
-            stateMachine.smData.AddTransitionCriteria("onethree", TransitionCriteria.onethreeCriteria);
-            bool b;
-            b = stateMachine.smData.CheckTransition("one", "two");
-            b = stateMachine.smData.CheckTransition("one", "three");
-            b = stateMachine.smData.CheckTransition("one", "four");
-
-            b = stateMachine.smData.CheckTransition(SMStates.one, SMStates.two);
-
-            stateMachine.smData.AddAction("one", SMCommands.OneCommand, "write one!");
-            stateMachine.currentState = "one";
-            stateMachine.ExecuteCurrentCommand();
-            stateMachine.smData.ExecuteStateCommand("one");
-
-            //stateMachine.SMData.SetTransition("one", new List<StateTransition>());
-            //stateMachine.currentState = one;
-
-
-        }
-    }
-    public class State
-    {
-        public readonly string name;
-        public string command { get; set; }
-        //List<StateTransition> transitionTo { get; set; } = null!;
-        public List<string> transitionNames { get; set; } = null!;//from this State
-        public State(string name) {
             this.name = name;
         }
-
-        public event Action<string>? Notify;
-        public void DoCommands() {
-            Notify?.Invoke(command);
-        }
-    }
-    public class StateTransition
-    {
-        public readonly string name;
-        public string initState { get; set; } = null!;
-        public string finalState { get; set; } = null!;
-        public StateTransition(string initState, string finalState)
+        public void DoCommand(string cmd)
         {
-            this.name = initState+ finalState;
-            this.initState = initState;
-            this.finalState = finalState;
-        }
-        
-        public Func<string,bool>? FCriteria { get; set; } = null!;
-
-    }
-    public enum CurrentStateInfo { 
-        init,
-        first
-    }
-    public class SMData
-    {// TO DO make Dictionary<string, State> StateCreator (List<string> states, List<string> StateTransition) and as well for StateTransitionCreator
-        //private List<State> states = new List<State> {
-        //    new State("one"),
-        //    new State("two"),
-        //    new State("three"),
-        //    new State("four"),
-        //};
-        //private List<StateTransition> stateTransitions = new List<StateTransition> {
-        //    new StateTransition("one","two"),
-        //    new StateTransition("one","three"),
-        //    new StateTransition("two","four"),
-        //    new StateTransition("three","four")
-        //};
-
-        private Dictionary<string, State> stateDictionary = new Dictionary<string, State>() 
-        {
-            {"one",new State("one") },
-            {"two",new State("two") },
-            {"three",new State("three") },
-            {"four",new State("four") },
-        };
-        private Dictionary<string, StateTransition> stateTransitionDictionary = new Dictionary<string, StateTransition>()
-        {
-            {"onetwo", new StateTransition("one","two") },
-            {"onethree", new StateTransition("one","three") },
-            {"twofour", new StateTransition("two","four") },
-            {"threefour", new StateTransition("three","four") }
-        };
-
-        public SMData() {
-            //states.First(st => st.name == "");
-        }
-        public void AddAction(string stateName, Action<string> action, string command) {
-            stateDictionary[stateName].Notify += action;
-            stateDictionary[stateName].command = command;
-        }
-
-
-        public void RemoveAction(string stateName, Action<string> action) =>
-            stateDictionary[stateName].Notify += action;
-        public void ExecuteStateCommand(string stateName) {
-            stateDictionary[stateName].DoCommands();
-        }
-        public void SetTransition(string stateName, List<string> transitions) {//rename
-            stateDictionary[stateName].transitionNames = transitions;
-        }
-        public void SetStateForStateTransition(string initState, string finalState)
-        { //rename
-            string stateTransitionName = initState + finalState;
-            stateTransitionDictionary[stateTransitionName].initState = initState;
-            stateTransitionDictionary[stateTransitionName].finalState = finalState;
-        }
-
-        public bool CheckTransition(string stateName, string command)
-        {
-            bool isTransit = false;
-            var transitions = stateDictionary[stateName].transitionNames;
-            foreach (var transition in transitions)
+            if (action is null)
             {
-                isTransit = stateTransitionDictionary[transition].FCriteria(command);
-                if (isTransit == true) break;
+                throw new Exception("Action not added");
             }
-            return isTransit;
+            action?.Invoke(cmd);
         }
-        public void AddTransitionCriteria(string transitionName, Func<string, bool> FCriteria) {
-            stateTransitionDictionary[transitionName].FCriteria = FCriteria;
+    }
+
+    public class Transition : ITransition
+    {
+        public string name { get; set ; }
+        public IState entryState { get; set; } = null;
+        public IState endState { get; set; } = null;
+        public Transition(string name) {
+            this.name = name;
         }
-        public void test() {
+        public Func<string, bool>? Criteria { get; set; } = null;
+
+    }
+
+    public class StateMachine : StateMachineBase
+    {
+        public StateMachine(List<string> states, List<string> transitions, string startState) : base(states, transitions, startState)
+        {
             
         }
-    }
-    public static class SMCommands
-    {
-        public static void OneCommand(string st) {
-            Console.WriteLine(st);
-        }
-        public static void TwoCommand(string st)
+        protected override void DictionaryBilder(List<string> stateNames, List<string> transitionNames)
         {
-            Console.WriteLine(st);
-        }
-    }
-    public static class TransitionCriteria
-    {
-        public static bool onetwoCriteria(string str)  { return str == "two"; }
-        public static bool onethreeCriteria(string str) { return str == "three"; }
-        public static bool twofourCriteria(string str) { return str == SMStates.four; }
+            stateDictionary = new Dictionary<string, IState>();
+            transitionDictionary = new Dictionary<string, ITransition>();
 
-    }
-    public enum EState
-    {
-        one,
-        two,
-        three,
-        four
-    }
-    public enum EStateTransition
-    {
-        onetwo,
-        onethree,
-        twofour,
-        threefour
+            foreach (var stateName in stateNames)
+            {
+                State state = new State(stateName);
+                stateDictionary.Add(stateName, state);
+            }
+            foreach (var transitionName in transitionNames)
+            {
+                var names = transitionName.Split(new char[] { ':'});
+                string entryStateName = names[0];
+                string endStateName = names[1];
+                State entryState = stateDictionary[entryStateName] as State;
+                State endState = stateDictionary[endStateName] as State;
+
+                Transition transition = new Transition(transitionName) { entryState = entryState, endState = endState };
+                transitionDictionary.Add(transitionName, transition);
+            }
+            foreach (var state in stateDictionary.Values)
+            {
+                var foundTransitions = transitionDictionary.Values.Select(x=>x).Where(x => x.entryState.name == state.name).ToList();
+                state.transitions = foundTransitions;
+            }
+        }
+
+        public override void AddAction(string state, Action<string> action)
+        {
+            stateDictionary[state].action += action;
+        }
+        public void AddActionRange(IEnumerable<string> states, IEnumerable<Action<string>> actions) {
+            if (states.Count() != actions.Count())
+            {
+                throw new IndexOutOfRangeException();
+            }
+            var enumerator = actions.GetEnumerator();
+            enumerator.MoveNext();
+            foreach (var state in states)
+            {
+                stateDictionary[state].action += enumerator.Current;
+                enumerator.MoveNext();
+            }
+        }
+
+        public override void RemoveAction(string state, Action<string> action)
+        {
+            stateDictionary[state].action -= action;
+        }
+
+        public override void AddCritera(string transition, Func<string, bool> critera)
+        {
+            transitionDictionary[transition].Criteria += critera;
+        }
+        public void AddCriteraRange(IEnumerable<string> transitions, IEnumerable<Func<string, bool>> critera)
+        {
+            if (transitions.Count() != critera.Count())
+            {
+                throw new IndexOutOfRangeException();
+            }
+            var enumerator = critera.GetEnumerator();
+            enumerator.MoveNext();
+            foreach (var transition in transitions)
+            {
+                transitionDictionary[transition].Criteria += enumerator.Current;
+                enumerator.MoveNext();
+            }
+        }
+        public override void RemoveCritera(string transition)
+        {
+            transitionDictionary[transition].Criteria = null;
+        }
+        public override string? CheckTransitions(string state, string command)
+        {
+            foreach (var transition in stateDictionary[state].transitions)
+            {
+                if (transition.Criteria is null)
+                    throw new Exception("Сriterion not added");
+
+                if (transition.Criteria(command))
+                {
+                    return transition.endState.name;
+                }
+            }
+            return null;
+        }
+
+
+
+
+
+        public override void test()
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 }

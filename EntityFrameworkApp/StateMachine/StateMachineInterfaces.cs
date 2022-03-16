@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EntityFrameworkAppTest
+namespace EntityFrameworkApp.StateMachine
 {
     internal interface StateMachineInterfaces
     {
@@ -28,8 +28,6 @@ namespace EntityFrameworkAppTest
         IState endState { get; set; }
         Func<string, bool>? Criteria { get; set; } //
     }
-
-
     public abstract class StateMachineBase
     {
         public Dictionary<string, IState> stateDictionary { get; protected set; } = null;

@@ -8,14 +8,18 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace EntityFrameworkApp
-{
+using EntityFrameworkApp.DataBase;
 
+namespace EntityFrameworkApp.FriendsBot
+{
 
     public class FriendsBot : TelegramBotClient
     {
         public FriendsBot(string token) : base(token) { }
         public BotState botState { get; set; } = BotState.common;
+
+        protected StateMachine.StateMachine stateMachine { get; set; }
+        
         public FindState findState { get; set; }
         public static IReplyMarkup HomeButtons()
         {
@@ -145,8 +149,16 @@ namespace EntityFrameworkApp
         }
 
         public void test() {
-
         }
+
+
+        public class StateTelegramActions
+        {
+            public async Task a1(string cmd) {
+                
+            }
+        }
+
         public enum BotState
         {
             home,
@@ -158,7 +170,6 @@ namespace EntityFrameworkApp
             help,
             common
         }
-
         public enum FindState
         {
             none,
@@ -166,6 +177,5 @@ namespace EntityFrameworkApp
             personIsFound,
             personNotFound,
         }
-
     }
 }

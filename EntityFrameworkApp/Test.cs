@@ -4,12 +4,49 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EntityFrameworkAppTest
+namespace EntityFrameworkApp
 {
     public class Test
     {
         public Test() {
+            EntityFrameworkApp.StateMachine.StateMachineData SMData = 
+                new EntityFrameworkApp.StateMachine.StateMachineData();
 
+            var home = EntityFrameworkApp.StateMachine.StateMachineData.States.home;
+
+            EntityFrameworkApp.StateMachine.StateMachine stateMachine =
+                new EntityFrameworkApp.StateMachine.StateMachine(SMData.states,SMData.transitions, home);
+            stateMachine.AddActionRange(SMData.states, SMData.actions);
+            stateMachine.AddCriteraRange(SMData.transitions, SMData.criteria);
+
+            EntityFrameworkApp.DataBase.Person person =
+                new EntityFrameworkApp.DataBase.Person();
+            var p1 = person.Find("Ян");
+            var p2 = person.Find("Артем");
+            var p3 = person.AllPesons();
+
+            Console.WriteLine("Start stateMachine");
+            while (true)
+            {
+                string cmd = Console.ReadLine();
+                stateMachine.Execute(cmd);
+            }
+            stateMachine.Execute("");
+
+
+            //var v = stateMachine.transitionDictionary[one].Criteria;
+            //stateMachine.transitionDictionary[one].Criteria = v;
+
+
+            int a = 1;
+
+
+
+        }
+
+    }
+}
+/*
             string tr(string f, string s) { return f +':'+ s; }
 
             string one = "one";
@@ -55,26 +92,5 @@ namespace EntityFrameworkAppTest
 
             stateMachine.AddActionRange(states, actionsList);
             stateMachine.AddCriteraRange(transitions, criteraList);
-
-
-            Console.WriteLine("Start stateMachine");
-            while (true)
-            {
-                string cmd = Console.ReadLine();
-                stateMachine.Execute(cmd);
-            }
-            stateMachine.Execute("");
-
-
-            var v = stateMachine.transitionDictionary[one].Criteria;
-            stateMachine.transitionDictionary[one].Criteria = v;
-
-
-            int a = 1;
-
-
-
-        }
-
-    }
-}
+ 
+ */

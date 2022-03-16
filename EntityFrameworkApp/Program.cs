@@ -7,7 +7,9 @@ using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using EntityFrameworkApp;
+
+using EntityFrameworkApp.DataBase;
+using EntityFrameworkApp.FriendsBot;
 
 
 
@@ -22,7 +24,7 @@ namespace Program // Note: actual namespace depends on the project name.
         static async Task Main(string[] args)
         {
             ////
-            new EntityFrameworkAppTest.Test();
+            new EntityFrameworkApp.Test();
             //person.AddPerson();
             //Person? p = null;
 
@@ -37,7 +39,6 @@ namespace Program // Note: actual namespace depends on the project name.
 
             //-----//
             var botClient = new TelegramBotClient(token);
-
             using var cts = new CancellationTokenSource();
 
             // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
@@ -70,14 +71,13 @@ namespace Program // Note: actual namespace depends on the project name.
             if (update.Message!.Type != MessageType.Text)
                 return;
 
-            var chatId = update.Message.Chat.Id;
-            var messageText = update.Message.Text;
-            var user = update.Message.From;
 
-            Console.WriteLine($"Received a '{messageText}' message from {user}.");
+            Console.WriteLine($"Received a '{update.Message.Text}' message from {update.Message.From} chatId: {update.Message.Chat.Id}.");
 
             // Echo received message text
             Message message = new Message();
+
+
             friendsBot.Answer(update);
         }
         private static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
