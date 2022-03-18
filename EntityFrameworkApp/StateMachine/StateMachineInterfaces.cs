@@ -9,6 +9,11 @@ namespace EntityFrameworkApp.StateMachine
     internal interface StateMachineInterfaces
     {
     }
+    public delegate object FunctionHandler(object sender, CommandBase e);
+    public abstract class CommandBase : EventArgs
+    {
+        public abstract string command { get; set; }
+    }
     public interface Iname
     {
         string name { get; set; }
@@ -18,10 +23,11 @@ namespace EntityFrameworkApp.StateMachine
         List<ITransition> transitions { get; set; }
 
         event Action<string>? action;
+        event FunctionHandler? functionHandler;
         void DoCommand(string cmd);
-
-
+        public object DoCommand(object sender, CommandBase e);
     }
+
     public interface ITransition : Iname
     {
         IState entryState { get; set; }
@@ -47,19 +53,10 @@ namespace EntityFrameworkApp.StateMachine
         public abstract void RemoveCritera(string transition);
         public abstract string? CheckTransitions(string state, string command);// ret name transition?
 
-        public void Execute(string command)
-        {
-            string? transitionTo = CheckTransitions(currentState, command);
-            if (transitionTo is null)
-            {
-                stateDictionary[currentState].DoCommand(command);
-            }
-            else
-            {
-                this.currentState = transitionTo;
-                stateDictionary[currentState].DoCommand(command);
-            }
-        }
+        public abstract object Execute(object sender,CommandBase e);
+        public abstract void Execute(string command);
+
+
         public abstract void test();
 
 

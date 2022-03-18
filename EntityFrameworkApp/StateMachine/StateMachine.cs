@@ -14,6 +14,12 @@ namespace EntityFrameworkApp.StateMachine
 
         public event Action<string>? action = null;
 
+        //public event EventHandler<EventArgs> eventHandler;
+        public event FunctionHandler? functionHandler = null;
+        //public object DoFunctionHandler(object sender, EventArgs e) { // dont using
+        //    return functionHandler?.Invoke(sender, e);
+        //}
+
         public State(string name)
         {
             this.name = name;
@@ -25,6 +31,14 @@ namespace EntityFrameworkApp.StateMachine
                 throw new Exception("Action not added");
             }
             action?.Invoke(cmd);
+        }
+        public object DoCommand(object sender, CommandBase e)
+        {
+            if (functionHandler is null)
+            {
+                throw new Exception("FunctionHandler not added");
+            }
+            return functionHandler?.Invoke(sender, e);
         }
     }
 
@@ -40,6 +54,10 @@ namespace EntityFrameworkApp.StateMachine
 
     }
 
+    public class StateMachineCommand : CommandBase
+    {
+        public override string command { get ; set ; }
+    }
     public class StateMachine : StateMachineBase
     {
         public StateMachine(List<string> states, List<string> transitions, string startState) : base(states, transitions, startState)
@@ -97,6 +115,9 @@ namespace EntityFrameworkApp.StateMachine
             stateDictionary[state].action -= action;
         }
 
+        public void AddFunctionHandler(string state, FunctionHandler functionHandler) {
+            stateDictionary[state].functionHandler += functionHandler;
+        }
         public override void AddCritera(string transition, Func<string, bool> critera)
         {
             transitionDictionary[transition].Criteria += critera;
@@ -134,8 +155,41 @@ namespace EntityFrameworkApp.StateMachine
             return null;
         }
 
+        public override void Execute(string command)
+        {
+            string? transitionTo = CheckTransitions(currentState, command);
+            if (transitionTo is null)
+            {
+                stateDictionary[currentState].DoCommand(command);
+            }
+            else
+            {
+                this.currentState = transitionTo;
+                stateDictionary[currentState].DoCommand(command);
+            }
+        }
+        public override object Execute(object sender, CommandBase e)
+        {
+            object ret = null;
+            if (sender is null)
+                return ret;
+            if (e is CommandBase commandBase)
+            {
+                string command = commandBase.command;
+                string? transitionTo = CheckTransitions(currentState, command);
+                if (transitionTo is null)
+                {
+                    ret = stateDictionary[currentState].DoCommand(sender, commandBase);
+                }
+                else
+                {
+                    this.currentState = transitionTo;
+                    ret = stateDictionary[currentState].DoCommand(sender, commandBase);
+                }
 
-
+            }
+            return ret;
+        }
 
 
         public override void test()

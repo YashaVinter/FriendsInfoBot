@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 using EntityFrameworkApp.DataBase;
+using System.Text.RegularExpressions;
 
 namespace EntityFrameworkApp.StateMachine
 {
-    internal class StateMachineData
+    public class StateMachineData
     {
         public List<string> states;
         public List<string> transitions;
@@ -16,13 +17,14 @@ namespace EntityFrameworkApp.StateMachine
         public List<Func<string, bool>> criteria;
         public StateMachineData() 
         {
+            States st = new States();
             states = new List<string>()
             {
-                States.home,
-                States.find,
-                States.edit,
-                States.help,
-                States.findPerson
+                st.home,
+                st.find,
+                st.edit,
+                st.help,
+                st.findPerson
             };
 
             var act = new StateConsoleActions();
@@ -35,16 +37,17 @@ namespace EntityFrameworkApp.StateMachine
                 act.findPersonAction
             };
             Func<string,string,string> tr = (a, b) => { return a +":"+ b; };
+
             transitions = new List<string>()
             { 
-                tr(States.home,States.find),
-                tr(States.home,States.edit),
-                tr(States.home,States.help),
-                tr(States.find,States.home),
-                tr(States.find,States.findPerson),
-                tr(States.findPerson,States.home),
-                tr(States.edit,States.home),
-                tr(States.help,States.home)
+                tr(st.home,st.find),
+                tr(st.home,st.edit),
+                tr(st.home,st.help),
+                tr(st.find,st.home),
+                tr(st.find,st.findPerson),
+                tr(st.findPerson,st.home),
+                tr(st.edit,st.home),
+                tr(st.help,st.home)
             };
             criteria = new List<Func<string, bool>>()
             { 
@@ -58,13 +61,13 @@ namespace EntityFrameworkApp.StateMachine
                 new Criteria().toHome,
             };
         }
-        public struct States
+        public class States
         {
-            public const string home = "home";
-            public const string find = "find";
-            public const string edit = "edit";
-            public const string help = "help";
-            public const string findPerson = "findPerson";
+            public readonly string home = "home";
+            public readonly string find = "find";
+            public readonly string edit = "edit";
+            public readonly string help = "help";
+            public readonly string findPerson = "findPerson";
 
         }
         public struct Transitions 
@@ -73,8 +76,9 @@ namespace EntityFrameworkApp.StateMachine
         }
         public class StateConsoleActions
         {
+            private States states = new States();
             public void homeAction(string cmd) {
-                Console.WriteLine($"Choose mode: {States.home} {States.find} {States.edit} {States.help}");   
+                Console.WriteLine($"Choose mode: {states.home} {states.find} {states.edit} {states.help}");   
             }
             public void findAction(string cmd)
             {
@@ -101,28 +105,41 @@ namespace EntityFrameworkApp.StateMachine
             }
         }
 
-        public struct Criteria
+        public class Criteria
         {
-            public bool toHome(string st) {
-                return st == States.home;
-            }
-            public bool toFind(string st)
-            {
-                return st == States.find;
-            }
-            public bool toEdit(string st)
-            {
-                return st == States.edit;
-            }
-            public bool toHelp(string st)
-            {
-                return st == States.help;
-            }
-            public bool toFindPerson(string st)
-            {
-                return st != States.home;
+            private States states = new States();
+            private bool isMatch(string pattern, string input) { 
+                return new Regex(pattern, RegexOptions.IgnoreCase).IsMatch(input); 
             }
 
+            public bool toHome(string input) {
+                return isMatch(states.home, input);
+            }
+            public bool toFind(string input)
+            {
+                return isMatch(states.find, input);
+            }
+            public bool toEdit(string input)
+            {
+                return isMatch(states.edit, input);
+            }
+            public bool toHelp(string input)
+            {
+                return isMatch(states.help, input);
+            }
+            public bool toFindPerson(string input)
+            {
+                return isMatch(states.findPerson, input);
+            }
+
+        }
+        public class Criteria1 
+        {
+            private FriendsBot.FrontendData.ButtonData button
+                = new FriendsBot.FrontendData.ButtonData();
+            public bool toHome(string input) {
+                return input == button.home;
+            }
         }
     }
 }

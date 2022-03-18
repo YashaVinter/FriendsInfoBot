@@ -23,21 +23,10 @@ namespace Program // Note: actual namespace depends on the project name.
         private static Person? person = new Person();
         static async Task Main(string[] args)
         {
-            ////
-            new EntityFrameworkApp.Test();
-            //person.AddPerson();
-            //Person? p = null;
-
-            //StateMachine stateMachine = new StateMachine();
-            //stateMachine.test();
-            //person.test();
-            //person.AddAllPersons();
-            //p = person.Find("Артем");
-            //----//
-
-            //await friendsBot.SendTextMessageAsync("");
-
-            //-----//
+            // start test
+            var test = new EntityFrameworkApp.Test();
+            //test.test4();
+            //end test
             var botClient = new TelegramBotClient(token);
             using var cts = new CancellationTokenSource();
 
@@ -47,7 +36,7 @@ namespace Program // Note: actual namespace depends on the project name.
                 AllowedUpdates = { } // receive all update types
             };
             botClient.StartReceiving(
-                HandleUpdateAsync,
+                HandleUpdateAsync1,
                 HandleErrorAsync,
                 receiverOptions,
                 cancellationToken: cts.Token);
@@ -75,10 +64,10 @@ namespace Program // Note: actual namespace depends on the project name.
             Console.WriteLine($"Received a '{update.Message.Text}' message from {update.Message.From} chatId: {update.Message.Chat.Id}.");
 
             // Echo received message text
-            Message message = new Message();
+            //Message message = new Message();
 
 
-            friendsBot.Answer(update);
+            friendsBot.Answer2(update);
         }
         private static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {

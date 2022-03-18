@@ -15,26 +15,36 @@ namespace EntityFrameworkApp.FriendsBot
 
     public class FriendsBot : TelegramBotClient
     {
-        public FriendsBot(string token) : base(token) { }
+        public FriendsBot(string token) : base(token) 
+        {
+            StateMachineBuilder();
+        }
         public BotState botState { get; set; } = BotState.common;
 
         protected StateMachine.StateMachine stateMachine { get; set; }
-        
-        public FindState findState { get; set; }
-        public static IReplyMarkup HomeButtons()
-        {
-            return new ReplyKeyboardMarkup
-            (
-                new List<List<KeyboardButton>> {
-                    new List<KeyboardButton>{
-                        new KeyboardButton ("Home"+ char.ConvertFromUtf32(0x1F4A5)),
-                        new KeyboardButton ("Find"),
-                        new KeyboardButton ("Edit"),
-                        new KeyboardButton ("Help"),
-                    }
-                }
-            );
+        public void StateMachineBuilder() {
+            StateMachine.StateMachineData SMdata = new StateMachine.StateMachineData();
+            var states = new StateMachine.StateMachineData.States();
+            
+            stateMachine = new StateMachine.StateMachine(
+                SMdata.states,
+                SMdata.transitions,
+                states.home
+                );
+            stateMachine.AddFunctionHandler(states.home, FriendsBotData.StateTelegramActions.CaseHome);
+            stateMachine.AddFunctionHandler(states.find, FriendsBotData.StateTelegramActions.CaseFind);
+            stateMachine.AddFunctionHandler(states.edit, FriendsBotData.StateTelegramActions.CaseEdit);
+            stateMachine.AddFunctionHandler(states.help, FriendsBotData.StateTelegramActions.CaseHelp);
+            stateMachine.AddFunctionHandler(states.findPerson, FriendsBotData.StateTelegramActions.CaseFindPerson);
+
+            stateMachine.AddCriteraRange(SMdata.transitions, SMdata.criteria);
         }
+        public StateMachine.StateMachineCommand botCommand { get; set; } = new StateMachine.StateMachineCommand();
+        public Update update { get;protected set; }
+
+        public FindState findState { get; set; }
+
+
         public async Task<Message> SendTextMessageAsync(Update update, string text) {
             var Id = update?.Message?.Chat.Id;
 
@@ -42,20 +52,30 @@ namespace EntityFrameworkApp.FriendsBot
                 chatId: Id,
                 text: text,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
-                replyMarkup: HomeButtons()
+                replyMarkup: FriendsBotData.HomeButtons()
                 );
             return message; 
             // 
             //message = await friendsBot.SendTextMessageAsync(update, "message from friendsBot");
             //
         }
+        public async Task<Message> SendTextMessageAsync(long chatId, string text,IReplyMarkup replyMarkup)
+        {
+            return await this.SendTextMessageAsync(
+                chatId: chatId,
+                text: text,
+                parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
+                replyMarkup: replyMarkup
+                );
+        }
+
         public async Task<Message> SendPhotoAsync(Update update, string photoURL)
         {
             var Id = update?.Message?.Chat.Id;
             return await this.SendPhotoAsync(
                 chatId: Id,
                 photo: photoURL,
-                replyMarkup: HomeButtons()
+                replyMarkup: FriendsBotData.HomeButtons()
                 );
         }
 
@@ -148,15 +168,15 @@ namespace EntityFrameworkApp.FriendsBot
             }
         }
 
+        public void Answer2(Update update) {
+            string text = update?.Message?.Text;
+            this.update = update;
+            this.botCommand.command = this.update?.Message?.Text;
+            stateMachine.Execute(this, this.botCommand);
+
+            //stateMachine.Execute(command);
+        } 
         public void test() {
-        }
-
-
-        public class StateTelegramActions
-        {
-            public async Task a1(string cmd) {
-                
-            }
         }
 
         public enum BotState
@@ -177,5 +197,10 @@ namespace EntityFrameworkApp.FriendsBot
             personIsFound,
             personNotFound,
         }
+
+        //public class BotCommand : EventArgs
+        //{
+        //    public string command { get; set; } = null;
+        //}
     }
 }

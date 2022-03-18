@@ -4,26 +4,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Text.RegularExpressions;
+
 namespace EntityFrameworkApp
 {
     public class Test
     {
         public Test() {
-            EntityFrameworkApp.StateMachine.StateMachineData SMData = 
-                new EntityFrameworkApp.StateMachine.StateMachineData();
 
-            var home = EntityFrameworkApp.StateMachine.StateMachineData.States.home;
+        }
+        public void test1() {
+            EntityFrameworkApp.StateMachine.StateMachineData SMData =
+                new EntityFrameworkApp.StateMachine.StateMachineData();
+            EntityFrameworkApp.StateMachine.StateMachineData.States states
+                = new StateMachine.StateMachineData.States();
+
+            var home = states.home;
+            var help = states.help;
 
             EntityFrameworkApp.StateMachine.StateMachine stateMachine =
-                new EntityFrameworkApp.StateMachine.StateMachine(SMData.states,SMData.transitions, home);
-            stateMachine.AddActionRange(SMData.states, SMData.actions);
+                new EntityFrameworkApp.StateMachine.StateMachine(SMData.states, SMData.transitions, home);
+
+            stateMachine.AddFunctionHandler(home, FriendsBot.FriendsBotData.StateTelegramActions.CaseHome);
+            stateMachine.AddFunctionHandler(home, FriendsBot.FriendsBotData.StateTelegramActions.CaseHelp);
+
+            //stateMachine.AddActionRange(SMData.states, SMData.actions);
             stateMachine.AddCriteraRange(SMData.transitions, SMData.criteria);
 
-            EntityFrameworkApp.DataBase.Person person =
-                new EntityFrameworkApp.DataBase.Person();
-            var p1 = person.Find("Ян");
-            var p2 = person.Find("Артем");
-            var p3 = person.AllPesons();
 
             Console.WriteLine("Start stateMachine");
             while (true)
@@ -44,6 +51,124 @@ namespace EntityFrameworkApp
 
         }
 
+        public void test2() {
+            Hero hero = new();
+            Enemy enemy = new();
+            hero.act += boo;
+            enemy.act += boo;
+            hero.eventHandler += Print;
+            enemy.eventHandler += Print;
+
+            hero.Hit();
+            enemy.Hit();
+
+            hero.Voice();
+            enemy.Voice();
+
+
+        }
+        public void test3() {
+            StateMachine.State state = new StateMachine.State("one");
+
+            StateMachine.FunctionHandler v = FriendsBot.FriendsBotData.StateTelegramActions.CaseHome;
+            state.functionHandler += v;
+
+            FriendsBot.FriendsBot bot = new FriendsBot.FriendsBot("");
+            bot.botCommand.command = "write";
+            
+            state.DoCommand(bot, bot.botCommand);
+
+        }
+        public void test4() {
+            string st1 = "home";
+            Regex regex = new Regex(st1,RegexOptions.IgnoreCase);
+
+            string st2 = "HomeeEE1";
+            regex.IsMatch(st2);
+
+            
+            string st = Console.ReadLine();
+            while (true)
+            {
+                st = Console.ReadLine();
+                Console.WriteLine("Compare is: " + regex.IsMatch(st));
+            }
+
+
+        }
+
+
+
+        private void Hero_eventHandler(object? sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public class Hero
+        {
+            public event EventHandler act;
+            public MyArgs args = new MyArgs() { health = 200 };
+            public void Hit() {
+                Console.WriteLine($"{this} is hit by sword");
+                act.Invoke(this,new());
+            }
+            public void Voice() {
+                eventHandler(this, args);
+            }
+            public event EventHandler<EventArgs> eventHandler;
+        }
+        public class Enemy
+        {
+            public event EventHandler act;
+            public MyArgs args = new MyArgs(){health = 100};
+            public void Hit()
+            {
+                Console.WriteLine($"{this} is hit by sword");
+                act.Invoke(this, new());
+            }
+            public void Voice()
+            {
+                eventHandler(this, args);
+            }
+            public event EventHandler<EventArgs> eventHandler;
+        }
+
+        public void boo(object sender, EventArgs eventArgs)
+        {
+            new EventArgs();
+            
+            if (sender is Hero)
+            {
+                Console.WriteLine("its hero");
+            }
+            if (sender is Enemy)
+            {
+                Console.WriteLine("its enemy");
+            }
+
+        }
+
+        public event EventHandler<EventArgs> EventHandlerMyArgs;
+
+        public void Print(object sender, EventArgs eventArgs) {
+            if (sender is null)
+                return;
+            if (sender is Hero hero)
+            {
+                MyArgs myArgs = eventArgs as MyArgs;
+                Console.WriteLine($" its a {hero} with health {myArgs.health}");
+            }
+            if (sender is Enemy enemy)
+            {
+                MyArgs myArgs = eventArgs as MyArgs;
+                Console.WriteLine($" its a {enemy} with health {myArgs.health}");
+            }
+        }
+
+        public class MyArgs : EventArgs
+        {
+            public int health = 0;
+        }
     }
 }
 /*
