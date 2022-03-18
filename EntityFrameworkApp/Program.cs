@@ -18,7 +18,7 @@ namespace Program // Note: actual namespace depends on the project name.
     internal class Program
     {
         private const string token = "5156337859:AAFswaM91RTFckRSgA45jrhyKmYA77E0k14";
-        private static FriendsBot friendsBot = new FriendsBot(token);
+        //private static FriendsBot friendsBot = new FriendsBot(token);
         private static BotState botState = BotState.common;
         private static Person? person = new Person();
         static async Task Main(string[] args)
@@ -27,7 +27,8 @@ namespace Program // Note: actual namespace depends on the project name.
             var test = new EntityFrameworkApp.Test();
             //test.test4();
             //end test
-            var botClient = new TelegramBotClient(token);
+            var botClient = new FriendsBot(token);
+            //var botClient = new TelegramBotClient(token);
             using var cts = new CancellationTokenSource();
 
             // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
@@ -60,14 +61,21 @@ namespace Program // Note: actual namespace depends on the project name.
             if (update.Message!.Type != MessageType.Text)
                 return;
 
-
-            Console.WriteLine($"Received a '{update.Message.Text}' message from {update.Message.From} chatId: {update.Message.Chat.Id}.");
+            string message = update.Message.Text;
+            Console.WriteLine($"Received a '{update.Message.Text}' message from {update.Message.From}");
 
             // Echo received message text
             //Message message = new Message();
-
+            var friendsBot = botClient as FriendsBot;
+            //friendsBot.update = update;
+            //FriendsBotData.StateTelegramActions.CaseHome(friendsBot, new());
+            //Task.WaitAll();
+            //FriendsBotData.StateTelegramActions.CaseHelp(friendsBot, new());
+            //Task.WaitAll();
 
             friendsBot.Answer2(update);
+            Task.WaitAll();
+            Console.WriteLine($"Message '{update.Message.Text}'from {update.Message.From} send");
         }
         private static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {

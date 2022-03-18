@@ -39,10 +39,10 @@ namespace EntityFrameworkApp.FriendsBot
             public readonly string findPerson;
             public CaseText() {
                 home = $"Choose mode: {states.home} {states.find} {states.edit} {states.help}";
-                find = "Write person name. If you want see all persons write \"ALL\"";
+                find = "Write person name, If you want see all persons write \"ALL\"";
                 findPerson = "Person not found, try again or return home";
-                edit = "Write person name. If you want add or edit person";
-                help = "Its a friendBot. Here you can add informations about your friends";
+                edit = "Write person name, If you want add or edit person";
+                help = "Its a friendBot, Here you can add informations about your friends";
             }
         }
 

@@ -14,6 +14,41 @@ namespace EntityFrameworkApp.FriendsBot
 {
     internal class FriendsBotData
     {
+        //public Dictionary<string, StateMachine.FunctionHandler> actionsDictionary;
+        //public Dictionary<string, Func<string, bool>> criteriaDictionary;
+        public FriendsBotData() {
+            
+        }
+        public Dictionary<string, StateMachine.FunctionHandler> GetActionsDictionary(List<string> statesNames)
+        {
+            Dictionary<string, StateMachine.FunctionHandler> dict =
+                new Dictionary<string, StateMachine.FunctionHandler>();
+            StateTelegramActions actions = new StateTelegramActions();
+            foreach (var stateName in statesNames)
+            {
+                StateMachine.FunctionHandler? act = actions.getAction(stateName);
+                if (act is null)
+                    throw new ArgumentNullException();
+                dict.Add(stateName, act);
+            }
+            return dict;
+        }
+        public Dictionary<string, Func<string,bool>> GetCriteriaDictionary
+            (List<string> transitionsNames)
+        {
+            Dictionary<string, Func<string, bool>> dict =
+                new Dictionary<string, Func<string, bool>>();
+            Criteria criteria = new Criteria();
+            foreach (var transitionName in transitionsNames)
+            {
+                string endState = transitionName.Split(':')[1];
+                Func<string, bool>? func = criteria.getCriteria(endState);
+                if (func is null)
+                    throw new ArgumentNullException();
+                dict.Add(transitionName, func);
+            }
+            return dict;
+        }
         public class States
         {
             public const string home = "home";
@@ -23,33 +58,100 @@ namespace EntityFrameworkApp.FriendsBot
             public const string findPerson = "findPerson";
 
         }
-        public struct Criteria
+        public class Criteria
         {
-            public bool toHome(string st)
-            {
-                return st == States.home;
+            private FrontendData.ButtonData buttonData = new FrontendData.ButtonData();
+            public Func<string, bool>? getCriteria(string toStateName) {
+                StateMachine.StateMachineData.States states =
+                    new StateMachine.StateMachineData.States();
+
+                if (toStateName == states.home)
+                {
+                    return toHome;
+                }
+                else if (toStateName == states.find)
+                {
+                    return toFind;
+                }
+                else if (toStateName == states.edit)
+                {
+                    return toEdit;
+                }
+                else if (toStateName == states.help)
+                {
+                    return toHelp;
+                }
+                else if (toStateName == states.findPerson)
+                {
+                    return toFindPerson;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            public bool toFind(string st)
+            public bool toHome(string input)
             {
-                return st == States.find;
+                return input == buttonData.home;
             }
-            public bool toEdit(string st)
+            public bool toFind(string input)
             {
-                return st == States.edit;
+                return input == buttonData.find;
             }
-            public bool toHelp(string st)
+            public bool toEdit(string input)
             {
-                return st == States.help;
+                return input == buttonData.edit;
             }
-            public bool toFindPerson(string st)
+            public bool toHelp(string input)
             {
-                return st != States.home;
+                return input == buttonData.help;
+            }
+            public bool toFindPerson(string input)
+            {
+                return input != buttonData.home;
             }
 
         }
         public class StateTelegramActions
         {
             private static FrontendData.CaseText caseText = new FrontendData.CaseText();
+
+            public StateMachine.FunctionHandler? getAction(string name) {
+                StateMachine.StateMachineData.States states =
+                    new StateMachine.StateMachineData.States();
+
+                if (name == states.home)
+                {
+                    return CaseHome;
+                }
+                else if (name == states.find)
+                {
+                    return CaseFind;
+                }
+                else if (name == states.edit)
+                {
+                    return CaseEdit;
+                }
+                else if (name == states.help)
+                {
+                    return CaseHelp;
+                }
+                else if (name == states.findPerson)
+                {
+                    return CaseFindPerson;
+                }
+                else
+                {
+                    return null;
+                }
+                //switch (name)
+                //{
+                //    case nameof(states.home):
+                //        return CaseEdit;
+                //    default:
+                //        break;
+                //}
+            }
             public async Task<Message> CaseHomeOld(FriendsBot botClient ,string cmd)
             {
                 string text = $"Choose mode: {States.home} {States.find} {States.edit} {States.help}";
@@ -68,7 +170,7 @@ namespace EntityFrameworkApp.FriendsBot
                 {
                     //FriendsBot.BotCommand botCommand = e as FriendsBot.BotCommand;
                     //var command = botCommand.command;
-                    string text = $"Choose mode: {States.home} {States.find} {States.edit} {States.help}";
+                    string text = caseText.home;
                     long id =  (long) bot?.update?.Message?.Chat?.Id;
                     return await bot.SendTextMessageAsync(id, text, HomeButtons2());
                 }
@@ -80,9 +182,9 @@ namespace EntityFrameworkApp.FriendsBot
                     return null;
                 if (sender is FriendsBot bot)
                 {
-                    string text = "Write person name. If you want see all persons write \"ALL\"";
+                    string text = caseText.find;
                     long id = (long)bot?.update?.Message?.Chat?.Id;
-                    return await bot.SendTextMessageAsync(id, text, HomeButtons());
+                    return await bot.SendTextMessageAsync(id, text, HomeButtons2());
                 }
                 return null;
             }
@@ -96,13 +198,15 @@ namespace EntityFrameworkApp.FriendsBot
                     DataBase.Person person = new DataBase.Person().Find(bot.botCommand.command);
                     if (person is null)
                     {
-                        string text = "Person not found, try again or return home";
-                        return await bot.SendTextMessageAsync(id, text, HomeButtons());
+                        string text = caseText.findPerson;
+                        return await bot.SendTextMessageAsync(id, text, HomeButtons2());
 
                     }
                     else
                     {
-                        return await bot.SendTextMessageAsync(id, person.Print(), HomeButtons());
+                        Message message = await bot.SendPhotoAsync(id,person.photo);
+                        message = await bot.SendTextMessageAsync(id, person.Print(), HomeButtons2());
+                        return message;
                     }
                 }
                 return null;
@@ -113,9 +217,9 @@ namespace EntityFrameworkApp.FriendsBot
                     return null;
                 if (sender is FriendsBot bot)
                 {
-                    string text = "Write person name. If you want add or edit person";
+                    string text = caseText.edit;
                     long id = (long)bot?.update?.Message?.Chat?.Id;
-                    return await bot.SendTextMessageAsync(id, text, HomeButtons());
+                    return await bot.SendTextMessageAsync(id, text, HomeButtons2());
                 }
                 return null;
             }
@@ -125,9 +229,10 @@ namespace EntityFrameworkApp.FriendsBot
                     return null;
                 if (sender is FriendsBot bot)
                 {
-                    string text = "Its a friendBot. Here you can add informations about your friends";
+                    string text = caseText.help;
+                    //string text = "abc abc";
                     long id = (long)bot?.update?.Message?.Chat?.Id;
-                    return await bot.SendTextMessageAsync(id, text, HomeButtons());
+                    return await bot.SendTextMessageAsync(id, text, HomeButtons2());
                 }
                 return null;
             }

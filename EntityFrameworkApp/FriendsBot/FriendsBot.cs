@@ -25,22 +25,28 @@ namespace EntityFrameworkApp.FriendsBot
         public void StateMachineBuilder() {
             StateMachine.StateMachineData SMdata = new StateMachine.StateMachineData();
             var states = new StateMachine.StateMachineData.States();
-            
+            FriendsBotData friendsBotData = new FriendsBotData();
             stateMachine = new StateMachine.StateMachine(
                 SMdata.states,
                 SMdata.transitions,
                 states.home
                 );
-            stateMachine.AddFunctionHandler(states.home, FriendsBotData.StateTelegramActions.CaseHome);
-            stateMachine.AddFunctionHandler(states.find, FriendsBotData.StateTelegramActions.CaseFind);
-            stateMachine.AddFunctionHandler(states.edit, FriendsBotData.StateTelegramActions.CaseEdit);
-            stateMachine.AddFunctionHandler(states.help, FriendsBotData.StateTelegramActions.CaseHelp);
-            stateMachine.AddFunctionHandler(states.findPerson, FriendsBotData.StateTelegramActions.CaseFindPerson);
+            //stateMachine.AddFunctionHandler(states.home, FriendsBotData.StateTelegramActions.CaseHome);
+            //stateMachine.AddFunctionHandler(states.find, FriendsBotData.StateTelegramActions.CaseFind);
+            //stateMachine.AddFunctionHandler(states.edit, FriendsBotData.StateTelegramActions.CaseEdit);
+            //stateMachine.AddFunctionHandler(states.help, FriendsBotData.StateTelegramActions.CaseHelp);
+            //stateMachine.AddFunctionHandler(states.findPerson, FriendsBotData.StateTelegramActions.CaseFindPerson);
+            //stateMachine.AddCriteraRange(SMdata.transitions, SMdata.criteria);
 
-            stateMachine.AddCriteraRange(SMdata.transitions, SMdata.criteria);
+
+            stateMachine.AddFunctionHandler(friendsBotData.GetActionsDictionary(SMdata.states));
+            stateMachine.AddCriteraRange(friendsBotData.GetCriteriaDictionary(SMdata.transitions));
+
+
+
         }
         public StateMachine.StateMachineCommand botCommand { get; set; } = new StateMachine.StateMachineCommand();
-        public Update update { get;protected set; }
+        public Update update { get; set; }
 
         public FindState findState { get; set; }
 
@@ -74,6 +80,14 @@ namespace EntityFrameworkApp.FriendsBot
             var Id = update?.Message?.Chat.Id;
             return await this.SendPhotoAsync(
                 chatId: Id,
+                photo: photoURL,
+                replyMarkup: FriendsBotData.HomeButtons()
+                );
+        }
+        public async Task<Message> SendPhotoAsync(long chatId, string photoURL)
+        {
+            return await this.SendPhotoAsync(
+                chatId: chatId,
                 photo: photoURL,
                 replyMarkup: FriendsBotData.HomeButtons()
                 );

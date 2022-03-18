@@ -118,6 +118,18 @@ namespace EntityFrameworkApp.StateMachine
         public void AddFunctionHandler(string state, FunctionHandler functionHandler) {
             stateDictionary[state].functionHandler += functionHandler;
         }
+        public void AddFunctionHandler(Dictionary<string, FunctionHandler> actionsDictionary)
+        {
+            if(actionsDictionary is null)
+                throw new ArgumentNullException();
+            foreach (var actionsPair in actionsDictionary)
+            {
+                string state = actionsPair.Key;
+                FunctionHandler functionHandler = actionsPair.Value;
+                stateDictionary[state].functionHandler += functionHandler;
+            }
+        }
+
         public override void AddCritera(string transition, Func<string, bool> critera)
         {
             transitionDictionary[transition].Criteria += critera;
@@ -134,6 +146,17 @@ namespace EntityFrameworkApp.StateMachine
             {
                 transitionDictionary[transition].Criteria += enumerator.Current;
                 enumerator.MoveNext();
+            }
+        }
+        public void AddCriteraRange(Dictionary<string, Func<string, bool>> criteriaDictionary)
+        {
+            if (criteriaDictionary is null)
+                throw new ArgumentNullException();
+            foreach (var criteriaPair in criteriaDictionary)
+            {
+                string transition = criteriaPair.Key;
+                Func<string, bool> criteria = criteriaPair.Value;
+                transitionDictionary[transition].Criteria += criteria;
             }
         }
         public override void RemoveCritera(string transition)
