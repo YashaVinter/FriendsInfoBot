@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using EntityFrameworkApp.DataBase;
 using System.Text.RegularExpressions;
 
-namespace EntityFrameworkApp.StateMachine
+namespace EntityFrameworkApp.Data
 {
     public class StateMachineData
     {
@@ -133,13 +133,13 @@ namespace EntityFrameworkApp.StateMachine
             }
 
         }
-        public class Criteria1 
-        {
-            private FriendsBot.FrontendData.ButtonData button
-                = new FriendsBot.FrontendData.ButtonData();
-            public bool toHome(string input) {
-                return input == button.home;
-            }
-        }
+        //public class Criteria1 
+        //{
+        //    private FriendsBot.FrontendData.ButtonData button
+        //        = new FriendsBot.FrontendData.ButtonData();
+        //    public bool toHome(string input) {
+        //        return input == button.home;
+        //    }
+        //}
     }
 }

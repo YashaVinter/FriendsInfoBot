@@ -9,8 +9,10 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
+using StateMachineLibrary;
+using EntityFrameworkApp.FriendsBotLibrary;
 
-namespace EntityFrameworkApp.FriendsBot
+namespace EntityFrameworkApp.Data
 {
     internal class FriendsBotData
     {
@@ -19,14 +21,14 @@ namespace EntityFrameworkApp.FriendsBot
         public FriendsBotData() {
             
         }
-        public Dictionary<string, StateMachine.FunctionHandler> GetActionsDictionary(List<string> statesNames)
+        public Dictionary<string, FunctionHandler> GetActionsDictionary(List<string> statesNames)
         {
-            Dictionary<string, StateMachine.FunctionHandler> dict =
-                new Dictionary<string, StateMachine.FunctionHandler>();
+            Dictionary<string, FunctionHandler> dict =
+                new Dictionary<string, FunctionHandler>();
             StateTelegramActions actions = new StateTelegramActions();
             foreach (var stateName in statesNames)
             {
-                StateMachine.FunctionHandler? act = actions.getAction(stateName);
+                FunctionHandler? act = actions.getAction(stateName);
                 if (act is null)
                     throw new ArgumentNullException();
                 dict.Add(stateName, act);
@@ -62,8 +64,8 @@ namespace EntityFrameworkApp.FriendsBot
         {
             private FrontendData.ButtonData buttonData = new FrontendData.ButtonData();
             public Func<string, bool>? getCriteria(string toStateName) {
-                StateMachine.StateMachineData.States states =
-                    new StateMachine.StateMachineData.States();
+                StateMachineData.States states =
+                    new StateMachineData.States();
 
                 if (toStateName == states.home)
                 {
@@ -116,9 +118,9 @@ namespace EntityFrameworkApp.FriendsBot
         {
             private static FrontendData.CaseText caseText = new FrontendData.CaseText();
 
-            public StateMachine.FunctionHandler? getAction(string name) {
-                StateMachine.StateMachineData.States states =
-                    new StateMachine.StateMachineData.States();
+            public FunctionHandler? getAction(string name) {
+                StateMachineData.States states =
+                    new StateMachineData.States();
 
                 if (name == states.home)
                 {
@@ -152,16 +154,16 @@ namespace EntityFrameworkApp.FriendsBot
                 //        break;
                 //}
             }
-            public async Task<Message> CaseHomeOld(FriendsBot botClient ,string cmd)
-            {
-                string text = $"Choose mode: {States.home} {States.find} {States.edit} {States.help}";
-                long id = (long) botClient?.update?.Message?.Chat?.Id;
-                IReplyMarkup replyMarkup = null;
+            //public async Task<Message> CaseHomeOld(FriendsBot botClient ,string cmd)
+            //{
+            //    string text = $"Choose mode: {States.home} {States.find} {States.edit} {States.help}";
+            //    long id = (long) botClient?.update?.Message?.Chat?.Id;
+            //    IReplyMarkup replyMarkup = null;
 
-                var ret = await botClient.SendTextMessageAsync(id,text, HomeButtons());
-                //var ret = await botClient.SendTextMessageAsync(update, text);
-                return null;
-            }
+            //    var ret = await botClient.SendTextMessageAsync(id,text, HomeButtons());
+            //    //var ret = await botClient.SendTextMessageAsync(update, text);
+            //    return null;
+            //}
 
             public static async Task<Message> CaseHome(object sender, EventArgs e) {
                 if (sender is null)

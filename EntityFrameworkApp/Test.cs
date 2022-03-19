@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Text.RegularExpressions;
+using StateMachineLibrary;
+using EntityFrameworkApp.Data;
+using EntityFrameworkApp.FriendsBotLibrary;
 
 namespace EntityFrameworkApp
 {
@@ -14,19 +17,19 @@ namespace EntityFrameworkApp
 
         }
         public void test1() {
-            EntityFrameworkApp.StateMachine.StateMachineData SMData =
-                new EntityFrameworkApp.StateMachine.StateMachineData();
-            EntityFrameworkApp.StateMachine.StateMachineData.States states
-                = new StateMachine.StateMachineData.States();
+            StateMachineData SMData =
+                new StateMachineData();
+            StateMachineData.States states
+                = new StateMachineData.States();
 
             var home = states.home;
             var help = states.help;
 
-            EntityFrameworkApp.StateMachine.StateMachine stateMachine =
-                new EntityFrameworkApp.StateMachine.StateMachine(SMData.states, SMData.transitions, home);
+            StateMachine stateMachine =
+               new StateMachine(SMData.states, SMData.transitions, home);
 
-            stateMachine.AddFunctionHandler(home, FriendsBot.FriendsBotData.StateTelegramActions.CaseHome);
-            stateMachine.AddFunctionHandler(home, FriendsBot.FriendsBotData.StateTelegramActions.CaseHelp);
+            stateMachine.AddFunctionHandler(home, FriendsBotData.StateTelegramActions.CaseHome);
+            stateMachine.AddFunctionHandler(home, FriendsBotData.StateTelegramActions.CaseHelp);
 
             //stateMachine.AddActionRange(SMData.states, SMData.actions);
             stateMachine.AddCriteraRange(SMData.transitions, SMData.criteria);
@@ -68,14 +71,14 @@ namespace EntityFrameworkApp
 
         }
         public void test3() {
-            StateMachine.State state = new StateMachine.State("one");
+            State state = new State("one");
 
-            StateMachine.FunctionHandler v = FriendsBot.FriendsBotData.StateTelegramActions.CaseHome;
+            FunctionHandler v = FriendsBotData.StateTelegramActions.CaseHome;
             state.functionHandler += v;
 
-            FriendsBot.FriendsBot bot = new FriendsBot.FriendsBot("");
+            FriendsBot bot = new FriendsBot("");
             bot.botCommand.command = "write";
-            
+
             state.DoCommand(bot, bot.botCommand);
 
         }

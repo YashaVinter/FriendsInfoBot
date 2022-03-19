@@ -9,7 +9,7 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 using EntityFrameworkApp.DataBase;
-using EntityFrameworkApp.FriendsBot;
+using EntityFrameworkApp.FriendsBotLibrary;
 
 
 

@@ -9,8 +9,10 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
 using EntityFrameworkApp.DataBase;
+using StateMachineLibrary;
+using EntityFrameworkApp.Data;
 
-namespace EntityFrameworkApp.FriendsBot
+namespace EntityFrameworkApp.FriendsBotLibrary
 {
 
     public class FriendsBot : TelegramBotClient
@@ -21,12 +23,12 @@ namespace EntityFrameworkApp.FriendsBot
         }
         public BotState botState { get; set; } = BotState.common;
 
-        protected StateMachine.StateMachine stateMachine { get; set; }
+        protected StateMachine stateMachine { get; set; }
         public void StateMachineBuilder() {
-            StateMachine.StateMachineData SMdata = new StateMachine.StateMachineData();
-            var states = new StateMachine.StateMachineData.States();
+            StateMachineData SMdata = new StateMachineData();
+            var states = new StateMachineData.States();
             FriendsBotData friendsBotData = new FriendsBotData();
-            stateMachine = new StateMachine.StateMachine(
+            stateMachine = new StateMachine(
                 SMdata.states,
                 SMdata.transitions,
                 states.home
@@ -45,7 +47,7 @@ namespace EntityFrameworkApp.FriendsBot
 
 
         }
-        public StateMachine.StateMachineCommand botCommand { get; set; } = new StateMachine.StateMachineCommand();
+        public StateMachineLibrary.StateMachineCommand botCommand { get; set; } = new StateMachineLibrary.StateMachineCommand();
         public Update update { get; set; }
 
         public FindState findState { get; set; }
@@ -97,16 +99,16 @@ namespace EntityFrameworkApp.FriendsBot
             string command = update.Message.Text;
             switch (command)
             {
-                case Commands.home:
+                case "home":
                     CaseHome(update);
                     break;
-                case Commands.find:
+                case "find":
                     CaseFind(update);
                     break;
-                case Commands.edit:
+                case "edit":
                     CaseEdit();
                     break;
-                case Commands.help:
+                case "help":
                     CaseHelp();
                     break;
                 default:
