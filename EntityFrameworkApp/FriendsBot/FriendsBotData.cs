@@ -110,7 +110,7 @@ namespace EntityFrameworkApp.FriendsBot
             {
                 return input != buttonData.home;
             }
-
+            public Predicate<string> test { get; set; } = (s) => { return s == ""; };
         }
         public class StateTelegramActions
         {
