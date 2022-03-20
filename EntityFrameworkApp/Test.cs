@@ -182,6 +182,9 @@ namespace EntityFrameworkApp
             var v2 = d2 is Predicate<string>;
 
         }
+        public void test7() {
+            
+        }
 
         private void Hero_eventHandler(object? sender, EventArgs e)
         {
