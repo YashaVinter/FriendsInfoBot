@@ -14,7 +14,7 @@ namespace EntityFrameworkApp.Data
         public List<string> states;
         public List<string> transitions;
         public List<Action<string>> actions;
-        public List<Func<string, bool>> criteria;
+        public List<Predicate<string>> criteria;
         public StateMachineData() 
         {
             States st = new States();
@@ -49,7 +49,7 @@ namespace EntityFrameworkApp.Data
                 tr(st.edit,st.home),
                 tr(st.help,st.home)
             };
-            criteria = new List<Func<string, bool>>()
+            criteria = new List<Predicate<string>>()
             { 
                 new Criteria().toFind,
                 new Criteria().toEdit,

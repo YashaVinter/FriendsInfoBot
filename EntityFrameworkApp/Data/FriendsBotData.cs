@@ -35,16 +35,16 @@ namespace EntityFrameworkApp.Data
             }
             return dict;
         }
-        public Dictionary<string, Func<string,bool>> GetCriteriaDictionary
+        public Dictionary<string, Predicate<string>> GetCriteriaDictionary
             (List<string> transitionsNames)
         {
-            Dictionary<string, Func<string, bool>> dict =
-                new Dictionary<string, Func<string, bool>>();
+            Dictionary<string, Predicate<string>> dict =
+                new Dictionary<string, Predicate<string>>();
             Criteria criteria = new Criteria();
             foreach (var transitionName in transitionsNames)
             {
                 string endState = transitionName.Split(':')[1];
-                Func<string, bool>? func = criteria.getCriteria(endState);
+                Predicate<string>? func = criteria.getCriteria(endState);
                 if (func is null)
                     throw new ArgumentNullException();
                 dict.Add(transitionName, func);
@@ -63,7 +63,7 @@ namespace EntityFrameworkApp.Data
         public class Criteria
         {
             private FrontendData.ButtonData buttonData = new FrontendData.ButtonData();
-            public Func<string, bool>? getCriteria(string toStateName) {
+            public Predicate<string>? getCriteria(string toStateName) {
                 StateMachineData.States states =
                     new StateMachineData.States();
 
@@ -190,7 +190,7 @@ namespace EntityFrameworkApp.Data
                 }
                 return null;
             }
-            public static async Task<Message> CaseFindPerson(object sender, EventArgs e)//TODO makeit
+            public static async Task<Message> CaseFindPerson(object sender, EventArgs e)
             {
                 if (sender is null)
                     return null;

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.Common;
+
 
 using Microsoft.EntityFrameworkCore;
 
@@ -60,9 +62,6 @@ namespace EntityFrameworkApp.DataBase
             return $"\t*Имя:* {name} *Возраст:* {age}\n*Место жительства:*\n" +
                 $"*Город:* {address.city}\n*Улица:* {address.street} *Дом:* {address.home}\n*Квартира:* {address.flat} *Подъезд:* {address.entrance} *Этаж:* {address.floor}" +
                 $"\n{emoji}*Заметки:*{emoji}\n {notes}";
-        }
-        public void test() {
-
         }
         private static class DbData
         {
@@ -151,6 +150,20 @@ namespace EntityFrameworkApp.DataBase
             using (ApplicationContext db = new ApplicationContext())
             {
                 return db.Persons.Select(p => p).ToList();
+            }
+        }
+        public void test(string st="") {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                var q1 = db.Persons.Where(p => p.name == name).Include(p => p.address);
+                var q2 = db.Persons.Where(p => p.name == name);
+
+                var ans1 = q1.ToQueryString();
+                var ans2 = q2.ToQueryString();
+                Console.WriteLine(@ans1);
+                Console.WriteLine(@ans2);
+                //var sql = ((System.Data.Objects.ObjectQuery)q1).ToTraceString();
+                //var ans1 = db.GetCommand(q1).CommandText;
             }
         }
     }
