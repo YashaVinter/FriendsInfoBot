@@ -35,34 +35,49 @@ namespace EntityFrameworkApp.Data
             }
             return dict;
         }
-        public Dictionary<string, Predicate<string>> GetCriteriaDictionary
-            (ISet<string> transitionsNames)
-        {
-            Dictionary<string, Predicate<string>> dict =
-                new Dictionary<string, Predicate<string>>();
-            Criteria criteria = new Criteria();
-            foreach (var transitionName in transitionsNames)
-            {
-                string endState = transitionName.Split(':')[1];
-                Predicate<string>? func = criteria.getCriteria(endState);
-                if (func is null)
-                    throw new ArgumentNullException();
-                dict.Add(transitionName, func);
-            }
-            return dict;
-        }
-        public class States
-        {
-            public const string home = "home";
-            public const string find = "find";
-            public const string edit = "edit";
-            public const string help = "help";
-            public const string findPerson = "findPerson";
+        //public Dictionary<string, Predicate<string>> GetCriteriaDictionary
+        //    (ISet<string> transitionsNames)
+        //{
+        //    Dictionary<string, Predicate<string>> dict =
+        //        new Dictionary<string, Predicate<string>>();
+        //    Criteria criteria = new Criteria();
+        //    foreach (var transitionName in transitionsNames)
+        //    {
+        //        string endState = transitionName.Split(':')[1];
+        //        Predicate<string>? func = criteria.getCriteria(endState);
+        //        if (func is null)
+        //            throw new ArgumentNullException();
+        //        dict.Add(transitionName, func);
+        //    }
+        //    return dict;
+        //}
 
-        }
+        //public class States
+        //{
+        //    public const string home = "home";
+        //    public const string find = "find";
+        //    public const string edit = "edit";
+        //    public const string help = "help";
+        //    public const string findPerson = "findPerson";
+        //}
         public class Criteria
         {
-            private FrontendData.ButtonData buttonData = new FrontendData.ButtonData();
+            public Dictionary<string, Predicate<string>> criteriaDictionary { get; private set; }
+            //public Criteria()
+            //{
+            //}
+            public Criteria(IEnumerable<ITransition> transitions)
+            {
+                criteriaDictionary = new Dictionary<string, Predicate<string>>();
+                foreach (var transition in transitions)
+                {
+                    var pred = this.getCriteria(transition.endState.name);
+                    if (pred is null)
+                        throw new NotImplementedException("Dont implemented criteria");
+                    criteriaDictionary.Add(transition.name, pred);
+                }
+            }
+            private FrontendData.ButtonData buttonData { get; init; } = new FrontendData.ButtonData();
             public Predicate<string>? getCriteria(string toStateName) {
                 StateMachineData.States states =
                     new StateMachineData.States();

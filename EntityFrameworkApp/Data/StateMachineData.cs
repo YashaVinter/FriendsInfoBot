@@ -11,10 +11,10 @@ namespace EntityFrameworkApp.Data
 {
     public class StateMachineData
     {
-        public ISet<string> states;
-        public ISet<string> transitions;
-        public List<Action<string>> actions;
-        public List<Predicate<string>> criteria;
+        public ISet<string> states { get; set; }
+        public ISet<string> transitions { get; set; }
+        public List<Action<string>> actions { get; set; }
+        public List<Predicate<string>> criteria { get; set; }
         public StateMachineData() 
         {
             States st = new States();
@@ -61,6 +61,16 @@ namespace EntityFrameworkApp.Data
                 new Criteria().toHome,
             };
         }
+        /// <summary>
+        ///  TEST CTOR
+        /// </summary>
+        /// <param name="states"></param>
+        /// <param name="transitions"></param>
+        public StateMachineData(ISet<string> states, ISet<string> transitions)
+        {
+            this.states = states;
+            this.transitions = transitions;
+        }
         public class States
         {
             public readonly string home = "home";
@@ -68,11 +78,46 @@ namespace EntityFrameworkApp.Data
             public readonly string edit = "edit";
             public readonly string help = "help";
             public readonly string findPerson = "findPerson";
+            public string common{ get; init; }
 
+            public ISet<string> states { get; init; }
+            public States() {}
+            public States(int a)
+            {
+                states = new HashSet<string>()
+                {
+                    home,find,edit,help,findPerson
+                };
+            }
         }
-        public struct Transitions 
-        { 
-            
+        public class Transitions 
+        {
+            private static Transitions instance = null;
+            public ISet<string> transitions { get; init; }
+            public const string tr1 = "one:two";
+            public readonly string tr2;
+            private Transitions()
+            {
+                Func<string, string, string> tr = (a, b) => { return a + ":" + b; };
+                States st = new States();
+
+                transitions = new HashSet<string>()
+                {
+                    tr(st.home,st.find),
+                    tr(st.home,st.edit),
+                    tr(st.home,st.help),
+                    tr(st.find,st.home),
+                    tr(st.find,st.findPerson),
+                    tr(st.findPerson,st.home),
+                    tr(st.edit,st.home),
+                    tr(st.help,st.home)
+                };
+            }
+            public static Transitions getInstance() { 
+                if(instance is null)
+                    instance = new Transitions();
+                return instance;
+            }
         }
         public class StateConsoleActions
         {

@@ -186,6 +186,12 @@ namespace EntityFrameworkApp
             
         }
 
+        public void test8() {
+            StateMachineData.Transitions transitions = StateMachineData.Transitions.getInstance();
+            var a = transitions.transitions;
+            
+            var b = StateMachineData.Transitions.tr1;
+        }
         private void Hero_eventHandler(object? sender, EventArgs e)
         {
             throw new NotImplementedException();

@@ -40,11 +40,13 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             //stateMachine.AddFunctionHandler(states.findPerson, FriendsBotData.StateTelegramActions.CaseFindPerson);
             //stateMachine.AddCriteraRange(SMdata.transitions, SMdata.criteria);
 
-
+            // work
             stateMachine.AddFunctionHandler(friendsBotData.GetActionsDictionary(SMdata.states));
-            stateMachine.AddCriteraRange(friendsBotData.GetCriteriaDictionary(SMdata.transitions));
+            //stateMachine.AddCriteraRange(friendsBotData.GetCriteriaDictionary(SMdata.transitions));
 
-
+            // new
+            var criteriaDictionary = new FriendsBotData.Criteria(stateMachine.transitionDictionary.Values).criteriaDictionary;
+            stateMachine.AddCriteraRange(criteriaDictionary);
 
         }
         public void Answer(Update update)
