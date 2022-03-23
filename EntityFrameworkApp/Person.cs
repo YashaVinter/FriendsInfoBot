@@ -155,13 +155,19 @@ namespace EntityFrameworkApp.DataBase
         public void test(string st="") {
             using (ApplicationContext db = new ApplicationContext())
             {
+                string name = "Ян";
                 var q1 = db.Persons.Where(p => p.name == name).Include(p => p.address);
                 var q2 = db.Persons.Where(p => p.name == name);
+                var q3 = db.Persons.Where(p => p.name == name).Include(p => p.address).Select(p => p.address.flat);
+                var q4 = db.Persons.EntityType.FullName;
+                //q4.age = 10;
 
                 var ans1 = q1.ToQueryString();
                 var ans2 = q2.ToQueryString();
+                var ans3 = q3.ToQueryString();
                 Console.WriteLine(@ans1);
                 Console.WriteLine(@ans2);
+                Console.WriteLine(@ans3);
                 //var sql = ((System.Data.Objects.ObjectQuery)q1).ToTraceString();
                 //var ans1 = db.GetCommand(q1).CommandText;
             }
