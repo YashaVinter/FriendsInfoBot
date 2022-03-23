@@ -11,14 +11,14 @@ namespace EntityFrameworkApp.Data
 {
     public class StateMachineData
     {
-        public List<string> states;
-        public List<string> transitions;
+        public ISet<string> states;
+        public ISet<string> transitions;
         public List<Action<string>> actions;
         public List<Predicate<string>> criteria;
         public StateMachineData() 
         {
             States st = new States();
-            states = new List<string>()
+            states = new SortedSet<string>()
             {
                 st.home,
                 st.find,
@@ -38,7 +38,7 @@ namespace EntityFrameworkApp.Data
             };
             Func<string,string,string> tr = (a, b) => { return a +":"+ b; };
 
-            transitions = new List<string>()
+            transitions = new SortedSet<string>()
             { 
                 tr(st.home,st.find),
                 tr(st.home,st.edit),

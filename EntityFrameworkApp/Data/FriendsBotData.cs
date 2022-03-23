@@ -21,7 +21,7 @@ namespace EntityFrameworkApp.Data
         public FriendsBotData() {
             
         }
-        public Dictionary<string, FunctionHandler> GetActionsDictionary(List<string> statesNames)
+        public Dictionary<string, FunctionHandler> GetActionsDictionary(ISet<string> statesNames)
         {
             Dictionary<string, FunctionHandler> dict =
                 new Dictionary<string, FunctionHandler>();
@@ -36,7 +36,7 @@ namespace EntityFrameworkApp.Data
             return dict;
         }
         public Dictionary<string, Predicate<string>> GetCriteriaDictionary
-            (List<string> transitionsNames)
+            (ISet<string> transitionsNames)
         {
             Dictionary<string, Predicate<string>> dict =
                 new Dictionary<string, Predicate<string>>();
