@@ -77,10 +77,17 @@ namespace EntityFrameworkApp.Data
                     criteriaDictionary.Add(transition.name, pred);
                 }
             }
-            private FrontendData.ButtonData buttonData { get; init; } = new FrontendData.ButtonData();
+            public Criteria(StateMachineData.States states)
+            {
+                this.states = states;
+                stateToButtonText = new FrontendData.ButtonData(states).stateToButtonText;
+            }
+            //private FrontendData.ButtonData buttonData { get; init; } = new FrontendData.ButtonData();
+            public StateMachineData.States states { get; set; }
+            public Dictionary<string, string> stateToButtonText { get; set; }
             public Predicate<string>? getCriteria(string toStateName) {
                 StateMachineData.States states =
-                    new StateMachineData.States();
+                    StateMachineData.States.getInstance();
 
                 if (toStateName == states.home)
                 {
@@ -109,25 +116,28 @@ namespace EntityFrameworkApp.Data
             }
             public bool toHome(string input)
             {
-                return input == buttonData.home;
+                return input == stateToButtonText[states.home];
             }
             public bool toFind(string input)
             {
-                return input == buttonData.find;
+                return input == stateToButtonText[states.find];
             }
             public bool toEdit(string input)
             {
-                return input == buttonData.edit;
+                return input == stateToButtonText[states.edit];
             }
             public bool toHelp(string input)
             {
-                return input == buttonData.help;
+                return input == stateToButtonText[states.help];
             }
             public bool toFindPerson(string input)
             {
-                return input != buttonData.home;
+                return input != stateToButtonText[states.home];
             }
-            public Predicate<string> test { get; set; } = (s) => { return s == ""; };
+            public bool toTest(string input) {
+                return input == stateToButtonText[states.home]; 
+            }
+            
         }
         public class StateTelegramActions
         {

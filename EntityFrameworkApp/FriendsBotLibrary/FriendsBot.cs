@@ -25,14 +25,20 @@ namespace EntityFrameworkApp.FriendsBotLibrary
         protected StateMachine stateMachine { get; set; }
         public StateMachineLibrary.StateMachineCommand botCommand { get; set; } = new StateMachineLibrary.StateMachineCommand();
         public void StateMachineBuilder() {
-            StateMachineData SMdata = new StateMachineData();
-            var states = new StateMachineData.States();
-            FriendsBotData friendsBotData = new FriendsBotData();
-            stateMachine = new StateMachine(
-                SMdata.states,
-                SMdata.transitions,
-                states.home
-                );
+            StateMachineData.States states1 = StateMachineData.States.getInstance();
+            StateMachineData.Transitions transitions1 = StateMachineData.Transitions.getInstance();
+            stateMachine = new StateMachine(states1.stateSets, transitions1.transitionSets, states1.home); 
+
+
+            //StateMachineData SMdata = new StateMachineData();
+            //var states = new StateMachineData.States();
+            //FriendsBotData friendsBotData = new FriendsBotData();
+            //stateMachine = new StateMachine(
+            //    SMdata.states,
+            //    SMdata.transitions,
+            //    states.home
+            //    );
+
             //stateMachine.AddFunctionHandler(states.home, FriendsBotData.StateTelegramActions.CaseHome);
             //stateMachine.AddFunctionHandler(states.find, FriendsBotData.StateTelegramActions.CaseFind);
             //stateMachine.AddFunctionHandler(states.edit, FriendsBotData.StateTelegramActions.CaseEdit);
@@ -41,7 +47,7 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             //stateMachine.AddCriteraRange(SMdata.transitions, SMdata.criteria);
 
             // work
-            stateMachine.AddFunctionHandler(friendsBotData.GetActionsDictionary(SMdata.states));
+            //stateMachine.AddFunctionHandler(friendsBotData.GetActionsDictionary(SMdata.states));
             //stateMachine.AddCriteraRange(friendsBotData.GetCriteriaDictionary(SMdata.transitions));
 
             // new
