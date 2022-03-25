@@ -33,10 +33,12 @@ namespace EntityFrameworkApp.FriendsBotLibrary
 
             var actionsDictionary = new FriendsBotData.StateTelegramActions(states).actionsDictionary;
             var criteriaDictionary = new FriendsBotData.Criteria(stateMachine,states).criteriaDictionary;
-            object eventDataDictionary = null;
+            var eventsDataDictionary = new FriendsBotData.Events().eventsDictionary;
 
             //stateMachine.AddEventData(null);// eventDataDictionary
-            stateMachine.stateDictionary[states.home].eventData = new FriendsBotData.CaseHomeData(this,new Message());
+            //stateMachine.stateDictionary[states.home].stateData = new FriendsBotData.StateData( new FriendsBotData.HomeEvent());
+
+            stateMachine.AddEventData(eventsDataDictionary);
             stateMachine.AddFunctionHandler(actionsDictionary);// actionsDictionary
             stateMachine.AddCriteraRange(criteriaDictionary);// 
 
@@ -70,9 +72,9 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             string text = update?.Message?.Text;
             //this.update = update;
             //this.botCommand.command = this.update?.Message?.Text;
-            var commandBase = new FriendsBotData.BotCommandBase(this, update.Message);
+            var inputData = new FriendsBotData.BotInputData(this, update.Message);
 
-            stateMachine.Execute(this, commandBase);
+            stateMachine.Execute(inputData);
 
             //stateMachine.Execute(command);
         }
@@ -109,12 +111,12 @@ namespace EntityFrameworkApp.FriendsBotLibrary
                 replyMarkup: FriendsBotData.HomeButtons()
                 );
         }
-        public async Task<Message> SendPhotoAsync(long chatId, string photoURL)
+        public async Task<Message> SendPhotoAsync(long chatId, string photoURL, IReplyMarkup replyMarkup)
         {
             return await this.SendPhotoAsync(
                 chatId: chatId,
                 photo: photoURL,
-                replyMarkup: FriendsBotData.HomeButtons()
+                replyMarkup: replyMarkup
                 );
         }
 

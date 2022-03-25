@@ -230,16 +230,19 @@ namespace EntityFrameworkApp.Data
                 }
                 return null;
             }
-            public static async Task<Message> CaseHome(IStateModel model, CommandBase commandBase) // CaseHome to CaseHome2
+            public static async Task<Message> CaseHome(IStateData stateData) // CaseHome to CaseHome2
             {
                 try
                 {
-                    var data = commandBase as CaseHomeData;
-                    var bot = data.bot;
+                    var data = stateData as StateData;
+                    var inputData = data.inputData as BotInputData;
+                    var eventData = data.eventData as EventData;
+
+                    var bot = inputData.bot;
                     return await bot.SendTextMessageAsync(
-                        data.message.Chat.Id,
-                        data.caseText,
-                        data.buttons
+                        inputData.message.Chat.Id,
+                        eventData.caseText,
+                        eventData.buttons
                         );
                 }
                 catch (Exception)
@@ -247,69 +250,175 @@ namespace EntityFrameworkApp.Data
                     throw new NullReferenceException(); ;
                 }
             }
-            public static async Task<Message> CaseFind(object sender, EventArgs e)
+            public static async Task<Message> CaseFind(IStateData stateData)
             {
-                if (sender is null)
-                    return null;
-                if (sender is FriendsBot bot)
+                try
                 {
-                    string text = caseText.stateToCaseText[states.find];
-                    long id = (long)bot?.update?.Message?.Chat?.Id;
-                    return await bot.SendTextMessageAsync(id, text, HomeButtons2());
+                    var data = stateData as StateData;
+                    var inputData = data.inputData as BotInputData;
+                    var eventData = data.eventData as EventData;
+
+                    var bot = inputData.bot;
+                    return await bot.SendTextMessageAsync(
+                        inputData.message.Chat.Id,
+                        eventData.caseText,
+                        eventData.buttons
+                        );
                 }
-                return null;
-            }
-            public static async Task<Message> CaseFindPerson(object sender, EventArgs e)
-            {
-                if (sender is null)
-                    return null;
-                if (sender is FriendsBot bot)
+                catch (Exception)
                 {
-                    long id = (long)bot?.update?.Message?.Chat?.Id;
-                    DataBase.Person person = new DataBase.Person().Find(bot.botCommand.command);
+                    throw new NullReferenceException(); ;
+                }
+            }
+            public static async Task<Message> CaseFindPerson(IStateData stateData)
+            {
+                try
+                {
+                    var data = stateData as StateData;
+                    var inputData = data.inputData as BotInputData;
+                    var eventData = data.eventData as EventData;
+
+                    var bot = inputData.bot;
+                    DataBase.Person person = new DataBase.Person().Find(inputData.command);
                     if (person is null)
                     {
-                        string text = caseText.stateToCaseText[states.findPerson];
-                        return await bot.SendTextMessageAsync(id, text, HomeButtons2());
-
+                        return await bot.SendTextMessageAsync(
+                            inputData.message.Chat.Id,
+                            eventData.caseText,
+                            eventData.buttons
+                            );
                     }
                     else
                     {
-                        Message message = await bot.SendPhotoAsync(id,person.photo);
-                        message = await bot.SendTextMessageAsync(id, person.Print(), HomeButtons2());
+                        Message message = await bot.SendPhotoAsync(
+                            inputData.message.Chat.Id, 
+                            person.photo,
+                            eventData.buttons
+                            );
+                        return await bot.SendTextMessageAsync(
+                            inputData.message.Chat.Id,
+                            person.Print(),
+                            eventData.buttons
+                            );
                         return message;
                     }
+
                 }
-                return null;
-            }
-            public static async Task<Message> CaseEdit(object sender, EventArgs e)
-            {
-                if (sender is null)
-                    return null;
-                if (sender is FriendsBot bot)
+                catch (Exception)
                 {
-                    string text = caseText.stateToCaseText[states.edit];
-                    long id = (long)bot?.update?.Message?.Chat?.Id;
-                    return await bot.SendTextMessageAsync(id, text, HomeButtons2());
+                    throw new NullReferenceException();
                 }
-                return null;
             }
-            public static async Task<Message> CaseHelp(object sender, EventArgs e)
+            public static async Task<Message> CaseEdit(IStateData stateData)
             {
-                if (sender is null)
-                    return null;
-                if (sender is FriendsBot bot)
+                try
                 {
-                    string text = caseText.stateToCaseText[states.help];
-                    //string text = "abc abc";
-                    long id = (long)bot?.update?.Message?.Chat?.Id;
-                    return await bot.SendTextMessageAsync(id, text, HomeButtons2());
+                    var data = stateData as StateData;
+                    var inputData = data.inputData as BotInputData;
+                    var eventData = data.eventData as EventData;
+
+                    var bot = inputData.bot;
+                    return await bot.SendTextMessageAsync(
+                        inputData.message.Chat.Id,
+                        eventData.caseText,
+                        eventData.buttons
+                        );
                 }
-                return null;
+                catch (Exception)
+                {
+                    throw new NullReferenceException(); ;
+                }
+            }
+            public static async Task<Message> CaseHelp(IStateData stateData)
+            {
+                try
+                {
+                    var data = stateData as StateData;
+                    var inputData = data.inputData as BotInputData;
+                    var eventData = data.eventData as EventData;
+
+                    var bot = inputData.bot;
+                    return await bot.SendTextMessageAsync(
+                        inputData.message.Chat.Id,
+                        eventData.caseText,
+                        eventData.buttons
+                        );
+                }
+                catch (Exception)
+                {
+                    throw new NullReferenceException(); ;
+                }
             }
 
         }
+        public class Events
+        {
+            public Dictionary<String, EventDataBase> eventsDictionary { get; set; }
+            public Events()
+            {
+                var states = StateMachineData.States.getInstance();
+                var caseText = new FrontendData.CaseText(states);
+                var buttons = new Buttons();
+                var dict = new Dictionary<String, EventDataBase>();
+                foreach (var state in states.stateSets)
+                {
+                    var eventData = new EventData()
+                    {
+                        caseText = caseText.stateToCaseText[state],
+                        buttons = buttons.buttonsDictionary[state]
+                    };
+                    //var stateData = new StateData(null)
+                    //{
+                    //    eventData = eventData
+                    //};
+                    dict.Add(state, eventData);
+                }
+                eventsDictionary = dict;
+            }
+        }
+        public class Buttons
+        {
+            public Dictionary<String, IReplyMarkup> buttonsDictionary { get; set; }
+            public Buttons()
+            {
+                var states = StateMachineData.States.getInstance();
+                //var caseText = new FrontendData.CaseText(states);
+                var buttonData = new FrontendData.ButtonData(states);
+                var dict = new Dictionary<String, IReplyMarkup>();
 
+                var homeButtons = ButtonsBuilder(new List<string>
+                {
+                    buttonData.stateToButtonText[states.home]
+                });
+                var defaultButtons = ButtonsBuilder(new List<string> 
+                {
+                    buttonData.stateToButtonText[states.home],
+                    buttonData.stateToButtonText[states.find],
+                    buttonData.stateToButtonText[states.edit],
+                    buttonData.stateToButtonText[states.help]
+                });
+
+                dict.Add(states.home, defaultButtons);
+                dict.Add(states.find, homeButtons);
+                dict.Add(states.findPerson, homeButtons);
+                dict.Add(states.edit, homeButtons);
+                dict.Add(states.help, homeButtons);
+                buttonsDictionary = dict;
+            }
+            private IReplyMarkup ButtonsBuilder(IEnumerable<string> buttonsNames) {
+                var b1 = new List<KeyboardButton>();
+                foreach (var buttonName in buttonsNames)
+                {
+                    b1.Add(new KeyboardButton(buttonName));
+                }
+                var b2 = new List<List<KeyboardButton>> { b1 };
+                var kb = new ReplyKeyboardMarkup(b2);
+                kb.ResizeKeyboard = true;
+                return kb;
+
+                //var v = new ReplyKeyboardMarkup(null);
+            }
+        }
         public static IReplyMarkup HomeButtons()
         {
             return new ReplyKeyboardMarkup
@@ -357,8 +466,8 @@ namespace EntityFrameworkApp.Data
         // TEST
         public class EventData : EventDataBase
         {
-            public virtual string caseText { get; set; }
-            public virtual IReplyMarkup buttons { get; set; }
+            public virtual string caseText { get; set; } = "Default text";
+            public virtual IReplyMarkup buttons { get; set; } = DefaultButton();
         }
         public class BotInputData : InputDataBase
         {
@@ -370,11 +479,15 @@ namespace EntityFrameworkApp.Data
                 this.message = message;
             }
         }
-        public class StateData : IStateData
-        {
-            public EventDataBase eventData { get; set; }  // new EventDataBase();
-            public InputDataBase inputData { get; set; } = new BotInputData(null,null);
-        }
+        //public class StateData : IStateData
+        //{
+        //    public EventDataBase eventData { get; set; }  // new EventDataBase();
+        //    public InputDataBase inputData { get; set; } // = new BotInputData(null,null);
+        //    public StateData(EventDataBase eventData)
+        //    {
+        //        this.eventData = eventData;
+        //    }
+        //}
 
         public class BotCommandBase : CommandBase
         {
