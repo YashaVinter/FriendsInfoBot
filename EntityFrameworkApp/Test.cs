@@ -87,15 +87,15 @@ namespace EntityFrameworkApp
 
         }
         public void test3() {
-            State state = new State("one");
+            //State state = new State("one");
 
-            FunctionHandler v = FriendsBotData.StateTelegramActions.CaseHome;
-            state.functionHandler += v;
+            //FunctionHandler v = FriendsBotData.StateTelegramActions.CaseHome;
+            //state.functionHandler += v;
 
-            FriendsBot bot = new FriendsBot("");
-            bot.botCommand.command = "write";
+            //FriendsBot bot = new FriendsBot("");
+            //bot.botCommand.command = "write";
 
-            state.DoCommand(bot, bot.botCommand);
+            //state.DoCommand(bot, bot.botCommand);
 
         }
         public void test4() {

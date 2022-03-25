@@ -9,7 +9,8 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-using StateMachineLibrary;
+using StateMachineTest;
+//using StateMachineLibrary;
 using EntityFrameworkApp.FriendsBotLibrary;
 
 namespace EntityFrameworkApp.Data
@@ -21,20 +22,21 @@ namespace EntityFrameworkApp.Data
         public FriendsBotData() {
             
         }
-        public Dictionary<string, FunctionHandler> GetActionsDictionary(ISet<string> statesNames)
-        {
-            Dictionary<string, FunctionHandler> dict =
-                new Dictionary<string, FunctionHandler>();
-            StateTelegramActions actions = new StateTelegramActions();
-            foreach (var stateName in statesNames)
-            {
-                FunctionHandler? act = actions.getAction(stateName);
-                if (act is null)
-                    throw new ArgumentNullException();
-                dict.Add(stateName, act);
-            }
-            return dict;
-        }
+        //public Dictionary<string, FunctionHandler> GetActionsDictionary(ISet<string> statesNames)
+        //{
+        //    Dictionary<string, FunctionHandler> dict =
+        //        new Dictionary<string, FunctionHandler>();
+        //    StateTelegramActions actions = new StateTelegramActions(StateMachineData.States.getInstance());
+        //    foreach (var stateName in statesNames)
+        //    {
+        //        FunctionHandler? act = actions.getAction(stateName);
+        //        if (act is null)
+        //            throw new ArgumentNullException();
+        //        dict.Add(stateName, act);
+        //    }
+        //    return dict;
+        //}
+
         //public Dictionary<string, Predicate<string>> GetCriteriaDictionary
         //    (ISet<string> transitionsNames)
         //{
@@ -63,25 +65,37 @@ namespace EntityFrameworkApp.Data
         public class Criteria
         {
             public Dictionary<string, Predicate<string>> criteriaDictionary { get; private set; }
-            //public Criteria()
+            //public Criteria(IEnumerable<ITransition> transitions)
             //{
+            //    criteriaDictionary = new Dictionary<string, Predicate<string>>();
+            //    foreach (var transition in transitions)
+            //    {
+            //        var pred = this.getCriteria(transition.endState.name);
+            //        if (pred is null)
+            //            throw new NotImplementedException("Dont implemented criteria");
+            //        criteriaDictionary.Add(transition.name, pred);
+            //    }
             //}
-            public Criteria(IEnumerable<ITransition> transitions)
+            //public Criteria(StateMachineData.States states)
+            //{
+            //    this.states = states;
+            //    stateToButtonText = new FrontendData.ButtonData(states).stateToButtonText;
+            //}
+            public Criteria(StateMachineTest.StateMachine stateMachine, StateMachineData.States states)
             {
                 criteriaDictionary = new Dictionary<string, Predicate<string>>();
-                foreach (var transition in transitions)
+                foreach (var transition in stateMachine.transitionDictionary.Values)
                 {
-                    var pred = this.getCriteria(transition.endState.name);
-                    if (pred is null)
+                    var criteria = this.getCriteria(transition.transitionModel.endState.name);
+                    if (criteria is null)
                         throw new NotImplementedException("Dont implemented criteria");
-                    criteriaDictionary.Add(transition.name, pred);
+                    criteriaDictionary.Add(transition.transitionModel.name, criteria);
                 }
-            }
-            public Criteria(StateMachineData.States states)
-            {
+
                 this.states = states;
                 stateToButtonText = new FrontendData.ButtonData(states).stateToButtonText;
             }
+
             //private FrontendData.ButtonData buttonData { get; init; } = new FrontendData.ButtonData();
             public StateMachineData.States states { get; set; }
             public Dictionary<string, string> stateToButtonText { get; set; }
@@ -141,11 +155,23 @@ namespace EntityFrameworkApp.Data
         }
         public class StateTelegramActions
         {
-            private static FrontendData.CaseText caseText = new FrontendData.CaseText();
+            public Dictionary<string,FunctionHandler> actionsDictionary { get; set; }
+            private static FrontendData.CaseText caseText { get; set; }
+            private static StateMachineData.States states { get; set; }
+            public StateTelegramActions(StateMachineData.States states)
+            {
+                states = states;
+                caseText = new FrontendData.CaseText(states);
 
+                actionsDictionary = new Dictionary<string, FunctionHandler>();
+                foreach (var state in states.stateSets)
+                {
+                    actionsDictionary.Add(state, this.getAction(state));
+                }
+            }
             public FunctionHandler? getAction(string name) {
                 StateMachineData.States states =
-                    new StateMachineData.States();
+                    StateMachineData.States.getInstance();
 
                 if (name == states.home)
                 {
@@ -190,18 +216,36 @@ namespace EntityFrameworkApp.Data
             //    return null;
             //}
 
-            public static async Task<Message> CaseHome(object sender, EventArgs e) {
+            public static async Task<Message> CaseHome2(object sender, EventArgs e) // CaseHome to CaseHome2
+            { 
                 if (sender is null)
                     return null;
                 if (sender is FriendsBot bot)
                 {
                     //FriendsBot.BotCommand botCommand = e as FriendsBot.BotCommand;
                     //var command = botCommand.command;
-                    string text = caseText.home;
+                    string text = caseText.stateToCaseText[states.home];
                     long id =  (long) bot?.update?.Message?.Chat?.Id;
                     return await bot.SendTextMessageAsync(id, text, HomeButtons2());
                 }
                 return null;
+            }
+            public static async Task<Message> CaseHome(IStateModel model, CommandBase commandBase) // CaseHome to CaseHome2
+            {
+                try
+                {
+                    var data = commandBase as CaseHomeData;
+                    var bot = data.bot;
+                    return await bot.SendTextMessageAsync(
+                        data.message.Chat.Id,
+                        data.caseText,
+                        data.buttons
+                        );
+                }
+                catch (Exception)
+                {
+                    throw new NullReferenceException(); ;
+                }
             }
             public static async Task<Message> CaseFind(object sender, EventArgs e)
             {
@@ -209,7 +253,7 @@ namespace EntityFrameworkApp.Data
                     return null;
                 if (sender is FriendsBot bot)
                 {
-                    string text = caseText.find;
+                    string text = caseText.stateToCaseText[states.find];
                     long id = (long)bot?.update?.Message?.Chat?.Id;
                     return await bot.SendTextMessageAsync(id, text, HomeButtons2());
                 }
@@ -225,7 +269,7 @@ namespace EntityFrameworkApp.Data
                     DataBase.Person person = new DataBase.Person().Find(bot.botCommand.command);
                     if (person is null)
                     {
-                        string text = caseText.findPerson;
+                        string text = caseText.stateToCaseText[states.findPerson];
                         return await bot.SendTextMessageAsync(id, text, HomeButtons2());
 
                     }
@@ -244,7 +288,7 @@ namespace EntityFrameworkApp.Data
                     return null;
                 if (sender is FriendsBot bot)
                 {
-                    string text = caseText.edit;
+                    string text = caseText.stateToCaseText[states.edit];
                     long id = (long)bot?.update?.Message?.Chat?.Id;
                     return await bot.SendTextMessageAsync(id, text, HomeButtons2());
                 }
@@ -256,7 +300,7 @@ namespace EntityFrameworkApp.Data
                     return null;
                 if (sender is FriendsBot bot)
                 {
-                    string text = caseText.help;
+                    string text = caseText.stateToCaseText[states.help];
                     //string text = "abc abc";
                     long id = (long)bot?.update?.Message?.Chat?.Id;
                     return await bot.SendTextMessageAsync(id, text, HomeButtons2());
@@ -282,18 +326,83 @@ namespace EntityFrameworkApp.Data
         }
         public static IReplyMarkup HomeButtons2()
         {
-            FrontendData.ButtonData button = new FrontendData.ButtonData();
+            var states = StateMachineData.States.getInstance();
+            FrontendData.ButtonData button = new FrontendData.ButtonData(states);
             return new ReplyKeyboardMarkup
             (
                 new List<List<KeyboardButton>> {
                     new List<KeyboardButton>{
-                        new KeyboardButton (button.home),
-                        new KeyboardButton (button.find),
-                        new KeyboardButton (button.edit),
-                        new KeyboardButton (button.help),
+                        new KeyboardButton (button.stateToButtonText[states.home]),
+                        new KeyboardButton (button.stateToButtonText[states.find]),
+                        new KeyboardButton (button.stateToButtonText[states.edit]),
+                        new KeyboardButton (button.stateToButtonText[states.help]),
                     }
                 }
             );
+        }
+        public static IReplyMarkup DefaultButton()
+        {
+            var states = StateMachineData.States.getInstance();
+            FrontendData.ButtonData button = new FrontendData.ButtonData(states);
+            return new ReplyKeyboardMarkup
+            (
+                new List<List<KeyboardButton>> {
+                    new List<KeyboardButton>{
+                        new KeyboardButton (button.stateToButtonText[states.home])
+                    }
+                }
+            );
+        }
+
+        // TEST
+        public class EventData : EventDataBase
+        {
+            public virtual string caseText { get; set; }
+            public virtual IReplyMarkup buttons { get; set; }
+        }
+        public class BotInputData : InputDataBase
+        {
+            public virtual FriendsBot bot { get; set; }
+            public virtual Message message { get; set; }
+            public BotInputData(FriendsBot bot, Message message) : base(message?.Text)
+            {
+                this.bot = bot;
+                this.message = message;
+            }
+        }
+        public class StateData : IStateData
+        {
+            public EventDataBase eventData { get; set; }  // new EventDataBase();
+            public InputDataBase inputData { get; set; } = new BotInputData(null,null);
+        }
+
+        public class BotCommandBase : CommandBase
+        {
+            public virtual FriendsBot bot { get; set; }
+            public virtual Message message { get; set; }
+            public virtual string caseText { get; set; }
+            public virtual IReplyMarkup buttons { get; set; }
+            public BotCommandBase(FriendsBot bot, Message message) : base(message?.Text)
+            {
+                this.bot = bot;
+                this.message = message;
+                this.caseText = "Default text";
+                this.buttons = DefaultButton();
+            }
+        }
+        public class CaseHomeData : BotCommandBase
+        {
+            //public override FriendsBot bot { get; set; }
+            //public override long chatId { get; set; }
+            //public override string text { get; set; }
+            //public override IReplyMarkup buttons { get; set; }
+            public CaseHomeData(FriendsBot bot, Message message) : base(bot, message)
+            {
+                var states = StateMachineData.States.getInstance();
+                var caseText = new FrontendData.CaseText(states);
+                this.caseText = caseText.stateToCaseText[states.home];
+                this.buttons = HomeButtons2();
+            }
         }
     }
 }

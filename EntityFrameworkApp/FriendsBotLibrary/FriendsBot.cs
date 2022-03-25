@@ -9,7 +9,9 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
 using EntityFrameworkApp.DataBase;
-using StateMachineLibrary;
+using StateMachineTest;
+//using StateMachineLibrary;
+
 using EntityFrameworkApp.Data;
 
 namespace EntityFrameworkApp.FriendsBotLibrary
@@ -22,13 +24,21 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             StateMachineBuilder();
         }
         public Update update { get; set; }
-        protected StateMachine stateMachine { get; set; }
+        protected StateMachineTest.StateMachine stateMachine { get; set; }
         public StateMachineLibrary.StateMachineCommand botCommand { get; set; } = new StateMachineLibrary.StateMachineCommand();
         public void StateMachineBuilder() {
-            StateMachineData.States states1 = StateMachineData.States.getInstance();
-            StateMachineData.Transitions transitions1 = StateMachineData.Transitions.getInstance();
-            stateMachine = new StateMachine(states1.stateSets, transitions1.transitionSets, states1.home); 
+            StateMachineData.States states = StateMachineData.States.getInstance();
+            StateMachineData.Transitions transitions = StateMachineData.Transitions.getInstance();
+            stateMachine = new StateMachineTest.StateMachine(states.stateSets, transitions.transitionSets, states.home);
 
+            var actionsDictionary = new FriendsBotData.StateTelegramActions(states).actionsDictionary;
+            var criteriaDictionary = new FriendsBotData.Criteria(stateMachine,states).criteriaDictionary;
+            object eventDataDictionary = null;
+
+            //stateMachine.AddEventData(null);// eventDataDictionary
+            stateMachine.stateDictionary[states.home].eventData = new FriendsBotData.CaseHomeData(this,new Message());
+            stateMachine.AddFunctionHandler(actionsDictionary);// actionsDictionary
+            stateMachine.AddCriteraRange(criteriaDictionary);// 
 
             //StateMachineData SMdata = new StateMachineData();
             //var states = new StateMachineData.States();
@@ -51,16 +61,18 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             //stateMachine.AddCriteraRange(friendsBotData.GetCriteriaDictionary(SMdata.transitions));
 
             // new
-            var criteriaDictionary = new FriendsBotData.Criteria(stateMachine.transitionDictionary.Values).criteriaDictionary;
-            stateMachine.AddCriteraRange(criteriaDictionary);
+            //var criteriaDictionary = new FriendsBotData.Criteria(stateMachine.transitionDictionary.Values).criteriaDictionary;
+            //stateMachine.AddCriteraRange(criteriaDictionary);
 
         }
         public void Answer(Update update)
         {
             string text = update?.Message?.Text;
-            this.update = update;
-            this.botCommand.command = this.update?.Message?.Text;
-            stateMachine.Execute(this, this.botCommand);
+            //this.update = update;
+            //this.botCommand.command = this.update?.Message?.Text;
+            var commandBase = new FriendsBotData.BotCommandBase(this, update.Message);
+
+            stateMachine.Execute(this, commandBase);
 
             //stateMachine.Execute(command);
         }
