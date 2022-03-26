@@ -9,8 +9,7 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-using StateMachineTest;
-//using StateMachineLibrary;
+using StateMachineLibrary;
 using EntityFrameworkApp.FriendsBotLibrary;
 
 namespace EntityFrameworkApp.Data
@@ -22,66 +21,10 @@ namespace EntityFrameworkApp.Data
         public FriendsBotData() {
             
         }
-        //public Dictionary<string, FunctionHandler> GetActionsDictionary(ISet<string> statesNames)
-        //{
-        //    Dictionary<string, FunctionHandler> dict =
-        //        new Dictionary<string, FunctionHandler>();
-        //    StateTelegramActions actions = new StateTelegramActions(StateMachineData.States.getInstance());
-        //    foreach (var stateName in statesNames)
-        //    {
-        //        FunctionHandler? act = actions.getAction(stateName);
-        //        if (act is null)
-        //            throw new ArgumentNullException();
-        //        dict.Add(stateName, act);
-        //    }
-        //    return dict;
-        //}
-
-        //public Dictionary<string, Predicate<string>> GetCriteriaDictionary
-        //    (ISet<string> transitionsNames)
-        //{
-        //    Dictionary<string, Predicate<string>> dict =
-        //        new Dictionary<string, Predicate<string>>();
-        //    Criteria criteria = new Criteria();
-        //    foreach (var transitionName in transitionsNames)
-        //    {
-        //        string endState = transitionName.Split(':')[1];
-        //        Predicate<string>? func = criteria.getCriteria(endState);
-        //        if (func is null)
-        //            throw new ArgumentNullException();
-        //        dict.Add(transitionName, func);
-        //    }
-        //    return dict;
-        //}
-
-        //public class States
-        //{
-        //    public const string home = "home";
-        //    public const string find = "find";
-        //    public const string edit = "edit";
-        //    public const string help = "help";
-        //    public const string findPerson = "findPerson";
-        //}
         public class Criteria
         {
             public Dictionary<string, Predicate<string>> criteriaDictionary { get; private set; }
-            //public Criteria(IEnumerable<ITransition> transitions)
-            //{
-            //    criteriaDictionary = new Dictionary<string, Predicate<string>>();
-            //    foreach (var transition in transitions)
-            //    {
-            //        var pred = this.getCriteria(transition.endState.name);
-            //        if (pred is null)
-            //            throw new NotImplementedException("Dont implemented criteria");
-            //        criteriaDictionary.Add(transition.name, pred);
-            //    }
-            //}
-            //public Criteria(StateMachineData.States states)
-            //{
-            //    this.states = states;
-            //    stateToButtonText = new FrontendData.ButtonData(states).stateToButtonText;
-            //}
-            public Criteria(StateMachineTest.StateMachine stateMachine, StateMachineData.States states)
+            public Criteria(StateMachine stateMachine, StateMachineData.States states)
             {
                 criteriaDictionary = new Dictionary<string, Predicate<string>>();
                 foreach (var transition in stateMachine.transitionDictionary.Values)
@@ -205,16 +148,6 @@ namespace EntityFrameworkApp.Data
                 //        break;
                 //}
             }
-            //public async Task<Message> CaseHomeOld(FriendsBot botClient ,string cmd)
-            //{
-            //    string text = $"Choose mode: {States.home} {States.find} {States.edit} {States.help}";
-            //    long id = (long) botClient?.update?.Message?.Chat?.Id;
-            //    IReplyMarkup replyMarkup = null;
-
-            //    var ret = await botClient.SendTextMessageAsync(id,text, HomeButtons());
-            //    //var ret = await botClient.SendTextMessageAsync(update, text);
-            //    return null;
-            //}
 
             public static async Task<Message> CaseHome2(object sender, EventArgs e) // CaseHome to CaseHome2
             { 
@@ -467,7 +400,7 @@ namespace EntityFrameworkApp.Data
         public class EventData : EventDataBase
         {
             public virtual string caseText { get; set; } = "Default text";
-            public virtual IReplyMarkup buttons { get; set; } = DefaultButton();
+            public virtual IReplyMarkup buttons { get; set; } = new ReplyKeyboardMarkup(new KeyboardButton("Default text")); // DefaultButton()
         }
         public class BotInputData : InputDataBase
         {
@@ -479,16 +412,6 @@ namespace EntityFrameworkApp.Data
                 this.message = message;
             }
         }
-        //public class StateData : IStateData
-        //{
-        //    public EventDataBase eventData { get; set; }  // new EventDataBase();
-        //    public InputDataBase inputData { get; set; } // = new BotInputData(null,null);
-        //    public StateData(EventDataBase eventData)
-        //    {
-        //        this.eventData = eventData;
-        //    }
-        //}
-
         public class BotCommandBase : CommandBase
         {
             public virtual FriendsBot bot { get; set; }
@@ -501,20 +424,6 @@ namespace EntityFrameworkApp.Data
                 this.message = message;
                 this.caseText = "Default text";
                 this.buttons = DefaultButton();
-            }
-        }
-        public class CaseHomeData : BotCommandBase
-        {
-            //public override FriendsBot bot { get; set; }
-            //public override long chatId { get; set; }
-            //public override string text { get; set; }
-            //public override IReplyMarkup buttons { get; set; }
-            public CaseHomeData(FriendsBot bot, Message message) : base(bot, message)
-            {
-                var states = StateMachineData.States.getInstance();
-                var caseText = new FrontendData.CaseText(states);
-                this.caseText = caseText.stateToCaseText[states.home];
-                this.buttons = HomeButtons2();
             }
         }
     }

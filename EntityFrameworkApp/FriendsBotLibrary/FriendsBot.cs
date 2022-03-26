@@ -9,8 +9,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
 using EntityFrameworkApp.DataBase;
-using StateMachineTest;
-//using StateMachineLibrary;
+using StateMachineLibrary;
 
 using EntityFrameworkApp.Data;
 
@@ -24,12 +23,12 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             StateMachineBuilder();
         }
         public Update update { get; set; }
-        protected StateMachineTest.StateMachine stateMachine { get; set; }
-        public StateMachineLibrary.StateMachineCommand botCommand { get; set; } = new StateMachineLibrary.StateMachineCommand();
+        protected StateMachine stateMachine { get; set; }
+        //public StateMachineLibrary.StateMachineCommand botCommand { get; set; } = new StateMachineLibrary.StateMachineCommand();
         public void StateMachineBuilder() {
             StateMachineData.States states = StateMachineData.States.getInstance();
             StateMachineData.Transitions transitions = StateMachineData.Transitions.getInstance();
-            stateMachine = new StateMachineTest.StateMachine(states.stateSets, transitions.transitionSets, states.home);
+            stateMachine = new StateMachine(states.stateSets, transitions.transitionSets, states.home);
 
             var actionsDictionary = new FriendsBotData.StateTelegramActions(states).actionsDictionary;
             var criteriaDictionary = new FriendsBotData.Criteria(stateMachine,states).criteriaDictionary;

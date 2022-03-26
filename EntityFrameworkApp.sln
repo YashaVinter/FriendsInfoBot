@@ -5,7 +5,7 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkApp", "EntityFrameworkApp\EntityFrameworkApp.csproj", "{5AFEF506-C7D6-43F0-8F41-F8DAB45A5B90}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateMachine", "..\StateMachine\StateMachine\StateMachine.csproj", "{3A60EB65-6BE5-4D06-8108-5413B5A22C1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateMachineLibrary", "..\StateMachine\StateMachine\StateMachineLibrary.csproj", "{3A60EB65-6BE5-4D06-8108-5413B5A22C1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
