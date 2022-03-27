@@ -5,6 +5,8 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkApp", "EntityFrameworkApp\EntityFrameworkApp.csproj", "{5AFEF506-C7D6-43F0-8F41-F8DAB45A5B90}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateMachineLibrary", "..\StateMachine\StateMachine\StateMachineLibrary.csproj", "{222B1198-93B6-429F-8FFC-C91E893CFE90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5AFEF506-C7D6-43F0-8F41-F8DAB45A5B90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AFEF506-C7D6-43F0-8F41-F8DAB45A5B90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AFEF506-C7D6-43F0-8F41-F8DAB45A5B90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{222B1198-93B6-429F-8FFC-C91E893CFE90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{222B1198-93B6-429F-8FFC-C91E893CFE90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{222B1198-93B6-429F-8FFC-C91E893CFE90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{222B1198-93B6-429F-8FFC-C91E893CFE90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
