@@ -18,38 +18,38 @@ namespace EntityFrameworkApp
 
         }
         public void test1() {
-            StateMachineData SMData =
-                new StateMachineData();
-            StateMachineData.States states
-                = new StateMachineData.States();
+            //StateMachineData SMData =
+            //    new StateMachineData();
+            //StateMachineData.States states
+            //    = new StateMachineData.States();
 
-            var home = states.home;
-            var help = states.help;
+            //var home = states.home;
+            //var help = states.help;
 
-            StateMachine stateMachine =
-               new StateMachine(SMData.states, SMData.transitions, home);
+            //StateMachine stateMachine =
+            //   new StateMachine(SMData.states, SMData.transitions, home);
 
-            stateMachine.AddFunctionHandler(home, FriendsBotData.StateTelegramActions.CaseHome);
-            stateMachine.AddFunctionHandler(home, FriendsBotData.StateTelegramActions.CaseHelp);
+            //stateMachine.AddFunctionHandler(home, FriendsBotData.StateTelegramActions.CaseHome);
+            //stateMachine.AddFunctionHandler(home, FriendsBotData.StateTelegramActions.CaseHelp);
 
             //stateMachine.AddActionRange(SMData.states, SMData.actions);
-            stateMachine.AddCriteraRange(SMData.transitions, SMData.criteria);
+            //stateMachine.AddCriteraRange(SMData.transitions, SMData.criteria);
 
 
-            Console.WriteLine("Start stateMachine");
-            while (true)
-            {
-                string cmd = Console.ReadLine();
-                stateMachine.Execute(cmd);
-            }
-            stateMachine.Execute("");
+            //Console.WriteLine("Start stateMachine");
+            //while (true)
+            //{
+            //    string cmd = Console.ReadLine();
+            //    stateMachine.Execute(cmd);
+            //}
+            //stateMachine.Execute("");
 
 
             //var v = stateMachine.transitionDictionary[one].Criteria;
             //stateMachine.transitionDictionary[one].Criteria = v;
 
 
-            int a = 1;
+            //int a = 1;
 
 
 
@@ -87,15 +87,15 @@ namespace EntityFrameworkApp
 
         }
         public void test3() {
-            State state = new State("one");
+            //State state = new State("one");
 
-            FunctionHandler v = FriendsBotData.StateTelegramActions.CaseHome;
-            state.functionHandler += v;
+            //FunctionHandler v = FriendsBotData.StateTelegramActions.CaseHome;
+            //state.functionHandler += v;
 
-            FriendsBot bot = new FriendsBot("");
-            bot.botCommand.command = "write";
+            //FriendsBot bot = new FriendsBot("");
+            //bot.botCommand.command = "write";
 
-            state.DoCommand(bot, bot.botCommand);
+            //state.DoCommand(bot, bot.botCommand);
 
         }
         public void test4() {
@@ -186,6 +186,12 @@ namespace EntityFrameworkApp
             
         }
 
+        public void test8() {
+            //StateMachineData.Transitions transitions = StateMachineData.Transitions.getInstance();
+            //var a = transitions.transitions;
+            
+            //var b = StateMachineData.Transitions.tr1;
+        }
         private void Hero_eventHandler(object? sender, EventArgs e)
         {
             throw new NotImplementedException();

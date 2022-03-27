@@ -24,7 +24,7 @@ namespace Program // Note: actual namespace depends on the project name.
         {
             // start test
             //var test = new EntityFrameworkApp.Test();
-            new Person().test();
+            //new Person().test();
             //end test
             var botClient = new FriendsBot(token);
             //var botClient = new TelegramBotClient(token);
@@ -96,10 +96,11 @@ namespace Program // Note: actual namespace depends on the project name.
 TODO разобраться с гитом, ветки и слияния
 TODO SQL знать запросы нативные, миграции, джоины
 TODO поиграться с БД, выборки, слияния, выбор средних знач и уникальных знач
-
+TODO переделать актионы как класс с переопределением чтобы уйти от цепочки иф эсле иф элсе
 
  
  
  */
-// before merging with test1 2 
+// before merging with test1
 
+//before merging master branch 2
