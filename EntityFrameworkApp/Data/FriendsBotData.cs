@@ -11,6 +11,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 using StateMachineLibrary;
 using EntityFrameworkApp.FriendsBotLibrary;
+using EntityFrameworkApp.Data;
 
 namespace EntityFrameworkApp.Data
 {
@@ -23,9 +24,10 @@ namespace EntityFrameworkApp.Data
         }
         public class Criteria
         {
-            public Dictionary<string, Predicate<string>> criteriaDictionary { get; private set; }
+            public Dictionary<string, Predicate<string>> criteriaDictionary { get; init; }
             public Criteria(StateMachine stateMachine, StateMachineData.States states)
             {
+
                 criteriaDictionary = new Dictionary<string, Predicate<string>>();
                 foreach (var transition in stateMachine.transitionDictionary.Values)
                 {
@@ -36,7 +38,7 @@ namespace EntityFrameworkApp.Data
                 }
 
                 this.states = states;
-                stateToButtonText = new FrontendData.ButtonData(states).stateToButtonText;
+                stateToButtonText = FrontendData.ButtonData.getInstance(states).stateToButtonText;
             }
 
             //private FrontendData.ButtonData buttonData { get; init; } = new FrontendData.ButtonData();
@@ -104,7 +106,7 @@ namespace EntityFrameworkApp.Data
             public StateTelegramActions(StateMachineData.States states)
             {
                 states = states;
-                caseText = new FrontendData.CaseText(states);
+                caseText = FrontendData.CaseText.getInstance(); ;
 
                 actionsDictionary = new Dictionary<string, FunctionHandler>();
                 foreach (var state in states.stateSets)
@@ -149,20 +151,20 @@ namespace EntityFrameworkApp.Data
                 //}
             }
 
-            public static async Task<Message> CaseHome2(object sender, EventArgs e) // CaseHome to CaseHome2
-            { 
-                if (sender is null)
-                    return null;
-                if (sender is FriendsBot bot)
-                {
-                    //FriendsBot.BotCommand botCommand = e as FriendsBot.BotCommand;
-                    //var command = botCommand.command;
-                    string text = caseText.stateToCaseText[states.home];
-                    long id =  (long) bot?.update?.Message?.Chat?.Id;
-                    return await bot.SendTextMessageAsync(id, text, HomeButtons2());
-                }
-                return null;
-            }
+            //public static async Task<Message> CaseHome2(object sender, EventArgs e) // CaseHome to CaseHome2
+            //{ 
+            //    if (sender is null)
+            //        return null;
+            //    if (sender is FriendsBot bot)
+            //    {
+            //        //FriendsBot.BotCommand botCommand = e as FriendsBot.BotCommand;
+            //        //var command = botCommand.command;
+            //        string text = caseText.stateToCaseText[states.home];
+            //        long id =  (long) bot?.update?.Message?.Chat?.Id;
+            //        return await bot.SendTextMessageAsync(id, text, HomeButtons2());
+            //    }
+            //    return null;
+            //}
             public static async Task<Message> CaseHome(IStateData stateData) // CaseHome to CaseHome2
             {
                 try
@@ -290,8 +292,8 @@ namespace EntityFrameworkApp.Data
             public Events()
             {
                 var states = StateMachineData.States.getInstance();
-                var caseText = new FrontendData.CaseText(states);
-                var buttons = new Buttons();
+                var caseText = FrontendData.CaseText.getInstance(); ;
+                var buttons = new FrontendData.Buttons();
                 var dict = new Dictionary<String, EventDataBase>();
                 foreach (var state in states.stateSets)
                 {
@@ -309,67 +311,11 @@ namespace EntityFrameworkApp.Data
                 eventsDictionary = dict;
             }
         }
-        public class Buttons
-        {
-            public Dictionary<String, IReplyMarkup> buttonsDictionary { get; set; }
-            public Buttons()
-            {
-                var states = StateMachineData.States.getInstance();
-                //var caseText = new FrontendData.CaseText(states);
-                var buttonData = new FrontendData.ButtonData(states);
-                var dict = new Dictionary<String, IReplyMarkup>();
 
-                var homeButtons = ButtonsBuilder(new List<string>
-                {
-                    buttonData.stateToButtonText[states.home]
-                });
-                var defaultButtons = ButtonsBuilder(new List<string> 
-                {
-                    buttonData.stateToButtonText[states.home],
-                    buttonData.stateToButtonText[states.find],
-                    buttonData.stateToButtonText[states.edit],
-                    buttonData.stateToButtonText[states.help]
-                });
-
-                dict.Add(states.home, defaultButtons);
-                dict.Add(states.find, homeButtons);
-                dict.Add(states.findPerson, homeButtons);
-                dict.Add(states.edit, homeButtons);
-                dict.Add(states.help, homeButtons);
-                buttonsDictionary = dict;
-            }
-            private IReplyMarkup ButtonsBuilder(IEnumerable<string> buttonsNames) {
-                var b1 = new List<KeyboardButton>();
-                foreach (var buttonName in buttonsNames)
-                {
-                    b1.Add(new KeyboardButton(buttonName));
-                }
-                var b2 = new List<List<KeyboardButton>> { b1 };
-                var kb = new ReplyKeyboardMarkup(b2);
-                kb.ResizeKeyboard = true;
-                return kb;
-
-                //var v = new ReplyKeyboardMarkup(null);
-            }
-        }
-        public static IReplyMarkup HomeButtons()
-        {
-            return new ReplyKeyboardMarkup
-            (
-                new List<List<KeyboardButton>> {
-                    new List<KeyboardButton>{
-                        new KeyboardButton ("Home"+ char.ConvertFromUtf32(0x1F4A5)),
-                        new KeyboardButton ("Find"),
-                        new KeyboardButton ("Edit"),
-                        new KeyboardButton ("Help"),
-                    }
-                }
-            );
-        }
         public static IReplyMarkup HomeButtons2()
         {
             var states = StateMachineData.States.getInstance();
-            FrontendData.ButtonData button = new FrontendData.ButtonData(states);
+            FrontendData.ButtonData button = FrontendData.ButtonData.getInstance(states);
             return new ReplyKeyboardMarkup
             (
                 new List<List<KeyboardButton>> {
@@ -382,20 +328,6 @@ namespace EntityFrameworkApp.Data
                 }
             );
         }
-        public static IReplyMarkup DefaultButton()
-        {
-            var states = StateMachineData.States.getInstance();
-            FrontendData.ButtonData button = new FrontendData.ButtonData(states);
-            return new ReplyKeyboardMarkup
-            (
-                new List<List<KeyboardButton>> {
-                    new List<KeyboardButton>{
-                        new KeyboardButton (button.stateToButtonText[states.home])
-                    }
-                }
-            );
-        }
-
         // TEST
         public class EventData : EventDataBase
         {
@@ -410,20 +342,6 @@ namespace EntityFrameworkApp.Data
             {
                 this.bot = bot;
                 this.message = message;
-            }
-        }
-        public class BotCommandBase : CommandBase
-        {
-            public virtual FriendsBot bot { get; set; }
-            public virtual Message message { get; set; }
-            public virtual string caseText { get; set; }
-            public virtual IReplyMarkup buttons { get; set; }
-            public BotCommandBase(FriendsBot bot, Message message) : base(message?.Text)
-            {
-                this.bot = bot;
-                this.message = message;
-                this.caseText = "Default text";
-                this.buttons = DefaultButton();
             }
         }
     }

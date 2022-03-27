@@ -63,15 +63,6 @@ namespace EntityFrameworkApp.FriendsBotLibrary
                 );
         }
 
-        public async Task<Message> SendPhotoAsync(Update update, string photoURL)
-        {
-            var Id = update?.Message?.Chat.Id;
-            return await this.SendPhotoAsync(
-                chatId: Id,
-                photo: photoURL,
-                replyMarkup: FriendsBotData.HomeButtons()
-                );
-        }
         public async Task<Message> SendPhotoAsync(long chatId, string photoURL, IReplyMarkup replyMarkup)
         {
             return await this.SendPhotoAsync(

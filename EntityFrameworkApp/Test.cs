@@ -192,6 +192,13 @@ namespace EntityFrameworkApp
             
             //var b = StateMachineData.Transitions.tr1;
         }
+        public void test9() {
+            string emj = "😁";
+            AnyAscii.Transliteration.Transliterate(emj);
+            var emj2 = AnyAscii.Transliteration.Transliterate(emj);
+            Console.WriteLine(emj + "\t"+ emj2);
+        }
+
         private void Hero_eventHandler(object? sender, EventArgs e)
         {
             throw new NotImplementedException();

@@ -23,10 +23,14 @@ namespace Program // Note: actual namespace depends on the project name.
         static async Task Main(string[] args)
         {
             // start test
-            //var test = new EntityFrameworkApp.Test();
+            var test = new EntityFrameworkApp.Test();
+            test.test9();
             //new Person().test();
             //end test
             var botClient = new FriendsBot(token);
+            //
+            var v = botClient.update.Message.Chat.Id;
+            botClient.SendTextMessageAsync(botClient.update.Message.Chat.Id, "");
             //var botClient = new TelegramBotClient(token);
             using var cts = new CancellationTokenSource();
 

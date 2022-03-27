@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 using EntityFrameworkApp.DataBase;
 using System.Text.RegularExpressions;
@@ -11,12 +12,22 @@ namespace EntityFrameworkApp.Data
 {
     public class StateMachineData
     {
+        private static StateMachineData instance = null!;
+        public States states { get; init; }
+        public Transitions transitions { get; init; }
         private StateMachineData()
         {
-
+            states = States.getInstance();
+            transitions = Transitions.getInstance();
+        }
+        public static StateMachineData Instance()
+        {
+            if (instance is null)
+                instance = new StateMachineData();
+            return instance;
         }
         /// <summary>
-        ///  TEST CTOR
+        ///  Singleton
         /// </summary>
         public class States
         {
@@ -40,6 +51,9 @@ namespace EntityFrameworkApp.Data
                 return instance;
             }
         }
+        /// <summary>
+        ///  Singleton
+        /// </summary>
         public class Transitions 
         {
             private static Transitions instance = null;
@@ -109,5 +123,34 @@ namespace EntityFrameworkApp.Data
         //        return isMatch(states.home, input);
         //    }
         //}
+    }
+    public static class SingletonFactory
+    {
+        private static readonly IDictionary<Type, object> instances;
+
+        static SingletonFactory()
+        {
+            instances = new Dictionary<Type, object>();
+        }
+
+        public static T Create<T>(params object[] args)
+        {
+            Type instanceType = typeof(T);
+
+            T instance;
+
+            if (instances.ContainsKey(instanceType))
+            {
+                instance = (T)instances[instanceType];
+            }
+            else
+            {
+                instance = (T)Activator.CreateInstance(instanceType, args);
+
+                instances.Add(instanceType, instance);
+            }
+
+            return instance;
+        }
     }
 }
