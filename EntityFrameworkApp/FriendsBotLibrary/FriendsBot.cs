@@ -41,30 +41,6 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             stateMachine.AddFunctionHandler(actionsDictionary);// actionsDictionary
             stateMachine.AddCriteraRange(criteriaDictionary);// 
 
-            //StateMachineData SMdata = new StateMachineData();
-            //var states = new StateMachineData.States();
-            //FriendsBotData friendsBotData = new FriendsBotData();
-            //stateMachine = new StateMachine(
-            //    SMdata.states,
-            //    SMdata.transitions,
-            //    states.home
-            //    );
-
-            //stateMachine.AddFunctionHandler(states.home, FriendsBotData.StateTelegramActions.CaseHome);
-            //stateMachine.AddFunctionHandler(states.find, FriendsBotData.StateTelegramActions.CaseFind);
-            //stateMachine.AddFunctionHandler(states.edit, FriendsBotData.StateTelegramActions.CaseEdit);
-            //stateMachine.AddFunctionHandler(states.help, FriendsBotData.StateTelegramActions.CaseHelp);
-            //stateMachine.AddFunctionHandler(states.findPerson, FriendsBotData.StateTelegramActions.CaseFindPerson);
-            //stateMachine.AddCriteraRange(SMdata.transitions, SMdata.criteria);
-
-            // work
-            //stateMachine.AddFunctionHandler(friendsBotData.GetActionsDictionary(SMdata.states));
-            //stateMachine.AddCriteraRange(friendsBotData.GetCriteriaDictionary(SMdata.transitions));
-
-            // new
-            //var criteriaDictionary = new FriendsBotData.Criteria(stateMachine.transitionDictionary.Values).criteriaDictionary;
-            //stateMachine.AddCriteraRange(criteriaDictionary);
-
         }
         public void Answer(Update update)
         {
@@ -76,20 +52,6 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             stateMachine.Execute(inputData);
 
             //stateMachine.Execute(command);
-        }
-        public async Task<Message> SendTextMessageAsync(Update update, string text) {
-            var Id = update?.Message?.Chat.Id;
-
-            var message = await this.SendTextMessageAsync(
-                chatId: Id,
-                text: text,
-                parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
-                replyMarkup: FriendsBotData.HomeButtons()
-                );
-            return message; 
-            // 
-            //message = await friendsBot.SendTextMessageAsync(update, "message from friendsBot");
-            //
         }
         public async Task<Message> SendTextMessageAsync(long chatId, string text,IReplyMarkup replyMarkup)
         {
