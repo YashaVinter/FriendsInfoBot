@@ -9,13 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AnyAscii" Version="0.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.2" />
     <PackageReference Include="Telegram.Bot" Version="17.0.0" />
     <PackageReference Include="Telegram.Bot.Extensions.Polling" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\EmojiList\EmojiList\EmojiList.csproj" />
     <ProjectReference Include="..\..\StateMachineLibrary\StateMachineLibrary\StateMachineLibrary.csproj" />
   </ItemGroup>
 

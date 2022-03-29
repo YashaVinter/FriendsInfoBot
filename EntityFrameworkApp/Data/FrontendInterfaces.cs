@@ -13,13 +13,8 @@ namespace EntityFrameworkApp.Data
     }
     public interface IFrontendData
     {
-        Dictionary<string, IButtonData> buttonsByState { get; init; }
-        Dictionary<string, IEventData> caseEventByState { get; init; }
-    }
-    public interface IButtonData
-    {
-        string text { get; init; }
-        public IReplyMarkup buttons { get; init; }
+        Dictionary<string, IReplyMarkup> keyboardByState { get; init; }
+        Dictionary<string, IEventData> eventDataByState { get; init; }
     }
     public interface IEventData
     {

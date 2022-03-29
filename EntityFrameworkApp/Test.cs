@@ -9,6 +9,7 @@ using StateMachineLibrary;
 using EntityFrameworkApp.Data;
 using EntityFrameworkApp.FriendsBotLibrary;
 using EntityFrameworkApp.DataBase;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EntityFrameworkApp
 {
@@ -194,10 +195,43 @@ namespace EntityFrameworkApp
         }
         public void test9() {
             string emj = "😁";
-            AnyAscii.Transliteration.Transliterate(emj);
-            var emj2 = AnyAscii.Transliteration.Transliterate(emj);
-            Console.WriteLine(emj + "\t"+ emj2);
+            var h = J3QQ4.Emoji.House;
+            var f = J3QQ4.Emoji.Mag_Right;
+            var e = J3QQ4.Emoji.Pencil;
+            var help = J3QQ4.Emoji.Books;
         }
+
+        public void test10() {
+            //var states = StateMachineData.States.getInstance();
+            //string homeEmj = char.ConvertFromUtf32(0x1F3E0);
+            //string findEmj = char.ConvertFromUtf32(0x1F50D);
+            //string editEmj = char.ConvertFromUtf32(0x2699);
+            //string helpEmj = char.ConvertFromUtf32(0x1F4DA);
+
+            //var homeButton= new EntityFrameworkApp.Data.ButtonData2(states.home, homeEmj);
+            //var findButton = new EntityFrameworkApp.Data.ButtonData2(states.find, findEmj);
+            //var editButton = new EntityFrameworkApp.Data.ButtonData2(states.edit, editEmj);
+            //var helpButton = new EntityFrameworkApp.Data.ButtonData2(states.help, helpEmj);
+            //var buttonsSet = new HashSet<EntityFrameworkApp.Data.ButtonData2>() 
+            //{
+            //    homeButton,
+            //    findButton,
+            //    editButton,
+            //    helpButton
+            //};
+            //var buttonsBuilder2 = new EntityFrameworkApp.Data.KeyboardBuilder2(buttonsSet);
+            //var homeButtonsList = new List<string>() 
+            //{
+            //    states.edit,
+            //    states.help,
+            //    states.home,
+            //    states.find
+            //};
+            //var keyboardByState = new Dictionary<string, IReplyMarkup>();
+            //keyboardByState.Add(states.home, buttonsBuilder2.BuildKeyboard(homeButtonsList));
+
+        }
+
 
         private void Hero_eventHandler(object? sender, EventArgs e)
         {

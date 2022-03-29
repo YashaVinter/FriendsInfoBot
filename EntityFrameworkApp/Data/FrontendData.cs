@@ -87,7 +87,6 @@ namespace EntityFrameworkApp.Data
             string text { get; set; }
             public IReplyMarkup buttons { get; set; }
         }
-
         public class Buttons
         {
             public Dictionary<String, IReplyMarkup> buttonsDictionary { get; set; }
@@ -171,73 +170,134 @@ namespace EntityFrameworkApp.Data
     /// </summary>
     public class FrontendDataNew : IFrontendData
     {
-        public Dictionary<string, IButtonData> buttonsByState { get; init; }
-        public Dictionary<string, IEventData> caseEventByState { get; init; }
+        public Dictionary<string, IReplyMarkup> keyboardByState { get; init; }
+        public Dictionary<string, IEventData> eventDataByState { get; init; }
+        //public Dictionary<string,> MyProperty { get; set; }
+        //TODO перенести класс FriendsBotData.EventData в фронтенд и в FriendsBotData убрать текущее использование
+        public EventData eventData { get; set; }
         private StateMachineData.States states { get; set; }
         public FrontendDataNew(StateMachineData stateMachineData)
         {
             this.states = stateMachineData.states;
-
+            this.keyboardByState = BuildKeyboards(states);
+            this.eventDataByState = BuildEventsData(states);
         }
-        private Dictionary<string, IButtonData> dict1()
+
+        private Dictionary<string, IReplyMarkup> BuildKeyboards(StateMachineData.States states)
         {
-            string homeEmj = char.ConvertFromUtf32(0x1F3E0);
-            string findEmj = char.ConvertFromUtf32(0x1F50D);
-            string editEmj = char.ConvertFromUtf32(0x2699);
-            string helpEmj = char.ConvertFromUtf32(0x1F4DA);
-            var buttonEmoji = delegate (string s1, string s2) { return s1 + s2; };
+            var homeButton = new ButtonData2(states.home, J3QQ4.Emoji.House);
+            var findButton = new ButtonData2(states.find, J3QQ4.Emoji.Mag_Right);
+            var editButton = new ButtonData2(states.edit, J3QQ4.Emoji.Pencil);
+            var helpButton = new ButtonData2(states.help, J3QQ4.Emoji.Books);
 
-            string homeText = buttonEmoji(states.home, homeEmj);
-            string findText = buttonEmoji(states.find, findEmj);
-            string editText = buttonEmoji(states.edit, editEmj);
-            string helpText = buttonEmoji(states.help, helpEmj);
-
-            var mainButtonsList = new List<string>()
+            var keyboardBuilder2 = new KeyboardBuilder2(new HashSet<ButtonData2>() 
             {
-                homeText,
-                findText,
-                editText,
-                helpText
-            };
-            var homeButtons = ButtonsBuilder(mainButtonsList);
-            var homeButtonsList = new List<string>()
+                homeButton,
+                findButton,
+                editButton,
+                helpButton
+            });
+            var mainKeyboard = keyboardBuilder2.BuildKeyboard(new List<string>()
             {
-                homeText,
-            };
-
-
-            var dict = new Dictionary<string, IButtonData>()
+                states.home,
+                states.find,
+                states.edit,
+                states.help
+            });
+            var homeKeyboard = keyboardBuilder2.BuildKeyboard(new List<string>()
             {
-                {states.home,new ButtonData(buttonEmoji(states.home,homeEmj), null) }
-            };
+                states.home,
+            });
 
-            return null;
+            var dict = new Dictionary<string, IReplyMarkup>();
+            dict.Add(states.home,       mainKeyboard);
+            dict.Add(states.find,       homeKeyboard);
+            dict.Add(states.edit,       homeKeyboard);
+            dict.Add(states.help,       homeKeyboard);
+            dict.Add(states.findPerson, homeKeyboard);
+
+            return dict;
         }
-        private IReplyMarkup ButtonsBuilder(IEnumerable<string> buttonsNames)
+        private Dictionary<string, IEventData> BuildEventsData(StateMachineData.States states)
         {
-            var b1 = new List<KeyboardButton>();
-            foreach (var buttonName in buttonsNames)
+            var eventText = new EventText();
+            var func = delegate(string st, string eventText) {  
+                return new KeyValuePair<string, IEventData>(st, new EventData(eventText));
+            };
+            var dict = new Dictionary<string, IEventData>();
+            
+            dict.Append(func(states.home, eventText.home));
+            dict.Append(func(states.find, eventText.find));
+            dict.Append(func(states.edit, eventText.edit));
+            dict.Append(func(states.help, eventText.help));
+            dict.Append(func(states.findPerson, eventText.findPerson));
+
+            return dict;
+        }
+        public class KeyboardBuilder2
+        {
+            public ISet<ButtonData2> buttons { get; set; }
+
+            //public Dictionary<string, ReplyKeyboardMarkup> keyboardByState { get; set; } // ReplyMarkupBase
+            public KeyboardBuilder2(ISet<ButtonData2> buttons)
             {
-                b1.Add(new KeyboardButton(buttonName));
+                this.buttons = buttons;
+                //keyboardByState = new Dictionary<string, ReplyKeyboardMarkup>();
             }
-            var b2 = new List<List<KeyboardButton>> { b1 };
-            var kb = new ReplyKeyboardMarkup(b2);
-            kb.ResizeKeyboard = true;
-            return kb;
+            public IReplyMarkup BuildKeyboard(List<string> keyboardButtonsNames)
+            {
+                try
+                {
+                    //if (this.keyboardByState.ContainsKey(buttonStateName))
+                    //    throw new("Keyboard already exist");
+                    var buttonsList = buttons
+                        .Where(b1 => keyboardButtonsNames.Any(b2 => b2 == b1.stateName))
+                        .OrderBy(b3 => keyboardButtonsNames.IndexOf(b3.stateName))
+                        .Select(b4 => b4.button as KeyboardButton)
+                        .ToList();
 
-            //var v = new ReplyKeyboardMarkup(null);
+                    if (buttonsList.Count != keyboardButtonsNames.Count)
+                        throw new("Dont not Implemented some buttons");
+
+                    var replyKeyboardMarkup = new ReplyKeyboardMarkup(
+                        new List<List<KeyboardButton>> { buttonsList });
+                    replyKeyboardMarkup.ResizeKeyboard = true;
+                    return replyKeyboardMarkup;
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
         }
-    }
-    public class ButtonData : IButtonData
-    {
-        public string text { get; init; }
-        public IReplyMarkup buttons { get; init; }
-        public ButtonData(string text, IReplyMarkup buttons)
+        public class ButtonData2 // : IButtonData
         {
-            this.text = text;
-            this.buttons = buttons;
+            public string stateName { get; init; }
+            public string emoji { get; init; }
+            public string buttonText { get; init; }
+            public IKeyboardButton button { get; init; }
+            public ButtonData2(string state, string emoji = default!)
+            {
+                this.stateName = state;
+                this.emoji = emoji;
+                this.buttonText = state + emoji;
+                button = new KeyboardButton(buttonText);
+            }
         }
+        public class EventText
+        {
+            public static StateMachineData.States states { get; set; } = StateMachineData.States.getInstance();
+            public string home { get; init; } = $"Choose mode: {states.home} {states.find} {states.edit} {states.help}";
+            public string find { get; init; } = "Write person name, If you want see all persons write \"ALL\"";
+            public string edit { get; init; } = "EDIT Write person name, If you want add or edit person";
+            public string help { get; init; } = "HELP Its a friendBot, Here you can add informations about your friends";
+            public string findPerson { get; init; } = "Person not found, try again or return home";
+
+        }
+
     }
+
+    //////////////////////////////////////////////////////////////////////
     public class EventData : IEventData
     {
         public string eventText { get; init; }
@@ -247,104 +307,111 @@ namespace EntityFrameworkApp.Data
         }
     }
 
-    public class ButtonsBuilder
-    {
-        public Dictionary<string,string> emojiByState { get; set; }
-        public Dictionary<string, string> buttonTextByState { get; set; }
-        public Dictionary<string, KeyboardButton> keyboardButtonByState { get; set; }
-        public Dictionary<string, ReplyKeyboardMarkup> replyKeyboardMarkupByState { get; set; }
-        public ButtonsBuilder(StateMachineData stateMachineData)
-        {
-            var states = stateMachineData.states;
-            this.emojiByState = BuildEmoji(states);
-            this.buttonTextByState = BuildButtonsTexts(states);
-            this.keyboardButtonByState = BuildKeyboardButtons(states);
-            this.replyKeyboardMarkupByState = BuildReplyKeyboardMarkupByState(states);
-        }
+    //public class ButtonsBuilder
+    //{
+    //    public Dictionary<string, string> emojiByState { get; set; }
+    //    public Dictionary<string, string> buttonTextByState { get; set; }
+    //    public Dictionary<string, KeyboardButton> keyboardButtonByState { get; set; }
+    //    public Dictionary<string, ReplyKeyboardMarkup> replyKeyboardMarkupByState { get; set; }
+    //    public ButtonsBuilder(StateMachineData stateMachineData)
+    //    {
+    //        var states = stateMachineData.states;
+    //        this.emojiByState = BuildEmoji(states);
+    //        this.buttonTextByState = BuildButtonsTexts(states);
+    //        this.keyboardButtonByState = BuildKeyboardButtons(states);
+    //        this.replyKeyboardMarkupByState = BuildReplyKeyboardMarkupByState(states);
+    //    }
 
-        private Dictionary<string, ReplyKeyboardMarkup> BuildReplyKeyboardMarkupByState(StateMachineData.States states)
-        {
-            var dict = new Dictionary<string, ReplyKeyboardMarkup>();
-            var func = delegate (string state) { return new KeyValuePair<string, KeyboardButton>(state, keyboardButtonByState[state]); };
+    //    private Dictionary<string, ReplyKeyboardMarkup> BuildReplyKeyboardMarkupByState(StateMachineData.States states)
+    //    {
+    //        var dict = new Dictionary<string, ReplyKeyboardMarkup>();
+    //        var func = delegate (string state) { return new KeyValuePair<string, KeyboardButton>(state, keyboardButtonByState[state]); };
 
-            var list = new List<KeyValuePair<string, KeyboardButton>>() 
-            {
-                func(states.home)////////////
-            };
-            var v1 = new KeyValuePair<string, List<KeyboardButton>>(states.home,new List<KeyboardButton>() 
-            {
-                keyboardButtonByState[states.home]
-            });
+    //        var list = new List<KeyValuePair<string, KeyboardButton>>()
+    //        {
+    //            func(states.home)////////////
+    //        };
+    //        var v1 = new KeyValuePair<string, List<KeyboardButton>>(states.home, new List<KeyboardButton>()
+    //        {
+    //            keyboardButtonByState[states.home]
+    //        });
 
-            return null;
-        }
-        private IReplyMarkup IReplyMarkupBuilder(IEnumerable<KeyboardButton> keyboardButtons)
-        {
-            var list1 = new List<KeyboardButton>(keyboardButtons);
-            var list2 = new List<List<KeyboardButton>> { list1 };
-            return new ReplyKeyboardMarkup(list2);
-        }
+    //        return null;
+    //    }
+    //    private IReplyMarkup IReplyMarkupBuilder(IEnumerable<KeyboardButton> keyboardButtons)
+    //    {
+    //        var list1 = new List<KeyboardButton>(keyboardButtons);
+    //        var list2 = new List<List<KeyboardButton>> { list1 };
+    //        return new ReplyKeyboardMarkup(list2);
+    //    }
 
-        private Dictionary<string, KeyboardButton> BuildKeyboardButtons(StateMachineData.States states)
-        {
-            var func = delegate (string state) {
-                return new KeyValuePair<string, KeyboardButton>(state, new KeyboardButton(buttonTextByState[state]) );
-            };
-            var dict = new Dictionary<string, KeyboardButton>(new List<KeyValuePair<string, KeyboardButton>>() 
-            {  
-                func(states.home),
-                func(states.find),
-                func(states.edit),
-                func(states.help)
+    //    private Dictionary<string, KeyboardButton> BuildKeyboardButtons(StateMachineData.States states)
+    //    {
+    //        var func = delegate (string state)
+    //        {
+    //            return new KeyValuePair<string, KeyboardButton>(state, new KeyboardButton(buttonTextByState[state]));
+    //        };
+    //        var dict = new Dictionary<string, KeyboardButton>(new List<KeyValuePair<string, KeyboardButton>>()
+    //        {
+    //            func(states.home),
+    //            func(states.find),
+    //            func(states.edit),
+    //            func(states.help)
 
-            });
-            return dict;
-        }
+    //        });
+    //        return dict;
+    //    }
 
-        private Dictionary<string, string> BuildEmoji(StateMachineData.States states) {
-            string homeEmj = char.ConvertFromUtf32(0x1F3E0);
-            string findEmj = char.ConvertFromUtf32(0x1F50D);
-            string editEmj = char.ConvertFromUtf32(0x2699);
-            string helpEmj = char.ConvertFromUtf32(0x1F4DA);
-            var dict = new Dictionary<string, string>()
-            {
-                {states.home, homeEmj},
-                {states.find, findEmj},
-                {states.edit, editEmj},
-                {states.help, helpEmj},
-            };
-            return dict;
-        }
-        private Dictionary<string, string> BuildButtonsTexts(StateMachineData.States states)
-        {
-            var func = delegate (string state) { return new KeyValuePair<string, string>(state, state + emojiByState[state]); };
-            var list = new List<KeyValuePair<string, string>>() 
-            {
-                func(states.home),
-                func(states.find),
-                func(states.edit),
-                func(states.help)
-            };
-            var dict = new Dictionary<string, string>(list);           
-            return dict;
-        }
-        public IButtonData Build()
-        {
+    //    private Dictionary<string, string> BuildEmoji(StateMachineData.States states)
+    //    {
+    //        string homeEmj = char.ConvertFromUtf32(0x1F3E0);
+    //        string findEmj = char.ConvertFromUtf32(0x1F50D);
+    //        string editEmj = char.ConvertFromUtf32(0x2699);
+    //        string helpEmj = char.ConvertFromUtf32(0x1F4DA);
+    //        var dict = new Dictionary<string, string>()
+    //        {
+    //            {states.home, homeEmj},
+    //            {states.find, findEmj},
+    //            {states.edit, editEmj},
+    //            {states.help, helpEmj},
+    //        };
+    //        return dict;
+    //    }
+    //    private Dictionary<string, string> BuildButtonsTexts(StateMachineData.States states)
+    //    {
+    //        var func = delegate (string state) { return new KeyValuePair<string, string>(state, state + emojiByState[state]); };
+    //        var list = new List<KeyValuePair<string, string>>()
+    //        {
+    //            func(states.home),
+    //            func(states.find),
+    //            func(states.edit),
+    //            func(states.help)
+    //        };
+    //        var dict = new Dictionary<string, string>(list);
+    //        return dict;
+    //    }
+    //    public IButtonData Build()
+    //    {
 
 
-            return null;
-        }
-        public void test() {
-            var states = StateMachineData.States.getInstance();
+    //        return null;
+    //    }
+    //    public void test()
+    //    {
+    //        var states = StateMachineData.States.getInstance();
 
-            var homeEmj = char.ConvertFromUtf32(0x1F3E0);
-            var homeText = states.home;
+    //        var homeEmj = char.ConvertFromUtf32(0x1F3E0);
+    //        var homeText = states.home;
 
-            var homeButtonText = homeText + homeEmj;  
-            var b1 = new KeyboardButton(homeButtonText);
+    //        var homeButtonText = homeText + homeEmj;
+    //        var b1 = new KeyboardButton(homeButtonText);
 
-            //var mainNuttons = new ReplyKeyboardMarkup(null);
-            var b = new ButtonData("mainButtons", null);
-        }
-    }
+    //        //var mainNuttons = new ReplyKeyboardMarkup(null);
+    //        var b = new ButtonData("mainButtons", null);
+    //    }
+
+    //}
+    ////
+
+
 }
