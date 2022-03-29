@@ -32,7 +32,8 @@ namespace EntityFrameworkApp.FriendsBotLibrary
 
             var actionsDictionary = new FriendsBotData.StateTelegramActions(states).actionsDictionary;
             var criteriaDictionary = new FriendsBotData.Criteria(stateMachine,states).criteriaDictionary;
-            var eventsDataDictionary = new FriendsBotData.Events().eventsDictionary;
+            //var eventsDataDictionary = new FriendsBotData.Events().eventsDictionary;
+            var eventsDataDictionary = new FrontendDataNew(states).eventDatabyState;
 
             //stateMachine.AddEventData(null);// eventDataDictionary
             //stateMachine.stateDictionary[states.home].stateData = new FriendsBotData.StateData( new FriendsBotData.HomeEvent());

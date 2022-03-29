@@ -11,13 +11,13 @@ namespace EntityFrameworkApp.Data
     internal class FrontendInterfaces
     {
     }
-    public interface IFrontendData
-    {
-        Dictionary<string, IReplyMarkup> keyboardByState { get; init; }
-        Dictionary<string, IEventData> eventDataByState { get; init; }
-    }
-    public interface IEventData
-    {
-        string eventText { get; init; }
-    }
+    //public interface IFrontendData
+    //{
+    //    Dictionary<string, IReplyMarkup> keyboardByState { get; init; }
+    //    Dictionary<string, IEventData> eventDataByState { get; init; }
+    //}
+    //public interface IEventData
+    //{
+    //    string eventText { get; init; }
+    //}
 }

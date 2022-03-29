@@ -26,7 +26,8 @@ namespace EntityFrameworkApp.Data
         {
             public Dictionary<string, Predicate<string>> criteriaDictionary { get; init; }
             public Criteria(StateMachine stateMachine, StateMachineData.States states)
-            {
+            { // TODO
+                
 
                 criteriaDictionary = new Dictionary<string, Predicate<string>>();
                 foreach (var transition in stateMachine.transitionDictionary.Values)
@@ -38,7 +39,63 @@ namespace EntityFrameworkApp.Data
                 }
 
                 this.states = states;
-                stateToButtonText = FrontendData.ButtonData.getInstance(states).stateToButtonText;
+                //stateToButtonText = FrontendData.ButtonData.getInstance(states).stateToButtonText;
+                //stateToButtonText = new FrontendDataNew()
+            }
+            public Criteria(StateMachineData stateMachineData, FrontendDataNew frontendDataNew)
+            {
+                var transitions = stateMachineData.transitions;
+                var states = stateMachineData.states;
+                var eventDatabyState = frontendDataNew.eventDatabyState;
+
+                var buttonsData = eventDatabyState
+                    .Select(ev => ev.Value as EventData)
+                    .Select(ed => ed.buttons as FrontendDataNew.ButtonData).ToList();
+                
+
+                var predicateByState = new Dictionary<string, Predicate<string>>();
+                foreach (var buttonData in buttonsData)
+                {
+                    predicateByState.Add(buttonData.stateName, BuildEqualPredicate(buttonData.buttonText));
+                }
+
+
+                var predicateByTransitionSpecial = new Dictionary<string, Predicate<string>>();
+
+
+
+                var defaultTransitions = transitions.transitionSets.Where(t => t == stateMachineData.states.findPerson);
+
+                var predicateByTransitionDefault = BuildDefaultPredicates(defaultTransitions);
+
+
+            }
+            //Func<string, Predicate<string>> getPredicate = delegate (string sample) {
+            //    return delegate (string input) { return sample == input; };
+            //};
+            private Dictionary<string, Predicate<string>> BuildDefaultPredicates
+                (IEnumerable<string> transitions, Dictionary<string, Predicate<string>> predicateByState) // remake using predicateByState
+            {
+                var dict = new Dictionary<string, Predicate<string>>();
+                foreach (var transition in transitions)
+                {
+                    string endState = transition.Split(':')[1];
+
+                    dict.Add(transition, BuildEqualPredicate(endState));
+                }
+                return dict;
+            }
+            private Dictionary<string, Predicate<string>> BuildSpecialPredicates(IEnumerable<string> transitions, IEnumerable<string> samples)
+            {
+                throw new NotImplementedException();
+            }
+            private Predicate<string> BuildEqualPredicate(string sample) 
+            {
+                return delegate (string input) { return sample == input; };
+            }
+            private Predicate<string> BuildNotEqualPredicate(string sample)
+            {
+                return delegate (string input) { return sample != input; };
             }
 
             //private FrontendData.ButtonData buttonData { get; init; } = new FrontendData.ButtonData();
@@ -101,18 +158,25 @@ namespace EntityFrameworkApp.Data
         public class StateTelegramActions
         {
             public Dictionary<string,FunctionHandler> actionsDictionary { get; set; }
-            private static FrontendData.CaseText caseText { get; set; }
+            //private static FrontendData.CaseText caseText { get; set; }
             private static StateMachineData.States states { get; set; }
+            //public Dictionary<string, EventDataBase> eventDatabyState { get; set; }
             public StateTelegramActions(StateMachineData.States states)
             {
                 states = states;
-                caseText = FrontendData.CaseText.getInstance(); ;
+                //caseText = FrontendData.CaseText.getInstance(); ;
 
                 actionsDictionary = new Dictionary<string, FunctionHandler>();
                 foreach (var state in states.stateSets)
                 {
                     actionsDictionary.Add(state, this.getAction(state));
                 }
+            }
+            public StateTelegramActions(StateMachineData stateMachineData) // new 
+            {
+                //FrontendDataNew frontendDataNew = new FrontendDataNew(stateMachineData);
+                //this.eventDatabyState = frontendDataNew.eventDatabyState;
+
             }
             public FunctionHandler? getAction(string name) {
                 StateMachineData.States states =
@@ -286,54 +350,50 @@ namespace EntityFrameworkApp.Data
             }
 
         }
-        public class Events
-        {
-            public Dictionary<String, EventDataBase> eventsDictionary { get; set; }
-            public Events()
-            {
-                var states = StateMachineData.States.getInstance();
-                var caseText = FrontendData.CaseText.getInstance(); ;
-                var buttons = new FrontendData.Buttons();
-                var dict = new Dictionary<String, EventDataBase>();
-                foreach (var state in states.stateSets)
-                {
-                    var eventData = new EventData()
-                    {
-                        caseText = caseText.stateToCaseText[state],
-                        buttons = buttons.buttonsDictionary[state]
-                    };
-                    //var stateData = new StateData(null)
-                    //{
-                    //    eventData = eventData
-                    //};
-                    dict.Add(state, eventData);
-                }
-                eventsDictionary = dict;
-            }
-        }
+        //public class Events
+        //{
+        //    public Dictionary<String, EventDataBase> eventsDictionary { get; set; }
+        //    public Events()
+        //    {
+        //        var states = StateMachineData.States.getInstance();
+        //        var caseText = FrontendData.CaseText.getInstance(); ;
+        //        var buttons = new FrontendData.Buttons();
+        //        var dict = new Dictionary<String, EventDataBase>();
+        //        foreach (var state in states.stateSets)
+        //        {
+        //            var eventData = new EventData()
+        //            {
+        //                caseText = caseText.stateToCaseText[state],
+        //                buttons = buttons.buttonsDictionary[state]
+        //            };
+        //            //var stateData = new StateData(null)
+        //            //{
+        //            //    eventData = eventData
+        //            //};
+        //            dict.Add(state, eventData);
+        //        }
+        //        eventsDictionary = dict;
+        //    }
+        //}
 
-        public static IReplyMarkup HomeButtons2()
-        {
-            var states = StateMachineData.States.getInstance();
-            FrontendData.ButtonData button = FrontendData.ButtonData.getInstance(states);
-            return new ReplyKeyboardMarkup
-            (
-                new List<List<KeyboardButton>> {
-                    new List<KeyboardButton>{
-                        new KeyboardButton (button.stateToButtonText[states.home]),
-                        new KeyboardButton (button.stateToButtonText[states.find]),
-                        new KeyboardButton (button.stateToButtonText[states.edit]),
-                        new KeyboardButton (button.stateToButtonText[states.help]),
-                    }
-                }
-            );
-        }
+        //public static IReplyMarkup HomeButtons2()
+        //{
+        //    var states = StateMachineData.States.getInstance();
+        //    FrontendData.ButtonData button = FrontendData.ButtonData.getInstance(states);
+        //    return new ReplyKeyboardMarkup
+        //    (
+        //        new List<List<KeyboardButton>> {
+        //            new List<KeyboardButton>{
+        //                new KeyboardButton (button.stateToButtonText[states.home]),
+        //                new KeyboardButton (button.stateToButtonText[states.find]),
+        //                new KeyboardButton (button.stateToButtonText[states.edit]),
+        //                new KeyboardButton (button.stateToButtonText[states.help]),
+        //            }
+        //        }
+        //    );
+        //}
         // TEST
-        public class EventData : EventDataBase
-        {
-            public virtual string caseText { get; set; } = "Default text";
-            public virtual IReplyMarkup buttons { get; set; } = new ReplyKeyboardMarkup(new KeyboardButton("Default text")); // DefaultButton()
-        }
+
         public class BotInputData : InputDataBase
         {
             public virtual FriendsBot bot { get; set; }
