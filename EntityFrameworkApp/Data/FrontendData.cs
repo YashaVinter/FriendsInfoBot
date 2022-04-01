@@ -173,9 +173,10 @@ namespace EntityFrameworkApp.Data
     /// </summary>
     public class FrontendDataNew
     {
+        public ISet<ButtonData> buttonsData { get; init; }
         private Dictionary<string, IReplyMarkup> keyboardByState { get; init; }
         private Dictionary<string, string> eventTextByState { get; init; }
-        public Dictionary<string, EventDataBase> eventDatabyState { get; set; }
+        public Dictionary<string, EventDataBase> eventDatabyState { get; init; }
         //public Dictionary<string,> MyProperty { get; set; }
         //TODO перенести класс FriendsBotData.EventData в фронтенд и в FriendsBotData убрать текущее использование
         //public EventData eventData { get; set; }
@@ -183,9 +184,21 @@ namespace EntityFrameworkApp.Data
         public FrontendDataNew(StateMachineData.States states)
         {
             this.states = states;
-            this.keyboardByState = BuildKeyboards(states);
+            this.buttonsData = BuildButtons(states);
+            this.keyboardByState = BuildKeyboards(buttonsData);
             this.eventTextByState = BuildEventTexts(states);
             this.eventDatabyState = BuildEventData();
+        }
+
+        private ISet<ButtonData> BuildButtons(StateMachineData.States states)
+        {
+            return new HashSet<ButtonData> 
+            {
+                new ButtonData(states.home, J3QQ4.Emoji.House),
+                new ButtonData(states.find, J3QQ4.Emoji.Mag_Right),
+                new ButtonData(states.edit, J3QQ4.Emoji.Pencil),
+                new ButtonData(states.help, J3QQ4.Emoji.Books)
+            };
         }
 
         private Dictionary<string, EventDataBase> BuildEventData()
@@ -199,28 +212,17 @@ namespace EntityFrameworkApp.Data
             return dict;
         }
 
-        private Dictionary<string, IReplyMarkup> BuildKeyboards(StateMachineData.States states)
+        private Dictionary<string, IReplyMarkup> BuildKeyboards(ISet<ButtonData> buttonsData)
         {
-            var homeButton = new ButtonData(states.home, J3QQ4.Emoji.House);
-            var findButton = new ButtonData(states.find, J3QQ4.Emoji.Mag_Right);
-            var editButton = new ButtonData(states.edit, J3QQ4.Emoji.Pencil);
-            var helpButton = new ButtonData(states.help, J3QQ4.Emoji.Books);
-
-            var keyboardBuilder2 = new KeyboardBuilder(new HashSet<ButtonData>() 
-            {
-                homeButton,
-                findButton,
-                editButton,
-                helpButton
-            });
-            var mainKeyboard = keyboardBuilder2.BuildKeyboard(new List<string>()
+            var keyboardBuilder = new KeyboardBuilder(buttonsData);
+            var mainKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
             {
                 states.home,
                 states.find,
                 states.edit,
                 states.help
             });
-            var homeKeyboard = keyboardBuilder2.BuildKeyboard(new List<string>()
+            var homeKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
             {
                 states.home,
             });

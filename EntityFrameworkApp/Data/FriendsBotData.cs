@@ -46,9 +46,11 @@ namespace EntityFrameworkApp.Data
                 var states = stateMachineData.states;
                 var eventDatabyState = frontendDataNew.eventDatabyState;
                 // upcasting
-                var buttonsData = eventDatabyState
-                    .Select(ev => ev.Value as EventData)
-                    .Select(ed => ed.buttons as FrontendDataNew.ButtonData).ToList(); // dont upcastings
+                var buttonsData = frontendDataNew.buttonsData;
+
+                //var buttonsData = eventDatabyState.Values
+                //    .Select(ev => (ev as EventData).buttons as FrontendDataNew.ButtonData).ToList();
+                //    .Select(ed => ed.buttons as FrontendDataNew.ButtonData).ToList(); // dont upcastings
                 
                 //creating dictionary criteria for all buttons
                 var predicateByState = BuildPredicateByState(buttonsData);
@@ -56,7 +58,7 @@ namespace EntityFrameworkApp.Data
                 var predicateByTransitionEqual = BuildEqualPredicates(transitions.transitionSets, predicateByState);
                 //creating dictionary criteria for findPerson button
                 var predicateByTransitionSpecial =
-                    BuildNotEqualPredicates(transitions.transitionSets, states.findPerson, buttonsData);
+                    BuildNotEqualPredicates(transitions.transitionSets.Where(t=>t.Split(':')[1] == states.findPerson), states.home, buttonsData);// remake
 
                 var predicateByTransition =
                     new Dictionary<string, Predicate<string>>(
@@ -90,15 +92,15 @@ namespace EntityFrameworkApp.Data
                 foreach (var transition in transitions)
                 {
                     string endState = transition.Split(':')[1];
-
-                    dict.Add(transition, predicateByState[endState]);
+                    if(predicateByState.ContainsKey(endState))
+                        dict.Add(transition, predicateByState[endState]);// predicateByState[endState]
                 }
                 return dict;
             }
             private Dictionary<string, Predicate<string>> BuildNotEqualPredicates
                 (IEnumerable<string> transitions, string endState, IEnumerable<FrontendDataNew.ButtonData> buttonsData)
             {
-                var foundTransitions = transitions.Where(t => t.Split(':')[1] == endState);
+                //var foundTransitions = transitions.Where(t => t.Split(':')[1] == endState);
 
                 var buttonText = buttonsData
                     .Where(b => b.stateName == endState)
@@ -107,7 +109,7 @@ namespace EntityFrameworkApp.Data
 
                 var dict = new Dictionary<string, Predicate<string>>();
 
-                foreach (var transition in foundTransitions)
+                foreach (var transition in transitions)
                 {
                     dict.Add(transition, NotEqualPredicate(buttonText));
                 }
@@ -196,11 +198,18 @@ namespace EntityFrameworkApp.Data
                     actionsDictionary.Add(state, this.getAction(state));
                 }
             }
-            public StateTelegramActions(StateMachineData stateMachineData) // new 
+            public StateTelegramActions(StateMachineData stateMachineData, FrontendDataNew frontendDataNew) // new 
             {
-                //FrontendDataNew frontendDataNew = new FrontendDataNew(stateMachineData);
-                //this.eventDatabyState = frontendDataNew.eventDatabyState;
-
+                var states = stateMachineData.states;
+                var dict = new Dictionary<string, FunctionHandler> 
+                {
+                    { states.home,DefaultCase },
+                    { states.find,DefaultCase },
+                    { states.edit,DefaultCase },
+                    { states.help,DefaultCase },
+                    { states.findPerson,CaseFindPerson},
+                };
+                actionsDictionary = dict;
             }
             public FunctionHandler? getAction(string name) {
                 StateMachineData.States states =
@@ -253,6 +262,27 @@ namespace EntityFrameworkApp.Data
             //    }
             //    return null;
             //}
+
+            public static async Task<Message> DefaultCase(IStateData stateData) // CaseHome to CaseHome2
+            {
+                try
+                {
+                    var data = stateData as StateData;
+                    var inputData = data.inputData as BotInputData;
+                    var eventData = data.eventData as EventData;
+
+                    var bot = inputData.bot;
+                    return await bot.SendTextMessageAsync(
+                        inputData.message.Chat.Id,
+                        eventData.caseText,
+                        eventData.buttons
+                        );
+                }
+                catch (Exception)
+                {
+                    throw new NullReferenceException(); ;
+                }
+            }
             public static async Task<Message> CaseHome(IStateData stateData) // CaseHome to CaseHome2
             {
                 try

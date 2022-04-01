@@ -30,19 +30,22 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             StateMachineData.Transitions transitions = StateMachineData.Transitions.getInstance();
             stateMachine = new StateMachine(states.stateSets, transitions.transitionSets, states.home);
 
-            var actionsDictionary = new FriendsBotData.StateTelegramActions(states).actionsDictionary;
+            var frontendDataNew = new FrontendDataNew(states);
+
+            //var actionsDictionary = new FriendsBotData.StateTelegramActions(states).actionsDictionary;
+            var actionsDictionary1 = new FriendsBotData.StateTelegramActions(StateMachineData.Instance(), frontendDataNew).actionsDictionary;
             //var criteriaDictionary = new FriendsBotData.Criteria(stateMachine,states).criteriaDictionary;
             // test
-            var criteriaDictionary1 = new FriendsBotData.Criteria(StateMachineData.Instance(), new FrontendDataNew(states)).criteriaDictionary;
+            var criteriaDictionary1 = new FriendsBotData.Criteria(StateMachineData.Instance(), frontendDataNew).criteriaDictionary;
             //
             //var eventsDataDictionary = new FriendsBotData.Events().eventsDictionary;
-            var eventsDataDictionary = new FrontendDataNew(states).eventDatabyState;
+            var eventsDataDictionary1 = frontendDataNew.eventDatabyState;
 
             //stateMachine.AddEventData(null);// eventDataDictionary
             //stateMachine.stateDictionary[states.home].stateData = new FriendsBotData.StateData( new FriendsBotData.HomeEvent());
 
-            stateMachine.AddEventData(eventsDataDictionary);
-            stateMachine.AddFunctionHandler(actionsDictionary);// actionsDictionary
+            stateMachine.AddEventData(eventsDataDictionary1);
+            stateMachine.AddFunctionHandler(actionsDictionary1);// actionsDictionary
             //stateMachine.AddCriteraRange(criteriaDictionary);// 
             stateMachine.AddCriteraRange(criteriaDictionary1);// 
 

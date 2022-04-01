@@ -29,8 +29,6 @@ namespace Program // Note: actual namespace depends on the project name.
             //end test
             var botClient = new FriendsBot(token);
             //
-            var v = botClient.update.Message.Chat.Id;
-            botClient.SendTextMessageAsync(botClient.update.Message.Chat.Id, "");
             //var botClient = new TelegramBotClient(token);
             using var cts = new CancellationTokenSource();
 
