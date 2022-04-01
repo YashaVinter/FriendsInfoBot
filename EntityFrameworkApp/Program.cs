@@ -24,7 +24,7 @@ namespace Program // Note: actual namespace depends on the project name.
         {
             // start test
             var test = new EntityFrameworkApp.Test();
-            test.test10();
+            //test.test11();
             //new Person().test();
             //end test
             var botClient = new FriendsBot(token);

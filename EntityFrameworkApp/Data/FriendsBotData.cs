@@ -26,9 +26,7 @@ namespace EntityFrameworkApp.Data
         {
             public Dictionary<string, Predicate<string>> criteriaDictionary { get; init; }
             public Criteria(StateMachine stateMachine, StateMachineData.States states)
-            { // TODO
-                
-
+            { // TODO              
                 criteriaDictionary = new Dictionary<string, Predicate<string>>();
                 foreach (var transition in stateMachine.transitionDictionary.Values)
                 {
@@ -47,53 +45,79 @@ namespace EntityFrameworkApp.Data
                 var transitions = stateMachineData.transitions;
                 var states = stateMachineData.states;
                 var eventDatabyState = frontendDataNew.eventDatabyState;
-
+                // upcasting
                 var buttonsData = eventDatabyState
                     .Select(ev => ev.Value as EventData)
-                    .Select(ed => ed.buttons as FrontendDataNew.ButtonData).ToList();
+                    .Select(ed => ed.buttons as FrontendDataNew.ButtonData).ToList(); // dont upcastings
                 
+                //creating dictionary criteria for all buttons
+                var predicateByState = BuildPredicateByState(buttonsData);
+                // creating dictionary simple transitions criteria
+                var predicateByTransitionEqual = BuildEqualPredicates(transitions.transitionSets, predicateByState);
+                //creating dictionary criteria for findPerson button
+                var predicateByTransitionSpecial =
+                    BuildNotEqualPredicates(transitions.transitionSets, states.findPerson, buttonsData);
 
-                var predicateByState = new Dictionary<string, Predicate<string>>();
+                var predicateByTransition =
+                    new Dictionary<string, Predicate<string>>(
+                        predicateByTransitionEqual.Union(predicateByTransitionSpecial
+                        ));
+                if (predicateByTransition.Count() != transitions.transitionSets.Count)
+                {
+                    throw new Exception("Not all transitions are assigned criteria");
+                }
+                criteriaDictionary = predicateByTransition;
+            }
+
+            private Dictionary<string, Predicate<string>> BuildPredicateByState
+                (IEnumerable<FrontendDataNew.ButtonData> buttonsData)
+            {
+                var dict = new Dictionary<string, Predicate<string>>();
                 foreach (var buttonData in buttonsData)
                 {
-                    predicateByState.Add(buttonData.stateName, BuildEqualPredicate(buttonData.buttonText));
+                    dict.Add(buttonData.stateName, EqualPredicate(buttonData.buttonText));
                 }
-
-
-                var predicateByTransitionSpecial = new Dictionary<string, Predicate<string>>();
-
-
-
-                var defaultTransitions = transitions.transitionSets.Where(t => t == stateMachineData.states.findPerson);
-
-                var predicateByTransitionDefault = BuildDefaultPredicates(defaultTransitions);
-
-
+                return dict;
             }
+
             //Func<string, Predicate<string>> getPredicate = delegate (string sample) {
             //    return delegate (string input) { return sample == input; };
             //};
-            private Dictionary<string, Predicate<string>> BuildDefaultPredicates
-                (IEnumerable<string> transitions, Dictionary<string, Predicate<string>> predicateByState) // remake using predicateByState
+            private Dictionary<string, Predicate<string>> BuildEqualPredicates
+                (IEnumerable<string> transitions, Dictionary<string, Predicate<string>> predicateByState)
             {
                 var dict = new Dictionary<string, Predicate<string>>();
                 foreach (var transition in transitions)
                 {
                     string endState = transition.Split(':')[1];
 
-                    dict.Add(transition, BuildEqualPredicate(endState));
+                    dict.Add(transition, predicateByState[endState]);
                 }
                 return dict;
             }
-            private Dictionary<string, Predicate<string>> BuildSpecialPredicates(IEnumerable<string> transitions, IEnumerable<string> samples)
+            private Dictionary<string, Predicate<string>> BuildNotEqualPredicates
+                (IEnumerable<string> transitions, string endState, IEnumerable<FrontendDataNew.ButtonData> buttonsData)
             {
-                throw new NotImplementedException();
+                var foundTransitions = transitions.Where(t => t.Split(':')[1] == endState);
+
+                var buttonText = buttonsData
+                    .Where(b => b.stateName == endState)
+                    .Select(b => b.buttonText)
+                    .FirstOrDefault();
+
+                var dict = new Dictionary<string, Predicate<string>>();
+
+                foreach (var transition in foundTransitions)
+                {
+                    dict.Add(transition, NotEqualPredicate(buttonText));
+                }
+                return dict;
             }
-            private Predicate<string> BuildEqualPredicate(string sample) 
+            private Predicate<string> EqualPredicate(string sample) 
             {
                 return delegate (string input) { return sample == input; };
             }
-            private Predicate<string> BuildNotEqualPredicate(string sample)
+            private Predicate<string> NotEqualPredicate(string sample)
             {
                 return delegate (string input) { return sample != input; };
             }

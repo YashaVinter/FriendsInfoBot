@@ -5,10 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Text.RegularExpressions;
+using System.Xml;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using StateMachineLibrary;
 using EntityFrameworkApp.Data;
 using EntityFrameworkApp.FriendsBotLibrary;
 using EntityFrameworkApp.DataBase;
+
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EntityFrameworkApp
@@ -231,7 +235,78 @@ namespace EntityFrameworkApp
             //keyboardByState.Add(states.home, buttonsBuilder2.BuildKeyboard(homeButtonsList));
 
         }
+        public void test11() {
+            JObject o = JToken.FromObject(new Dictionary<string, string>() { {"one","two" } , { "three", "four" } }) as JObject;
 
+            Person person = new Person(25, "Stiven");
+            string json = JsonConvert.SerializeObject(person);
+            Console.WriteLine(json);
+            Person? restoredPerson = JsonConvert.DeserializeObject<Person?>(json);
+            string path = @"C:\Users\User\source\repos\EntityFrameworkApp\EntityFrameworkApp\JsonObjects\";
+
+            Person p1 = new Person(40, "Ben");
+            p1.act = delegate (string st) { Console.WriteLine(st); };
+
+            JsonSerializer jsonSerializer1 = new JsonSerializer();
+            //jsonSerializer1.
+
+            var v4 = JsonConvert.SerializeObject(p1);
+
+            //JObject jobj = JObject.Parse(File.ReadAllText(path));
+
+            //var v2 = new JToken(json);
+            JObject obj1 = JToken.FromObject(person) as JObject;
+            var obj2 = new JProperty("person", obj1);
+            JArray jArray = new JArray();
+            jArray.Add(obj1);
+            jArray.Add(obj1);
+
+            File.WriteAllText(path + "user.json", jArray.ToString());
+            foreach (var item in jArray)
+            {
+                Person p = item.ToObject<Person>();
+            }
+            //
+            var settings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.All };
+
+            var button1 = new FrontendDataNew.ButtonData(StateMachineData.States.getInstance().home, J3QQ4.Emoji.House);
+            var button2 = new FrontendDataNew.ButtonData(StateMachineData.States.getInstance().find, J3QQ4.Emoji.Mag_Right);
+
+            var button1JSON = JsonConvert.SerializeObject(button1,Newtonsoft.Json.Formatting.Indented,settings);
+            var button2JSON = JsonConvert.SerializeObject(button2, Newtonsoft.Json.Formatting.Indented, settings);
+
+            JsonSerializer jsonSerializer = new JsonSerializer() { TypeNameHandling = TypeNameHandling.All };
+            var b1 = JToken.FromObject(button1, jsonSerializer);
+            var b2 = JToken.FromObject(button2, jsonSerializer);
+            JArray jArray1 = new JArray();
+            jArray1.Add(b1);
+            jArray1.Add(b2);
+
+            File.WriteAllText(path+"buttons.json", jArray1.ToString());
+
+
+            //JObject jobj = JObject.Parse(File.ReadAllText(path + "buttons.json"));
+            JArray jArray2 = JArray.Parse(File.ReadAllText(path + "buttons.json"));
+            foreach (var token in jArray2)
+            {
+                var b = token.ToObject<FrontendDataNew.ButtonData>(jsonSerializer);
+            }
+
+            var b3 = JsonConvert.DeserializeObject<FrontendDataNew.ButtonData>(button1JSON,settings);
+
+        }
+        public void test12() {
+            string path = @"C:\Users\User\source\repos\EntityFrameworkApp\EntityFrameworkApp\XML\";
+
+            XmlDocument xDoc = new XmlDocument();
+            xDoc.Load(path + "people.xml");
+
+            XmlElement? xRoot = xDoc.DocumentElement;
+            foreach (XmlElement xnode in xRoot)
+            {
+
+            }
+        }
 
         private void Hero_eventHandler(object? sender, EventArgs e)
         {
@@ -259,7 +334,6 @@ namespace EntityFrameworkApp
             {
                 Console.WriteLine(this.ToString + " " + name + " print2");
             }
-
             public event EventHandler act;
             public MyArgs args = new MyArgs() { health = 200 };
             public void Hit() {
@@ -329,6 +403,17 @@ namespace EntityFrameworkApp
         public class MyArgs : EventArgs
         {
             public int health = 0;
+        }
+        public class Person
+        {
+            public int age { get; set; }
+            public string name{ get; set; }
+            public Action<string> act { get; set; }
+            public Person(int a, string n)
+            {
+                age = a;
+                name = n;
+            }
         }
     }
 }

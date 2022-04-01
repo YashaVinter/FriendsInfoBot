@@ -31,7 +31,10 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             stateMachine = new StateMachine(states.stateSets, transitions.transitionSets, states.home);
 
             var actionsDictionary = new FriendsBotData.StateTelegramActions(states).actionsDictionary;
-            var criteriaDictionary = new FriendsBotData.Criteria(stateMachine,states).criteriaDictionary;
+            //var criteriaDictionary = new FriendsBotData.Criteria(stateMachine,states).criteriaDictionary;
+            // test
+            var criteriaDictionary1 = new FriendsBotData.Criteria(StateMachineData.Instance(), new FrontendDataNew(states)).criteriaDictionary;
+            //
             //var eventsDataDictionary = new FriendsBotData.Events().eventsDictionary;
             var eventsDataDictionary = new FrontendDataNew(states).eventDatabyState;
 
@@ -40,7 +43,8 @@ namespace EntityFrameworkApp.FriendsBotLibrary
 
             stateMachine.AddEventData(eventsDataDictionary);
             stateMachine.AddFunctionHandler(actionsDictionary);// actionsDictionary
-            stateMachine.AddCriteraRange(criteriaDictionary);// 
+            //stateMachine.AddCriteraRange(criteriaDictionary);// 
+            stateMachine.AddCriteraRange(criteriaDictionary1);// 
 
         }
         public void Answer(Update update)

@@ -192,7 +192,7 @@ namespace EntityFrameworkApp.Data
         {
 
             //var v1 = eventTextByState.Join(keyboardByState,e => e,k => k,(e,k) = >  )
-            var pairs = from e in eventTextByState
+            IEnumerable<KeyValuePair<string, EventDataBase>> pairs = from e in eventTextByState
                      join k in keyboardByState on e.Key equals k.Key
                      select new KeyValuePair<string, EventDataBase>(e.Key, new EventData(e.Value, k.Value));
             var dict = new Dictionary<string, EventDataBase>(pairs);
@@ -242,11 +242,11 @@ namespace EntityFrameworkApp.Data
             };
             var dict = new Dictionary<string, string>();
             
-            dict.Append(func(states.home, eventText.home));
-            dict.Append(func(states.find, eventText.find));
-            dict.Append(func(states.edit, eventText.edit));
-            dict.Append(func(states.help, eventText.help));
-            dict.Append(func(states.findPerson, eventText.findPerson));
+            dict.Add(states.home, eventText.home);
+            dict.Add(states.find, eventText.find);
+            dict.Add(states.edit, eventText.edit);
+            dict.Add(states.help, eventText.help);
+            dict.Add(states.findPerson, eventText.findPerson);
 
             return dict;
         }
