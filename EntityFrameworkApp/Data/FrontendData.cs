@@ -171,17 +171,14 @@ namespace EntityFrameworkApp.Data
     /// <summary>
     /// //////////////////////////////////////////////////////////////////////
     /// </summary>
-    public class FrontendDataNew
+    public class FrontendData
     {
         public ISet<ButtonData> buttonsData { get; init; }
+        public Dictionary<string, EventDataBase> eventDatabyState { get; init; }
         private Dictionary<string, IReplyMarkup> keyboardByState { get; init; }
         private Dictionary<string, string> eventTextByState { get; init; }
-        public Dictionary<string, EventDataBase> eventDatabyState { get; init; }
-        //public Dictionary<string,> MyProperty { get; set; }
-        //TODO перенести класс FriendsBotData.EventData в фронтенд и в FriendsBotData убрать текущее использование
-        //public EventData eventData { get; set; }
-        private StateMachineData.States states { get; set; }
-        public FrontendDataNew(StateMachineData.States states)
+        private StateMachineData.States states { get; init; }
+        public FrontendData(StateMachineData.States states)
         {
             this.states = states;
             this.buttonsData = BuildButtons(states);
@@ -238,10 +235,7 @@ namespace EntityFrameworkApp.Data
         }
         private Dictionary<string, string> BuildEventTexts(StateMachineData.States states)
         {
-            var eventText = new EventText();
-            var func = delegate(string st, string eventText) {  
-                return new KeyValuePair<string, string>(st, eventText);
-            };
+            var eventText = EventText.Instance(states);
             var dict = new Dictionary<string, string>();
             
             dict.Add(states.home, eventText.home);
@@ -254,32 +248,28 @@ namespace EntityFrameworkApp.Data
         }
         public class KeyboardBuilder
         {
-            public ISet<ButtonData> buttons { get; set; }
-
-            //public Dictionary<string, ReplyKeyboardMarkup> keyboardByState { get; set; } // ReplyMarkupBase
-            public KeyboardBuilder(ISet<ButtonData> buttons)
-            {
-                this.buttons = buttons;
-                //keyboardByState = new Dictionary<string, ReplyKeyboardMarkup>();
-            }
-            public IReplyMarkup BuildKeyboard(List<string> keyboardButtonsNames)
+            private ISet<ButtonData> buttons { get; init; }
+            public KeyboardBuilder(ISet<ButtonData> buttons) => this.buttons = buttons;
+            public ReplyKeyboardMarkup BuildKeyboard(List<string> keyboardButtonsNames)
             {
                 try
                 {
-                    //if (this.keyboardByState.ContainsKey(buttonStateName))
-                    //    throw new("Keyboard already exist");
-                    var buttonsList = buttons
-                        .Where(b1 => keyboardButtonsNames.Any(b2 => b2 == b1.stateName))
-                        .OrderBy(b3 => keyboardButtonsNames.IndexOf(b3.stateName))
-                        .Select(b4 => b4.button as KeyboardButton)
-                        .ToList();
+                    //var buttonsList = buttons
+                    //    .Where(b1 => keyboardButtonsNames.Any(b2 => b2 == b1.stateName))
+                    //    .OrderBy(b3 => keyboardButtonsNames.IndexOf(b3.stateName))
+                    //    .Select(b4 => b4.button as KeyboardButton)
+                    //    .ToList();
+                    var buttonsList = (from b in buttons
+                                        join kn in keyboardButtonsNames on b.stateName equals kn
+                                        orderby keyboardButtonsNames.IndexOf(b.stateName)
+                                        select b.button as KeyboardButton)
+                                        .ToList();
 
                     if (buttonsList.Count != keyboardButtonsNames.Count)
                         throw new("Dont not Implemented some buttons");
 
                     var replyKeyboardMarkup = new ReplyKeyboardMarkup(
-                        new List<List<KeyboardButton>> { buttonsList });
-                    replyKeyboardMarkup.ResizeKeyboard = true;
+                        new List<List<KeyboardButton>> { buttonsList }) { ResizeKeyboard = true};
                     return replyKeyboardMarkup;
                 }
                 catch (Exception)
@@ -304,20 +294,34 @@ namespace EntityFrameworkApp.Data
         }
         public class EventText
         {
-            public static StateMachineData.States states { get; set; } = StateMachineData.States.getInstance();
-            public string home { get; init; } = $"Choose mode: {states.home} {states.find} {states.edit} {states.help}";
-            public string find { get; init; } = "Write person name, If you want see all persons write \"ALL\"";
-            public string edit { get; init; } = "EDIT Write person name, If you want add or edit person";
-            public string help { get; init; } = "HELP Its a friendBot, Here you can add informations about your friends";
-            public string findPerson { get; init; } = "Person not found, try again or return home";
-
+            private static EventText instance;
+            private static StateMachineData.States states { get; set; }
+            public string home { get; init; }
+            public string find { get; init; }
+            public string edit { get; init; }
+            public string help { get; init; }
+            public string findPerson { get; init; }
+            private EventText(StateMachineData.States st) {
+                states = st;
+                home = $"Choose mode: {states.home} {states.find} {states.edit} {states.help}";
+                find = "Write person name, If you want see all persons write \"ALL\"";
+                edit = "EDIT Write person name, If you want add or edit person";
+                help = "HELP Its a friendBot, Here you can add informations about your friends";
+                findPerson = "Person not found, try again or return home";
+            }
+            public static EventText Instance(StateMachineData.States st) 
+            {
+                if (instance is null)
+                    instance = new EventText(st);
+                return instance;
+            }
         }
 
     }
     public class EventData : EventDataBase
     {
-        public virtual string caseText { get; set; } = "Default text";
-        public virtual IReplyMarkup buttons { get; set; } = new ReplyKeyboardMarkup(new KeyboardButton("Default text")); // DefaultButton()
+        public virtual string caseText { get; set; }
+        public virtual IReplyMarkup buttons { get; set; }
         public EventData(string caseText, IReplyMarkup buttons)
         {
             this.caseText = caseText;

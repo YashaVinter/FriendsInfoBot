@@ -206,33 +206,33 @@ namespace EntityFrameworkApp
         }
 
         public void test10() {
-            //var states = StateMachineData.States.getInstance();
-            //string homeEmj = char.ConvertFromUtf32(0x1F3E0);
-            //string findEmj = char.ConvertFromUtf32(0x1F50D);
-            //string editEmj = char.ConvertFromUtf32(0x2699);
-            //string helpEmj = char.ConvertFromUtf32(0x1F4DA);
+            var states = StateMachineData.States.getInstance();
+            string homeEmj = char.ConvertFromUtf32(0x1F3E0);
+            string findEmj = char.ConvertFromUtf32(0x1F50D);
+            string editEmj = char.ConvertFromUtf32(0x2699);
+            string helpEmj = char.ConvertFromUtf32(0x1F4DA);
 
-            //var homeButton= new EntityFrameworkApp.Data.ButtonData2(states.home, homeEmj);
-            //var findButton = new EntityFrameworkApp.Data.ButtonData2(states.find, findEmj);
-            //var editButton = new EntityFrameworkApp.Data.ButtonData2(states.edit, editEmj);
-            //var helpButton = new EntityFrameworkApp.Data.ButtonData2(states.help, helpEmj);
-            //var buttonsSet = new HashSet<EntityFrameworkApp.Data.ButtonData2>() 
-            //{
-            //    homeButton,
-            //    findButton,
-            //    editButton,
-            //    helpButton
-            //};
-            //var buttonsBuilder2 = new EntityFrameworkApp.Data.KeyboardBuilder2(buttonsSet);
-            //var homeButtonsList = new List<string>() 
-            //{
-            //    states.edit,
-            //    states.help,
-            //    states.home,
-            //    states.find
-            //};
-            //var keyboardByState = new Dictionary<string, IReplyMarkup>();
-            //keyboardByState.Add(states.home, buttonsBuilder2.BuildKeyboard(homeButtonsList));
+            var homeButton = new EntityFrameworkApp.Data.FrontendData.ButtonData(states.home, homeEmj);
+            var findButton = new EntityFrameworkApp.Data.FrontendData.ButtonData(states.find, findEmj);
+            var editButton = new EntityFrameworkApp.Data.FrontendData.ButtonData(states.edit, editEmj);
+            var helpButton = new EntityFrameworkApp.Data.FrontendData.ButtonData(states.help, helpEmj);
+            var buttonsSet = new HashSet<EntityFrameworkApp.Data.FrontendData.ButtonData>()
+            {
+                homeButton,
+                findButton,
+                editButton,
+                helpButton
+            };
+            var buttonsBuilder2 = new EntityFrameworkApp.Data.FrontendData.KeyboardBuilder(buttonsSet);
+            var homeButtonsList = new List<string>()
+            {
+                states.edit,
+                states.help,
+                states.home,
+                states.find
+            };
+            var keyboardByState = new Dictionary<string, IReplyMarkup>();
+            keyboardByState.Add(states.home, buttonsBuilder2.BuildKeyboard(homeButtonsList));
 
         }
         public void test11() {
@@ -269,8 +269,8 @@ namespace EntityFrameworkApp
             //
             var settings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.All };
 
-            var button1 = new FrontendDataNew.ButtonData(StateMachineData.States.getInstance().home, J3QQ4.Emoji.House);
-            var button2 = new FrontendDataNew.ButtonData(StateMachineData.States.getInstance().find, J3QQ4.Emoji.Mag_Right);
+            var button1 = new FrontendData.ButtonData(StateMachineData.States.getInstance().home, J3QQ4.Emoji.House);
+            var button2 = new FrontendData.ButtonData(StateMachineData.States.getInstance().find, J3QQ4.Emoji.Mag_Right);
 
             var button1JSON = JsonConvert.SerializeObject(button1,Newtonsoft.Json.Formatting.Indented,settings);
             var button2JSON = JsonConvert.SerializeObject(button2, Newtonsoft.Json.Formatting.Indented, settings);
@@ -289,10 +289,10 @@ namespace EntityFrameworkApp
             JArray jArray2 = JArray.Parse(File.ReadAllText(path + "buttons.json"));
             foreach (var token in jArray2)
             {
-                var b = token.ToObject<FrontendDataNew.ButtonData>(jsonSerializer);
+                var b = token.ToObject<FrontendData.ButtonData>(jsonSerializer);
             }
 
-            var b3 = JsonConvert.DeserializeObject<FrontendDataNew.ButtonData>(button1JSON,settings);
+            var b3 = JsonConvert.DeserializeObject<FrontendData.ButtonData>(button1JSON,settings);
 
         }
         public void test12() {
@@ -306,6 +306,36 @@ namespace EntityFrameworkApp
             {
 
             }
+        }
+        public async void test13() {
+            var func = async (string s) => 
+            {
+                await Task.Delay(100);
+                Console.WriteLine(s);
+                return true;
+            };
+
+
+
+            var task1 = func("bla");
+            var task2 = func("blabla2");
+
+
+            Console.WriteLine("synchronous operation");
+
+            var res1 = await task1;
+            var res2 = await task2;
+            //var t2 = func("");
+
+            //var r = await t;
+
+            //var task = await Task.Run(() => func(""));
+
+
+
+            //task = Task.Run
+
+            //res = (bool)ares.AsyncState;
         }
 
         private void Hero_eventHandler(object? sender, EventArgs e)
