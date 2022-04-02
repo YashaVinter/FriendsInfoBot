@@ -24,30 +24,7 @@ namespace EntityFrameworkApp.FriendsBotLibrary
         }
         public Update update { get; set; }
         protected StateMachine stateMachine { get; set; }
-        //public StateMachineLibrary.StateMachineCommand botCommand { get; set; } = new StateMachineLibrary.StateMachineCommand();
-        public void StateMachineBuilder() {
-            //StateMachineData.States states = StateMachineData.States.getInstance();
-            //StateMachineData.Transitions transitions = StateMachineData.Transitions.getInstance();
-            //stateMachine = new StateMachine(states.stateSets, transitions.transitionSets, states.home);
-
-            //var frontendDataNew = new FrontendData(states);
-
-            ////var actionsDictionary = new FriendsBotData.StateTelegramActions(states).actionsDictionary;
-            //var actionsDictionary1 = new FriendsBotData.StateTelegramActions(StateMachineData.Instance()).actionByState;
-            ////var criteriaDictionary = new FriendsBotData.Criteria(stateMachine,states).criteriaDictionary;
-            //// test
-            //var criteriaDictionary1 = new FriendsBotData.Criteria(StateMachineData.Instance(), frontendDataNew).criteriaByTransition;
-            ////
-            ////var eventsDataDictionary = new FriendsBotData.Events().eventsDictionary;
-            //var eventsDataDictionary1 = frontendDataNew.eventDatabyState;
-
-            ////stateMachine.AddEventData(null);// eventDataDictionary
-            ////stateMachine.stateDictionary[states.home].stateData = new FriendsBotData.StateData( new FriendsBotData.HomeEvent());
-
-            //stateMachine.AddEventData(eventsDataDictionary1);
-            //stateMachine.AddFunctionHandler(actionsDictionary1);// actionsDictionary
-            ////stateMachine.AddCriteraRange(criteriaDictionary);// 
-            //stateMachine.AddCriteraRange(criteriaDictionary1);// 
+        private void StateMachineBuilder() {
             var smd = StateMachineData.Instance();
             stateMachine = new StateMachine(smd.states.stateSets, smd.transitions.transitionSets, smd.states.home);
 
@@ -65,8 +42,6 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             var inputData = new FriendsBotData.BotInputData(this, update.Message);
 
             stateMachine.Execute(inputData);
-
-            //stateMachine.Execute(command);
         }
         public async Task<Message> SendTextMessageAsync(long chatId, string text,IReplyMarkup replyMarkup)
         {

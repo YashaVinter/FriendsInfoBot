@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using System.Text.RegularExpressions;
 using System.Xml;
+using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StateMachineLibrary;
@@ -300,6 +301,9 @@ namespace EntityFrameworkApp
 
             XmlDocument xDoc = new XmlDocument();
             xDoc.Load(path + "people.xml");
+
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(HeroBase));
+            //var v1 = new XmlRootAttribute()
 
             XmlElement? xRoot = xDoc.DocumentElement;
             foreach (XmlElement xnode in xRoot)
