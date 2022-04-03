@@ -22,24 +22,45 @@ namespace EntityFrameworkApp
             this.startState = startState;
         }
         public StateMachine Build() {
+            ValidateData(statesData, transitionsData);
+
             var states = from sd in statesData
                          select new StateBuilder(sd).Build();
             var transitions = from td in transitionsData
                               select new TransitionBuilder(td).Build();
-            ValidateData(states, transitions);
+
             ConnectStatesAndTransitions(ref states, ref transitions);
             return new StateMachine(states,transitions,startState);
-            throw new NotImplementedException();
         }
-        private void ValidateData(IEnumerable<State> states, IEnumerable<Transition> transitions)
+        private void ValidateData(IEnumerable<StateDataSet> statesData, IEnumerable<TrasitionDataSet> transitionsData)
         {
-            // check repiting names in states
-            // check repiting names in transitions
-            throw new NotImplementedException();
+            if (statesData.Count() != statesData.Distinct().Count())
+                throw new();
+            if (transitionsData.Count() != transitionsData.Distinct().Count())
+                throw new();         
         }
         private void ConnectStatesAndTransitions(ref IEnumerable<State> states, ref IEnumerable<Transition> transitions)
         {
-
+            var v1 = from s in states
+                     join t in transitions on s.stateModel.name equals t.transitionModel.entryState.name
+                     where s.stateModel.transitions.Add(t.transitionModel)
+                     select s;
+            //var v2 = from t in transitions
+            //         join s in states on t.transitionModel.entryState equals s.stateModel
+            //         where t.transitionModel.entryState = s
+            //         select s;
+            foreach (var s in states)
+            {
+                var tr = from t in transitions
+                         where t.transitionModel.name.Split(':')[0] == s.stateModel.name
+                         select t.transitionModel;
+                s.stateModel.transitions = tr.ToHashSet();
+            }
+            foreach (var t in transitions)
+            {
+                t.transitionModel.entryState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[0]).stateModel;
+                t.transitionModel.endState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[1]).stateModel;
+            }
         }
         public void test()
         {
