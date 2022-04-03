@@ -126,11 +126,11 @@ namespace EntityFrameworkApp.Data
                 return new Dictionary<string, Predicate<string>>(predicateByTransition);
 
             }
-            private Predicate<string> EqualPredicate(string sample) 
+            public Predicate<string> EqualPredicate(string sample) 
             {
                 return (string input) => { return sample == input; };
             }
-            private Predicate<string> NotEqualPredicate(string sample)
+            public Predicate<string> NotEqualPredicate(string sample)
             {
                 return (string input) => { return sample != input; };
             }
@@ -269,7 +269,7 @@ namespace EntityFrameworkApp.Data
             //    return null;
             //}
 
-            private static async Task<Message> DefaultCase(IStateData stateData)
+            public async Task<Message> DefaultCase(IStateData stateData)
             {
                 try
                 {
@@ -289,7 +289,7 @@ namespace EntityFrameworkApp.Data
                     throw new NullReferenceException(); ;
                 }
             }
-            private static async Task<Message> CaseFindPerson(IStateData stateData)
+            public async Task<Message> CaseFindPerson(IStateData stateData)
             {
                 try
                 {

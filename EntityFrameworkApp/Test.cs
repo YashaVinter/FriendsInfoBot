@@ -342,6 +342,10 @@ namespace EntityFrameworkApp
             //res = (bool)ares.AsyncState;
         }
 
+        public void test14StateMachine() 
+        {
+            
+        }
         private void Hero_eventHandler(object? sender, EventArgs e)
         {
             throw new NotImplementedException();
