@@ -24,10 +24,10 @@ namespace EntityFrameworkApp
         public StateMachine Build() {
             ValidateData(statesData, transitionsData);
 
-            var states = from sd in statesData
-                         select new StateBuilder(sd).Build();
-            var transitions = from td in transitionsData
-                              select new TransitionBuilder(td).Build();
+            var states = (from sd in statesData
+                         select new StateBuilder(sd).Build()).ToList();
+            var transitions = (from td in transitionsData
+                              select new TransitionBuilder(td).Build()).ToList();
 
             ConnectStatesAndTransitions(ref states, ref transitions);
             return new StateMachine(states,transitions,startState);
@@ -39,12 +39,12 @@ namespace EntityFrameworkApp
             if (transitionsData.Count() != transitionsData.Distinct().Count())
                 throw new();         
         }
-        private void ConnectStatesAndTransitions(ref IEnumerable<State> states, ref IEnumerable<Transition> transitions)
+        private void ConnectStatesAndTransitions(ref List<State> states, ref List<Transition> transitions)
         {
-            var v1 = from s in states
-                     join t in transitions on s.stateModel.name equals t.transitionModel.entryState.name
-                     where s.stateModel.transitions.Add(t.transitionModel)
-                     select s;
+            //var v1 = from s in states
+            //         join t in transitions on s.stateModel.name equals t.transitionModel.entryState.name
+            //         where s.stateModel.transitions.Add(t.transitionModel)
+            //         select s;
             //var v2 = from t in transitions
             //         join s in states on t.transitionModel.entryState equals s.stateModel
             //         where t.transitionModel.entryState = s
@@ -61,6 +61,8 @@ namespace EntityFrameworkApp
                 t.transitionModel.entryState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[0]).stateModel;
                 t.transitionModel.endState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[1]).stateModel;
             }
+            //
+            //states.Aggregate(var v = new { one = "" }, (v, r) => v. );
         }
         public void test()
         {
