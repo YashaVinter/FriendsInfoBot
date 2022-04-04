@@ -181,12 +181,6 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             var actions = fbd.actions;
             var botInputData = new FriendsBotData.BotInputData(null, null);
             var keyboards = fbd.frontendData.keyboards;
-            //
-            //var states = smd.states;
-            //var eventTextByState = fd.eventTextByState;
-            //var actions = new FriendsBotData.StateTelegramActions();
-            //var botInputData = new FriendsBotData.BotInputData(null, null);
-            //var keyboards = fd.keyboards;
 
             StateDataSetBase defaultState = new StateDataSetBase("name", actions.DefaultCase, keyboards.homeKeyboard, botInputData);
 
@@ -213,13 +207,7 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             var tr = (string s1, string s2) => { return s1 + ':' + s2; };
             var end = (string s) => { return s.Split(':')[1]; };
             var criteria = fbd.criteria;
-            //
-            //var states = smd.states;
-            //var tr = (string s1, string s2) => { return s1 + ':' + s2; };
-            //var end = (string s) => { return s.Split(':')[1]; };
-            //var criteria = new FriendsBotData.Criteria();
 
-            //var buttonsTextByState = fd.buttonsTextByState;
             var defaultTransitions = new List<string>
             {
                     tr(states.home,states.find),
