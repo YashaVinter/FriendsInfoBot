@@ -103,6 +103,5 @@ TODO переделать актионы как класс с переопред
  
  
  */
-// before merging with test1
 
-//before merging master branch 2
+//before deliting unuseful elenemts
