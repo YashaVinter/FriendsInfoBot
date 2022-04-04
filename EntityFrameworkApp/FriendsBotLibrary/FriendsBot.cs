@@ -158,7 +158,14 @@ namespace EntityFrameworkApp.FriendsBotLibrary
 
             string message = update.Message.Text;
             Console.WriteLine($"Received a '{update.Message.Text}' message from {update.Message.From}");
-
+            // test
+            //string str = @"[Link](example.com) (test)";
+            //await botClient.SendTextMessageAsync(
+            //    chatId: update.Message.Chat.Id,
+            //    text: str,
+            //    parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown
+            //    );
+            //
             await Answer(update);
             Console.WriteLine($"Message '{update.Message.Text}'from {update.Message.From} send");
         }
