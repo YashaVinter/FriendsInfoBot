@@ -124,33 +124,33 @@ namespace EntityFrameworkApp.Data
         //    }
         //}
     }
-    public static class SingletonFactory
-    {
-        private static readonly IDictionary<Type, object> instances;
+    //public static class SingletonFactory
+    //{
+    //    private static readonly IDictionary<Type, object> instances;
 
-        static SingletonFactory()
-        {
-            instances = new Dictionary<Type, object>();
-        }
+    //    static SingletonFactory()
+    //    {
+    //        instances = new Dictionary<Type, object>();
+    //    }
 
-        public static T Create<T>(params object[] args)
-        {
-            Type instanceType = typeof(T);
+    //    public static T Create<T>(params object[] args)
+    //    {
+    //        Type instanceType = typeof(T);
 
-            T instance;
+    //        T instance;
 
-            if (instances.ContainsKey(instanceType))
-            {
-                instance = (T)instances[instanceType];
-            }
-            else
-            {
-                instance = (T)Activator.CreateInstance(instanceType, args);
+    //        if (instances.ContainsKey(instanceType))
+    //        {
+    //            instance = (T)instances[instanceType];
+    //        }
+    //        else
+    //        {
+    //            instance = (T)Activator.CreateInstance(instanceType, args);
 
-                instances.Add(instanceType, instance);
-            }
+    //            instances.Add(instanceType, instance);
+    //        }
 
-            return instance;
-        }
-    }
+    //        return instance;
+    //    }
+    //}
 }

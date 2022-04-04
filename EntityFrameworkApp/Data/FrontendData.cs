@@ -173,18 +173,25 @@ namespace EntityFrameworkApp.Data
     /// </summary>
     public class FrontendData
     {
-        public ISet<ButtonData> buttonsData { get; init; }
-        public Dictionary<string, EventDataBase> eventDatabyState { get; init; }
-        private Dictionary<string, IReplyMarkup> keyboardByState { get; init; }
-        private Dictionary<string, string> eventTextByState { get; init; }
-        private StateMachineData.States states { get; init; }
+        private ISet<ButtonData> buttonsData { get; init; }
+        public Keyboards keyboards { get; set; }
+        public Dictionary<string,string> buttonsTextByState{ get; set; }
+        public Dictionary<string, string> eventTextByState { get; set; }
+
+        //public Dictionary<string, EventDataBase> eventDatabyState { get; init; }
+        //private Dictionary<string, IReplyMarkup> keyboardByState { get; init; }
+        //private Dictionary<string, string> eventTextByState { get; init; }
+        //private StateMachineData.States states { get; init; }
         public FrontendData(StateMachineData.States states)
         {
-            this.states = states;
+            //this.states = states;
             this.buttonsData = BuildButtons(states);
-            this.keyboardByState = BuildKeyboards(buttonsData);
-            this.eventTextByState = BuildEventTexts(states);
-            this.eventDatabyState = BuildEventData();
+            //this.keyboardByState = BuildKeyboards(buttonsData);
+            //this.eventTextByState = BuildEventTexts(states);
+            //this.eventDatabyState = BuildEventData();
+            this.keyboards = new Keyboards(buttonsData,states);
+            this.buttonsTextByState = buttonsData.ToDictionary(bd => bd.stateName, bd => bd.buttonText);
+            this.eventTextByState = new EventText(states).eventTextByState;
         }
 
         private ISet<ButtonData> BuildButtons(StateMachineData.States states)
@@ -198,54 +205,54 @@ namespace EntityFrameworkApp.Data
             };
         }
 
-        private Dictionary<string, EventDataBase> BuildEventData()
-        {
+        //private Dictionary<string, EventDataBase> BuildEventData()
+        //{
 
-            //var v1 = eventTextByState.Join(keyboardByState,e => e,k => k,(e,k) = >  )
-            IEnumerable<KeyValuePair<string, EventDataBase>> pairs = from e in eventTextByState
-                     join k in keyboardByState on e.Key equals k.Key
-                     select new KeyValuePair<string, EventDataBase>(e.Key, new EventData(e.Value, k.Value));
-            var dict = new Dictionary<string, EventDataBase>(pairs);
-            return dict;
-        }
+        //    //var v1 = eventTextByState.Join(keyboardByState,e => e,k => k,(e,k) = >  )
+        //    IEnumerable<KeyValuePair<string, EventDataBase>> pairs = from e in eventTextByState
+        //             join k in keyboardByState on e.Key equals k.Key
+        //             select new KeyValuePair<string, EventDataBase>(e.Key, new EventData(e.Value, k.Value));
+        //    var dict = new Dictionary<string, EventDataBase>(pairs);
+        //    return dict;
+        //}
 
-        private Dictionary<string, IReplyMarkup> BuildKeyboards(ISet<ButtonData> buttonsData)
-        {
-            var keyboardBuilder = new KeyboardBuilder(buttonsData);
-            var mainKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
-            {
-                states.home,
-                states.find,
-                states.edit,
-                states.help
-            });
-            var homeKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
-            {
-                states.home,
-            });
+        //private Dictionary<string, IReplyMarkup> BuildKeyboards(ISet<ButtonData> buttonsData)
+        //{
+        //    var keyboardBuilder = new KeyboardBuilder(buttonsData);
+        //    var mainKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
+        //    {
+        //        states.home,
+        //        states.find,
+        //        states.edit,
+        //        states.help
+        //    });
+        //    var homeKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
+        //    {
+        //        states.home,
+        //    });
 
-            var dict = new Dictionary<string, IReplyMarkup>();
-            dict.Add(states.home,       mainKeyboard);
-            dict.Add(states.find,       homeKeyboard);
-            dict.Add(states.edit,       homeKeyboard);
-            dict.Add(states.help,       homeKeyboard);
-            dict.Add(states.findPerson, homeKeyboard);
+        //    var dict = new Dictionary<string, IReplyMarkup>();
+        //    dict.Add(states.home,       mainKeyboard);
+        //    dict.Add(states.find,       homeKeyboard);
+        //    dict.Add(states.edit,       homeKeyboard);
+        //    dict.Add(states.help,       homeKeyboard);
+        //    dict.Add(states.findPerson, homeKeyboard);
 
-            return dict;
-        }
-        private Dictionary<string, string> BuildEventTexts(StateMachineData.States states)
-        {
-            var eventText = EventText.Instance(states);
-            var dict = new Dictionary<string, string>();
+        //    return dict;
+        //}
+        //private Dictionary<string, string> BuildEventTexts(StateMachineData.States states)
+        //{
+        //    var eventText = EventText.Instance(states);
+        //    var dict = new Dictionary<string, string>();
             
-            dict.Add(states.home, eventText.home);
-            dict.Add(states.find, eventText.find);
-            dict.Add(states.edit, eventText.edit);
-            dict.Add(states.help, eventText.help);
-            dict.Add(states.findPerson, eventText.findPerson);
+        //    dict.Add(states.home, eventText.home);
+        //    dict.Add(states.find, eventText.find);
+        //    dict.Add(states.edit, eventText.edit);
+        //    dict.Add(states.help, eventText.help);
+        //    dict.Add(states.findPerson, eventText.findPerson);
 
-            return dict;
-        }
+        //    return dict;
+        //}
         public class KeyboardBuilder
         {
             private ISet<ButtonData> buttons { get; init; }
@@ -294,29 +301,61 @@ namespace EntityFrameworkApp.Data
         }
         public class EventText
         {
-            private static EventText instance;
+            //private static EventText instance;
             private static StateMachineData.States states { get; set; }
             public string home { get; init; }
             public string find { get; init; }
             public string edit { get; init; }
             public string help { get; init; }
             public string findPerson { get; init; }
-            private EventText(StateMachineData.States st) {
-                states = st;
-                home = $"Choose mode: {states.home} {states.find} {states.edit} {states.help}";
-                find = "Write person name, If you want see all persons write \"ALL\"";
-                edit = "EDIT Write person name, If you want add or edit person";
-                help = "HELP Its a friendBot, Here you can add informations about your friends";
-                findPerson = "Person not found, try again or return home";
-            }
-            public static EventText Instance(StateMachineData.States st) 
+            public Dictionary<string,string> eventTextByState { get; set; }
+            //private EventText(StateMachineData.States st) {
+            //    states = st;
+            //    home = $"Choose mode: {states.home} {states.find} {states.edit} {states.help}";
+            //    find = "Write person name, If you want see all persons write \"ALL\"";
+            //    edit = "EDIT Write person name, If you want add or edit person";
+            //    help = "HELP Its a friendBot, Here you can add informations about your friends";
+            //    findPerson = "Person not found, try again or return home";
+            //}
+            //public static EventText Instance(StateMachineData.States st) 
+            //{
+            //    if (instance is null)
+            //        instance = new EventText(st);
+            //    return instance;
+            //}
+            public EventText(StateMachineData.States states)
             {
-                if (instance is null)
-                    instance = new EventText(st);
-                return instance;
+                eventTextByState = new Dictionary<string, string> 
+                {
+                    { states.home,$"Choose mode: {states.home} {states.find} {states.edit} {states.help}"},
+                    { states.find,"Write person name, If you want see all persons write \"ALL\""},
+                    { states.edit,"EDIT Write person name, If you want add or edit person" },
+                    { states.help,"HELP Its a friendBot, Here you can add informations about your friends"},
+                    { states.findPerson,"Person not found, try again or return home"}
+                };
             }
         }
 
+        public class Keyboards
+        {
+            public ReplyKeyboardMarkup mainKeyboard { get; set; }
+            public ReplyKeyboardMarkup homeKeyboard { get; set; }
+            public Keyboards(ISet<ButtonData> buttons, StateMachineData.States states)
+            {
+                var keyboardBuilder = new KeyboardBuilder(buttons);
+                mainKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
+                    {
+                        states.home,
+                        states.find,
+                        states.edit,
+                        states.help
+                    });
+                homeKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
+                    {
+                        states.home,
+                    });
+            }
+        }
     }
     public class EventData : EventDataBase
     {

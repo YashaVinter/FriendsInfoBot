@@ -6,44 +6,50 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Exceptions;
+using Telegram.Bot.Extensions.Polling;
 
 using EntityFrameworkApp.DataBase;
 using StateMachineLibrary;
 
 using EntityFrameworkApp.Data;
+using Program;
 
 namespace EntityFrameworkApp.FriendsBotLibrary
 {
 
-    public class FriendsBot : TelegramBotClient
+    public sealed class FriendsBot
     {
-        public FriendsBot(string token) : base(token) 
+        private static TelegramBotClient telegramBotClient { get; set; }
+        private static StateMachine stateMachine { get; set; }
+        public FriendsBot(string token)
         {
+            telegramBotClient = new TelegramBotClient(token);
             //StateMachineBuilder();
-            this.stateMachine = BuildStateMachine();
+            stateMachine = BuildStateMachine();
         }
-        public Update update { get; set; }
-        protected StateMachine stateMachine { get; set; }
-        private void StateMachineBuilder() {
-            var smd = StateMachineData.Instance();
-            stateMachine = new StateMachine(smd.states.stateSets, smd.transitions.transitionSets, smd.states.home);
+        //public Update update { get; set; }
 
-            var friendsBotData = new FriendsBotData(smd);
-            stateMachine.AddEventData(friendsBotData.eventDatabyState);
-            stateMachine.AddFunctionHandler(friendsBotData.actionByState);
-            stateMachine.AddCriteraRange(friendsBotData.criteriaByTransition);
+        //private void StateMachineBuilder() {
+        //    var smd = StateMachineData.Instance();
+        //    stateMachine = new StateMachine(smd.states.stateSets, smd.transitions.transitionSets, smd.states.home);
 
-        }
+        //    var friendsBotData = new FriendsBotData(smd);
+        //    stateMachine.AddEventData(friendsBotData.eventDatabyState);
+        //    stateMachine.AddFunctionHandler(friendsBotData.actionByState);
+        //    stateMachine.AddCriteraRange(friendsBotData.criteriaByTransition);
+
+        //}
 
         private StateMachine BuildStateMachine()
         {
             var smd = StateMachineData.Instance();
             var fd = new FrontendData(smd.states);
-            var fbd = new FriendsBotData(smd);
+            var fbd = new FriendsBotData(smd.states, fd);
 
-            var statesData = StateDataSetBuilder(smd, fd, fbd);
-            var transitionsData = TrasitionDataSetBuilder(smd, fd, fbd);
+            var statesData = StateDataSetBuilder(fbd);
+            var transitionsData = TrasitionDataSetBuilder(fbd);
             var smb = new StateMashineBuilder(statesData, transitionsData, smd.states.home);
             return smb.Build();
         }
@@ -108,60 +114,89 @@ namespace EntityFrameworkApp.FriendsBotLibrary
         //    var smb = new StateMashineBuilder(statesData, trasitionsData, states.home);
         //    return smb.Build();
         //}
-        public void Answer(Update update)
+        private async Task Answer(Update update)
         {
             string text = update?.Message?.Text;
             //this.update = update;
             //this.botCommand.command = this.update?.Message?.Text;
-            var inputData = new FriendsBotData.BotInputData(this, update.Message);
+            var inputData = new FriendsBotData.BotInputData(telegramBotClient, update.Message);
 
             stateMachine.Execute(inputData);
+            await Task.Delay(0);
         }
-        public async Task<Message> SendTextMessageAsync(long chatId, string text,IReplyMarkup replyMarkup)
-        {
-            return await this.SendTextMessageAsync(
-                chatId: chatId,
-                text: text,
-                parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
-                replyMarkup: replyMarkup
-                );
-        }
-        public async Task<Message> SendPhotoAsync(long chatId, string photoURL, IReplyMarkup replyMarkup)
-        {
-            return await this.SendPhotoAsync(
-                chatId: chatId,
-                photo: photoURL,
-                replyMarkup: replyMarkup
-                );
-        }
+        public async Task StartBot() {
+            using var cts = new CancellationTokenSource();
 
-        private IEnumerable<StateDataSet> StateDataSetBuilder(StateMachineData smd, FrontendData fd, FriendsBotData fbd )
-        {
-            var states = smd.states;
-            var eventTexts = FrontendData.EventText.Instance(states);
-            var actions = new FriendsBotData.StateTelegramActions(smd);
-            var botInputData = new FriendsBotData.BotInputData(this, null);
-
-            var keyboardBuilder = new FrontendData.KeyboardBuilder(fd.buttonsData);
-            var mainKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
+            // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
+            var receiverOptions = new ReceiverOptions
             {
-                states.home,
-                states.find,
-                states.edit,
-                states.help
-            });
-            var homeKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
+                AllowedUpdates = { } // receive all update types
+            };
+            telegramBotClient.StartReceiving(
+                HandleUpdateAsync,
+                HandleErrorAsync,
+                receiverOptions,
+                cancellationToken: cts.Token);
+
+            var me = await telegramBotClient.GetMeAsync();
+
+
+            Console.WriteLine($"Start listening for @{me.Username}");
+            Console.ReadLine();
+
+            // Send cancellation request to stop bot
+            cts.Cancel();
+        }
+        private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            // Only process Message updates: https://core.telegram.org/bots/api#message
+            if (update.Type != UpdateType.Message)
+                return;
+            // Only process text messages
+            if (update.Message!.Type != MessageType.Text)
+                return;
+
+            string message = update.Message.Text;
+            Console.WriteLine($"Received a '{update.Message.Text}' message from {update.Message.From}");
+
+            await Answer(update);
+            Console.WriteLine($"Message '{update.Message.Text}'from {update.Message.From} send");
+        }
+        private Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+        {
+            var ErrorMessage = exception switch
             {
-                states.home,
-            });
+                ApiRequestException apiRequestException
+                    => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+                _ => exception.ToString()
+            };
 
-            StateDataSetBase defaultState = new StateDataSetBase("defultnName", actions.DefaultCase, homeKeyboard, botInputData);
+            Console.WriteLine(ErrorMessage);
+            return Task.CompletedTask;
+        }
+        private IEnumerable<StateDataSet> StateDataSetBuilder(FriendsBotData fbd)
+        {
+            var states = fbd.states;
+            var eventTextByState = fbd.frontendData.eventTextByState;
+            var actions = fbd.actions;
+            var botInputData = new FriendsBotData.BotInputData(null, null);
+            var keyboards = fbd.frontendData.keyboards;
+            //
+            //var states = smd.states;
+            //var eventTextByState = fd.eventTextByState;
+            //var actions = new FriendsBotData.StateTelegramActions();
+            //var botInputData = new FriendsBotData.BotInputData(null, null);
+            //var keyboards = fd.keyboards;
 
-            StateDataSet home = new StateDataSet(states.home, eventTexts.home, actions.DefaultCase, mainKeyboard, botInputData);
-            StateDataSet find = new StateDataSet(states.find, eventTexts.find, defaultState);
-            StateDataSet edit = new StateDataSet(states.edit, eventTexts.edit, defaultState);
-            StateDataSet help = new StateDataSet(states.help, eventTexts.help, defaultState);
-            StateDataSet findPerson = new StateDataSet(states.findPerson, eventTexts.findPerson, actions.CaseFindPerson, homeKeyboard, botInputData);
+            StateDataSetBase defaultState = new StateDataSetBase("name", actions.DefaultCase, keyboards.homeKeyboard, botInputData);
+
+            StateDataSet home = new StateDataSet(
+                states.home, eventTextByState[states.home], actions.DefaultCase, keyboards.mainKeyboard, botInputData);
+            StateDataSet find = new StateDataSet(states.find, eventTextByState[states.find], defaultState);
+            StateDataSet edit = new StateDataSet(states.edit, eventTextByState[states.edit], defaultState);
+            StateDataSet help = new StateDataSet(states.help, eventTextByState[states.help], defaultState);
+            StateDataSet findPerson = new StateDataSet(
+                states.findPerson, eventTextByState[states.findPerson], actions.CaseFindPerson, keyboards.homeKeyboard, botInputData);
             
             return new List<StateDataSet>
             {
@@ -172,15 +207,19 @@ namespace EntityFrameworkApp.FriendsBotLibrary
                 findPerson
             };
         }
-        private IEnumerable<TrasitionDataSet> TrasitionDataSetBuilder(StateMachineData smd, FrontendData fd, FriendsBotData fbd) {
-            var states = smd.states;
+        private IEnumerable<TrasitionDataSet> TrasitionDataSetBuilder(FriendsBotData fbd) {
+            var states = fbd.states;
+            var buttonsTextByState = fbd.frontendData.buttonsTextByState;
             var tr = (string s1, string s2) => { return s1 + ':' + s2; };
-            var criteria = new FriendsBotData.Criteria(smd, fd);
+            var end = (string s) => { return s.Split(':')[1]; };
+            var criteria = fbd.criteria;
+            //
+            //var states = smd.states;
+            //var tr = (string s1, string s2) => { return s1 + ':' + s2; };
+            //var end = (string s) => { return s.Split(':')[1]; };
+            //var criteria = new FriendsBotData.Criteria();
 
-            //var stateBybuttonsText = (from bd in fd.buttonsData
-            //                         select new KeyValuePair<string,string>(bd.stateName,bd.buttonText))
-            //                         .ToDictionary()
-            var buttonsTextByState = fd.buttonsData.ToDictionary(bd => bd.stateName, bd => bd.buttonText);
+            //var buttonsTextByState = fd.buttonsTextByState;
             var defaultTransitions = new List<string>
             {
                     tr(states.home,states.find),
@@ -192,14 +231,13 @@ namespace EntityFrameworkApp.FriendsBotLibrary
                     tr(states.help,states.home)
             };
 
-            var trasitionsData = (from t in defaultTransitions
+            var trasitionsData = (from tn in defaultTransitions
                                   select new TrasitionDataSet(
-                                      t, criteria.EqualPredicate(buttonsTextByState[t.Split(':')[1]] ) )).ToList(); // EqualPredicate(t.Split(':')[1])
+                                      tn, criteria.EqualPredicate(buttonsTextByState[end(tn)] ) )).ToList();
 
-
-            TrasitionDataSet tr1 =
+            TrasitionDataSet specialTransition =
                 new TrasitionDataSet(tr(states.find, states.findPerson), criteria.NotEqualPredicate(buttonsTextByState[states.home]));
-            trasitionsData.Add(tr1);
+            trasitionsData.Add(specialTransition);
 
             return trasitionsData;
         }

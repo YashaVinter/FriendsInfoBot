@@ -17,115 +17,126 @@ namespace EntityFrameworkApp.Data
 {
     internal class FriendsBotData
     {
+        public StateMachineData.States states { get; }
+        public FrontendData frontendData { get; }
+        public Criteria criteria { get; }
+        public StateTelegramActions actions { get; }
+        public FriendsBotData(StateMachineData.States states, FrontendData frontendData)
+        {
+            this.states = states;
+            this.frontendData = frontendData;
+            this.actions = new StateTelegramActions();
+            this.criteria = new Criteria();
+        }
         //public Dictionary<string, StateMachine.FunctionHandler> actionsDictionary;
         //public Dictionary<string, Func<string, bool>> criteriaDictionary;
-        private FrontendData frontendData { get; init; }
-        private Criteria criteria { get; init; }
-        private StateTelegramActions stateTelegramActions { get; init; }
-        public Dictionary<string,EventDataBase> eventDatabyState { get => frontendData.eventDatabyState; }
-        public Dictionary<string,FunctionHandler> actionByState { get => stateTelegramActions.actionByState; }
-        public Dictionary<string, Predicate<string>> criteriaByTransition { get => criteria.criteriaByTransition; }
-        public FriendsBotData(StateMachineData stateMachineData) {
-            var smd = stateMachineData;
-            //data for states
-            this.frontendData = new FrontendData(smd.states);
-            //data for transitions
-            this.stateTelegramActions = new StateTelegramActions(smd);
-            this.criteria = new Criteria(smd, frontendData);
-        }
+        //private FrontendData frontendData { get; init; }
+        //private Criteria criteria { get; init; }
+        //private StateTelegramActions stateTelegramActions { get; init; }
+        //public Dictionary<string,EventDataBase> eventDatabyState { get => frontendData.eventDatabyState; }
+        //public Dictionary<string,FunctionHandler> actionByState { get => stateTelegramActions.actionByState; }
+        //public Dictionary<string, Predicate<string>> criteriaByTransition { get => criteria.criteriaByTransition; }
+        //public FriendsBotData(StateMachineData stateMachineData) {
+        //    var smd = stateMachineData;
+        //    //data for states
+        //    //this.frontendData = new FrontendData(smd.states);
+        //    //data for transitions
+        //    //this.stateTelegramActions = new StateTelegramActions();
+        //    //this.criteria = new Criteria();
+        //}
         public class Criteria
         {
-            public Dictionary<string, Predicate<string>> criteriaByTransition { get; init; }
-            //public Criteria(StateMachine stateMachine, StateMachineData.States states)
-            //{ // TODO              
-            //    criteriaDictionary = new Dictionary<string, Predicate<string>>();
-            //    foreach (var transition in stateMachine.transitionDictionary.Values)
-            //    {
-            //        var criteria = this.getCriteria(transition.transitionModel.endState.name);
-            //        if (criteria is null)
-            //            throw new NotImplementedException("Dont implemented criteria");
-            //        criteriaDictionary.Add(transition.transitionModel.name, criteria);
-            //    }
+            //public Dictionary<string, Predicate<string>> criteriaByTransition { get; init; }
+            ////public Criteria(StateMachine stateMachine, StateMachineData.States states)
+            ////{ // TODO              
+            ////    criteriaDictionary = new Dictionary<string, Predicate<string>>();
+            ////    foreach (var transition in stateMachine.transitionDictionary.Values)
+            ////    {
+            ////        var criteria = this.getCriteria(transition.transitionModel.endState.name);
+            ////        if (criteria is null)
+            ////            throw new NotImplementedException("Dont implemented criteria");
+            ////        criteriaDictionary.Add(transition.transitionModel.name, criteria);
+            ////    }
 
-            //    this.states = states;
-            //    //stateToButtonText = FrontendData.ButtonData.getInstance(states).stateToButtonText;
-            //    //stateToButtonText = new FrontendDataNew()
-            //}
-            public Criteria(StateMachineData stateMachineData, FrontendData frontendData)
-            {
-                var transitions = stateMachineData.transitions;
-                var states = stateMachineData.states;
-                //var eventDatabyState = frontendDataNew.eventDatabyState;
-                // upcasting
-                var buttonsData = frontendData.buttonsData;
+            ////    this.states = states;
+            ////    //stateToButtonText = FrontendData.ButtonData.getInstance(states).stateToButtonText;
+            ////    //stateToButtonText = new FrontendDataNew()
+            ////}
+            //public Criteria(StateMachineData stateMachineData, FrontendData frontendData)
+            //{
+            //    var transitions = stateMachineData.transitions;
+            //    var states = stateMachineData.states;
+            //    //var eventDatabyState = frontendDataNew.eventDatabyState;
+            //    // upcasting
+            //    var buttonsData = frontendData.buttonsData;
                 
-                //creating dictionary criteria for all buttons
-                var predicateByState = BuildPredicateByState(buttonsData);
-                // creating dictionary simple transitions criteria
-                var predicateByTransitionEqual = BuildEqualPredicates(transitions.transitionSets, predicateByState);
-                //creating dictionary criteria for findPerson button
-                var predicateByTransitionSpecial =
-                    BuildNotEqualPredicates(transitions.transitionSets.Where(t=>t.Split(':')[1] == states.findPerson), states.home, buttonsData);
+            //    //creating dictionary criteria for all buttons
+            //    var predicateByState = BuildPredicateByState(buttonsData);
+            //    // creating dictionary simple transitions criteria
+            //    var predicateByTransitionEqual = BuildEqualPredicates(transitions.transitionSets, predicateByState);
+            //    //creating dictionary criteria for findPerson button
+            //    var predicateByTransitionSpecial =
+            //        BuildNotEqualPredicates(transitions.transitionSets.Where(t=>t.Split(':')[1] == states.findPerson), states.home, buttonsData);
 
-                var predicateByTransition = new Dictionary<string, Predicate<string>>(
-                        predicateByTransitionEqual.Union(predicateByTransitionSpecial));
-                if (predicateByTransition.Count() != transitions.transitionSets.Count)
-                {
-                    throw new Exception("Not all transitions are assigned criteria");
-                }
-                criteriaByTransition = predicateByTransition;
-            }
-            private Dictionary<string, Predicate<string>> BuildPredicateByState
-                (IEnumerable<FrontendData.ButtonData> buttonsData)
-            {
-                var predicateByState = from bd in buttonsData
-                                       select new KeyValuePair<string, Predicate<string>>(
-                                           bd.stateName, EqualPredicate(bd.buttonText));
-                return new Dictionary<string, Predicate<string>>(predicateByState);
-            }
-            private Dictionary<string, Predicate<string>> BuildEqualPredicates
-                (IEnumerable<string> transitions, Dictionary<string, Predicate<string>> predicateByState)
-            {
-                //var dict = new Dictionary<string, Predicate<string>>();
-                //foreach (var transition in transitions)
-                //{
-                //    string endState = transition.Split(':')[1];
-                //    if(predicateByState.ContainsKey(endState))
-                //        dict.Add(transition, predicateByState[endState]);
-                //}
-                //return dict;
-                var predicateByTransition = from tr in transitions
-                                            where predicateByState.ContainsKey(tr.Split(':')[1])
-                                            select new KeyValuePair<string,Predicate<string>>(
-                                                tr,predicateByState[tr.Split(':')[1] ] );
-                return new Dictionary<string, Predicate<string>>(predicateByTransition);
-            }
-            private Dictionary<string, Predicate<string>> BuildNotEqualPredicates
-                (IEnumerable<string> transitions, string endState, IEnumerable<FrontendData.ButtonData> buttonsData)
-            {
-                //var buttonText = buttonsData
-                //    .Where(b => b.stateName == endState)
-                //    .Select(b => b.buttonText)
-                //    .FirstOrDefault();
+            //    var predicateByTransition = new Dictionary<string, Predicate<string>>(
+            //            predicateByTransitionEqual.Union(predicateByTransitionSpecial));
+            //    if (predicateByTransition.Count() != transitions.transitionSets.Count)
+            //    {
+            //        throw new Exception("Not all transitions are assigned criteria");
+            //    }
+            //    criteriaByTransition = predicateByTransition;
+            //}
+            //private Dictionary<string, Predicate<string>> BuildPredicateByState
+            //    (IEnumerable<FrontendData.ButtonData> buttonsData)
+            //{
+            //    var predicateByState = from bd in buttonsData
+            //                           select new KeyValuePair<string, Predicate<string>>(
+            //                               bd.stateName, EqualPredicate(bd.buttonText));
+            //    return new Dictionary<string, Predicate<string>>(predicateByState);
+            //}
+            //private Dictionary<string, Predicate<string>> BuildEqualPredicates
+            //    (IEnumerable<string> transitions, Dictionary<string, Predicate<string>> predicateByState)
+            //{
+            //    //var dict = new Dictionary<string, Predicate<string>>();
+            //    //foreach (var transition in transitions)
+            //    //{
+            //    //    string endState = transition.Split(':')[1];
+            //    //    if(predicateByState.ContainsKey(endState))
+            //    //        dict.Add(transition, predicateByState[endState]);
+            //    //}
+            //    //return dict;
+            //    var predicateByTransition = from tr in transitions
+            //                                where predicateByState.ContainsKey(tr.Split(':')[1])
+            //                                select new KeyValuePair<string,Predicate<string>>(
+            //                                    tr,predicateByState[tr.Split(':')[1] ] );
+            //    return new Dictionary<string, Predicate<string>>(predicateByTransition);
+            //}
+            //private Dictionary<string, Predicate<string>> BuildNotEqualPredicates
+            //    (IEnumerable<string> transitions, string endState, IEnumerable<FrontendData.ButtonData> buttonsData)
+            //{
+            //    //var buttonText = buttonsData
+            //    //    .Where(b => b.stateName == endState)
+            //    //    .Select(b => b.buttonText)
+            //    //    .FirstOrDefault();
 
-                //var dict = new Dictionary<string, Predicate<string>>();
+            //    //var dict = new Dictionary<string, Predicate<string>>();
 
-                //foreach (var transition in transitions)
-                //{
-                //    dict.Add(transition, NotEqualPredicate(buttonText));
-                //}
-                //return dict;
+            //    //foreach (var transition in transitions)
+            //    //{
+            //    //    dict.Add(transition, NotEqualPredicate(buttonText));
+            //    //}
+            //    //return dict;
 
-                var buttonText = (from bd in buttonsData
-                          where bd.stateName == endState
-                          select bd.buttonText)
-                         .FirstOrDefault();
-                var predicateByTransition = from tr in transitions
-                                            select new KeyValuePair<string, Predicate<string>>(
-                                                tr, NotEqualPredicate(buttonText));
-                return new Dictionary<string, Predicate<string>>(predicateByTransition);
+            //    var buttonText = (from bd in buttonsData
+            //              where bd.stateName == endState
+            //              select bd.buttonText)
+            //             .FirstOrDefault();
+            //    var predicateByTransition = from tr in transitions
+            //                                select new KeyValuePair<string, Predicate<string>>(
+            //                                    tr, NotEqualPredicate(buttonText));
+            //    return new Dictionary<string, Predicate<string>>(predicateByTransition);
 
-            }
+            //}
             public Predicate<string> EqualPredicate(string sample) 
             {
                 return (string input) => { return sample == input; };
@@ -133,6 +144,10 @@ namespace EntityFrameworkApp.Data
             public Predicate<string> NotEqualPredicate(string sample)
             {
                 return (string input) => { return sample != input; };
+            }
+            public Predicate<string> AlwaysTruePredicate()
+            {
+                return (string input) => { return true; };
             }
             //private FrontendData.ButtonData buttonData { get; init; } = new FrontendData.ButtonData();
             //public StateMachineData.States states { get; set; }
@@ -192,7 +207,7 @@ namespace EntityFrameworkApp.Data
         }
         public class StateTelegramActions
         {
-            public Dictionary<string,FunctionHandler> actionByState { get; set; }
+            //public Dictionary<string,FunctionHandler> actionByState { get; set; }
             //public StateTelegramActions(StateMachineData.States states)
             //{
             //    states = states;
@@ -204,19 +219,19 @@ namespace EntityFrameworkApp.Data
             //        actionsDictionary.Add(state, this.getAction(state));
             //    }
             //}
-            public StateTelegramActions(StateMachineData stateMachineData) // new 
-            {
-                var states = stateMachineData.states;
-                var dict = new Dictionary<string, FunctionHandler> 
-                {
-                    { states.home,DefaultCase },
-                    { states.find,DefaultCase },
-                    { states.edit,DefaultCase },
-                    { states.help,DefaultCase },
-                    { states.findPerson,CaseFindPerson},
-                };
-                actionByState = dict;
-            }
+            //public StateTelegramActions(StateMachineData stateMachineData) // new 
+            //{
+            //    var states = stateMachineData.states;
+            //    var dict = new Dictionary<string, FunctionHandler> 
+            //    {
+            //        { states.home,DefaultCase },
+            //        { states.find,DefaultCase },
+            //        { states.edit,DefaultCase },
+            //        { states.help,DefaultCase },
+            //        { states.findPerson,CaseFindPerson},
+            //    };
+            //    actionByState = dict;
+            //}
             //public FunctionHandler? getAction(string name) {
             //    StateMachineData.States states =
             //        StateMachineData.States.getInstance();
@@ -277,11 +292,12 @@ namespace EntityFrameworkApp.Data
                     var inputData = data.inputData as BotInputData;
                     var eventData = data.eventData as EventData;
 
-                    var bot = inputData.bot;
+                    var bot = inputData.telegramBotClient;
                     return await bot.SendTextMessageAsync(
-                        inputData.message.Chat.Id,
-                        eventData.caseText,
-                        eventData.buttons
+                        chatId:      inputData.message.Chat.Id,
+                        text:        eventData.caseText,
+                        parseMode:   Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
+                        replyMarkup: eventData.buttons
                         );
                 }
                 catch (Exception)
@@ -297,27 +313,29 @@ namespace EntityFrameworkApp.Data
                     var inputData = data.inputData as BotInputData;
                     var eventData = data.eventData as EventData;
 
-                    var bot = inputData.bot;
+                    var bot = inputData.telegramBotClient;
                     DataBase.Person person = new DataBase.Person().Find(inputData.command);
                     if (person is null)
                     {
                         return await bot.SendTextMessageAsync(
-                            inputData.message.Chat.Id,
-                            eventData.caseText,
-                            eventData.buttons
+                            chatId: inputData.message.Chat.Id,
+                            text: eventData.caseText,
+                            parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
+                            replyMarkup: eventData.buttons
                             );
                     }
                     else
                     {
                         Message message = await bot.SendPhotoAsync(
-                            inputData.message.Chat.Id,
-                            person.photo,
-                            eventData.buttons
+                            chatId:      inputData.message.Chat.Id,
+                            photo:       person.photo,
+                            replyMarkup: eventData.buttons
                             );
-                        return await bot.SendTextMessageAsync(
-                            inputData.message.Chat.Id,
-                            person.Print(),
-                            eventData.buttons
+                        message = await bot.SendTextMessageAsync(
+                            chatId: inputData.message.Chat.Id,
+                            text: person.Print(),
+                            parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
+                            replyMarkup: eventData.buttons
                             );
                         return message;
                     }
@@ -332,11 +350,11 @@ namespace EntityFrameworkApp.Data
         }
         public class BotInputData : InputDataBase
         {
-            public virtual FriendsBot bot { get; set; }
+            public virtual TelegramBotClient telegramBotClient { get; set; }
             public virtual Message message { get; set; }
-            public BotInputData(FriendsBot bot, Message message) : base(message?.Text)
+            public BotInputData(TelegramBotClient telegramBotClient, Message message) : base(message?.Text)
             {
-                this.bot = bot;
+                this.telegramBotClient = telegramBotClient;
                 this.message = message;
             }
         }
