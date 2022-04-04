@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using EntityFrameworkApp.Data;
 using StateMachineLibrary;
 using Telegram.Bot.Types.ReplyMarkups;
-using static EntityFrameworkApp.Data.FriendsBotData;
+//using  EntityFrameworkApp.Data.FriendsBotData;
 
 namespace EntityFrameworkApp
 {

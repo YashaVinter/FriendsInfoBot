@@ -119,7 +119,7 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             string text = update?.Message?.Text;
             //this.update = update;
             //this.botCommand.command = this.update?.Message?.Text;
-            var inputData = new FriendsBotData.BotInputData(telegramBotClient, update.Message);
+            var inputData = new BotInputData(telegramBotClient, update.Message);
 
             stateMachine.Execute(inputData);
             await Task.Delay(0);
@@ -179,7 +179,7 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             var states = fbd.states;
             var eventTextByState = fbd.frontendData.eventTextByState;
             var actions = fbd.actions;
-            var botInputData = new FriendsBotData.BotInputData(null, null);
+            var botInputData = new BotInputData(null, null);
             var keyboards = fbd.frontendData.keyboards;
 
             StateDataSetBase defaultState = new StateDataSetBase("name", actions.DefaultCase, keyboards.homeKeyboard, botInputData);

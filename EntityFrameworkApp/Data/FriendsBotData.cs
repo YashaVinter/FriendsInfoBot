@@ -348,15 +348,16 @@ namespace EntityFrameworkApp.Data
             }
 
         }
-        public class BotInputData : InputDataBase
+
+    }
+    public class BotInputData : InputDataBase
+    {
+        public virtual TelegramBotClient telegramBotClient { get; set; }
+        public virtual Message message { get; set; }
+        public BotInputData(TelegramBotClient telegramBotClient, Message message) : base(message?.Text)
         {
-            public virtual TelegramBotClient telegramBotClient { get; set; }
-            public virtual Message message { get; set; }
-            public BotInputData(TelegramBotClient telegramBotClient, Message message) : base(message?.Text)
-            {
-                this.telegramBotClient = telegramBotClient;
-                this.message = message;
-            }
+            this.telegramBotClient = telegramBotClient;
+            this.message = message;
         }
     }
 }
