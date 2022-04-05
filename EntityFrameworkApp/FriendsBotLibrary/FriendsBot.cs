@@ -50,8 +50,12 @@ namespace EntityFrameworkApp.FriendsBotLibrary
 
             var statesData = StateDataSetBuilder(fbd);
             var transitionsData = TrasitionDataSetBuilder(fbd);
-            var smb = new StateMashineBuilder(statesData, transitionsData, smd.states.home);
-            return smb.Build();
+            //var smb = new StateMashineBuilder(statesData, transitionsData, smd.states.home);
+            // test 
+            var tsmf = new TelegramStateMashineFactory(statesData, transitionsData, smd.states.home);
+            return new StateMachine(tsmf);
+            //
+            //return smb.Build();
         }
         //private StateMachine BuildStateMachine()
         //{
@@ -193,11 +197,12 @@ namespace EntityFrameworkApp.FriendsBotLibrary
 
             StateDataSet home = new StateDataSet(
                 states.home, eventTextByState[states.home], actions.DefaultCase, keyboards.mainKeyboard, botInputData);
-            StateDataSet find = new StateDataSet(states.find, eventTextByState[states.find], defaultState);
+            StateDataSet find = new StateDataSet(states.find, eventTextByState[states.find],actions.DefaultCase,keyboards.homeAll,botInputData);
             StateDataSet edit = new StateDataSet(states.edit, eventTextByState[states.edit], defaultState);
             StateDataSet help = new StateDataSet(states.help, eventTextByState[states.help], defaultState);
             StateDataSet findPerson = new StateDataSet(
                 states.findPerson, eventTextByState[states.findPerson], actions.CaseFindPerson, keyboards.homeKeyboard, botInputData);
+            StateDataSet findAll = new("findAll", "not found", actions.CaseFindAll, keyboards.homeAll, botInputData);
             
             return new List<StateDataSet>
             {
@@ -205,7 +210,8 @@ namespace EntityFrameworkApp.FriendsBotLibrary
                 find,
                 edit,
                 help,
-                findPerson
+                findPerson,
+                findAll
             };
         }
         private IEnumerable<TrasitionDataSet> TrasitionDataSetBuilder(FriendsBotData fbd) {
@@ -230,10 +236,14 @@ namespace EntityFrameworkApp.FriendsBotLibrary
                                   select new TrasitionDataSet(
                                       tn, criteria.EqualPredicate(buttonsTextByState[end(tn)] ) )).ToList();
 
-            TrasitionDataSet specialTransition =
-                new TrasitionDataSet(tr(states.find, states.findPerson), criteria.NotEqualPredicate(buttonsTextByState[states.home]));
+            TrasitionDataSet specialTransition = new TrasitionDataSet(
+                tr(states.find, states.findPerson),(string s) => { return (s != buttonsTextByState[states.home]) && (s != "All");  } ); // criteria.NotEqualPredicate(buttonsTextByState[states.home])
             trasitionsData.Add(specialTransition);
-
+            // find all
+            TrasitionDataSet findFindAll = new(tr(states.find, "findAll"), (string s) => { return s == "All"; });
+            TrasitionDataSet findAllhome = new(tr("findAll", states.home), criteria.EqualPredicate(buttonsTextByState[states.home]));
+            trasitionsData.Add(findFindAll);
+            trasitionsData.Add(findAllhome);
             return trasitionsData;
         }
     }

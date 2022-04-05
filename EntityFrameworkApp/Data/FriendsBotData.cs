@@ -347,6 +347,46 @@ namespace EntityFrameworkApp.Data
                 }
             }
 
+            public async Task<Message> CaseFindAll(IStateData stateData)
+            {
+                try
+                {
+                    var data = stateData as StateData;
+                    var inputData = data.inputData as BotInputData;
+                    var eventData = data.eventData as EventData;
+
+                    var bot = inputData.telegramBotClient;
+                    var persons = new DataBase.Person().AllPesons();
+                    if (persons is null)
+                    {
+                        return await bot.SendTextMessageAsync(
+                            chatId: inputData.message.Chat.Id,
+                            text: eventData.caseText,
+                            parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
+                            replyMarkup: eventData.buttons
+                            );
+                    }
+                    else
+                    {
+                        StringBuilder personsText = new("All persons: \n");
+                        foreach (var person in persons)
+                        {
+                            personsText.Append($"{persons.IndexOf(person)}. {person.name}\n");
+                        }
+                        return await bot.SendTextMessageAsync(
+                            chatId: inputData.message.Chat.Id,
+                            text: personsText.ToString(),
+                            //parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
+                            replyMarkup: eventData.buttons
+                            );
+                    }
+
+                }
+                catch (Exception)
+                {
+                    throw new NullReferenceException();
+                }
+            }
         }
 
     }

@@ -41,7 +41,8 @@ namespace EntityFrameworkApp.Data
                 new ButtonData(states.home, J3QQ4.Emoji.House),
                 new ButtonData(states.find, J3QQ4.Emoji.Mag_Right),
                 new ButtonData(states.edit, J3QQ4.Emoji.Pencil),
-                new ButtonData(states.help, J3QQ4.Emoji.Books)
+                new ButtonData(states.help, J3QQ4.Emoji.Books),
+                new ButtonData("All")
             };
         }
 
@@ -180,6 +181,7 @@ namespace EntityFrameworkApp.Data
         {
             public ReplyKeyboardMarkup mainKeyboard { get; set; }
             public ReplyKeyboardMarkup homeKeyboard { get; set; }
+            public ReplyKeyboardMarkup homeAll { get; set; }
             public Keyboards(ISet<ButtonData> buttons, StateMachineData.States states)
             {
                 var keyboardBuilder = new KeyboardBuilder(buttons);
@@ -193,6 +195,11 @@ namespace EntityFrameworkApp.Data
                 homeKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
                     {
                         states.home,
+                    });
+                homeAll = keyboardBuilder.BuildKeyboard(new List<string>()
+                    {
+                        states.home,
+                        "All"
                     });
             }
         }
