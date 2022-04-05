@@ -368,10 +368,10 @@ namespace EntityFrameworkApp.Data
                     }
                     else
                     {
-                        StringBuilder personsText = new("All persons: \n");
+                        StringBuilder personsText = new("All friends: \n");
                         foreach (var person in persons)
                         {
-                            personsText.Append($"{persons.IndexOf(person)}. {person.name}\n");
+                            personsText.Append($"{persons.IndexOf(person)+1}. {person.name}\n");
                         }
                         return await bot.SendTextMessageAsync(
                             chatId: inputData.message.Chat.Id,
@@ -440,7 +440,7 @@ namespace EntityFrameworkApp.Data
                 { states.edit,new(states.edit,J3QQ4.Emoji.Pencil)},
                 { states.help,new(states.help,J3QQ4.Emoji.Books)},
                 { states.findPerson,null},
-                { states.findAll,new(states.findAll,"")}
+                { states.findAll,new(states.findAll,buttonText: "All") }
             };
             var keyboardBuilder = new FrontendData.KeyboardBuilder(buttonsByState.Values.Where(b=>b is not null).ToHashSet());
             //
@@ -464,15 +464,15 @@ namespace EntityFrameworkApp.Data
             keyboardsByState = new Dictionary<string, ReplyKeyboardMarkup>
             {
                 { states.home,mainKeyboard },
-                { states.find,homeKeyboard},
+                { states.find,homeFindAllKeyboard},
                 { states.edit,homeKeyboard},
                 { states.help,homeKeyboard},
-                { states.findPerson,homeKeyboard},
-                { states.findAll,homeFindAllKeyboard}
+                { states.findPerson,homeFindAllKeyboard},
+                { states.findAll,homeKeyboard}
             };
 
             // Transitions
-            var buttonsTextByState = buttonsByState.Where(b => b.Value is not null).ToDictionary(k=> k.Key, v=> v.Value.buttonText);
+            var buttonsTextByState = buttonsByState.Where(b => b.Value is not null).ToDictionary(k=> k.Key, v=> v.Value.button.Text);
             var tr = (string s1, string s2) => { return s1 + ':' + s2; };
             predicateByTransition = new Dictionary<string, Predicate<string>> {
                 { tr(states.home,states.find),(string s) => {return s == buttonsTextByState[states.find]; } },
@@ -482,10 +482,12 @@ namespace EntityFrameworkApp.Data
                 { tr(states.edit,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
                 { tr(states.help,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
                 { tr(states.findPerson,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
+                { tr(states.findPerson,states.findAll),(string s) => {return s == buttonsTextByState[states.findAll]; } },//
                 { tr(states.find,states.findPerson),
                     (string s) => {return (s != buttonsTextByState[states.home]) && (s!=buttonsTextByState[states.findAll]); } },
-                { tr(states.find,states.findAll),(string s) => {return s == buttonsTextByState[states.home]; } },
-                { tr(states.findAll,states.home),(string s) => {return s == buttonsTextByState[states.home]; } }
+                { tr(states.find,states.findAll),(string s) => {return s == buttonsTextByState[states.findAll]; } },
+                { tr(states.findAll,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
+                { tr(states.findAll,states.findPerson),(string s) => {return s != buttonsTextByState[states.home]; } },
             };
         }
         public StateDataSet[] BuildStatesDataSet() 

@@ -30,7 +30,7 @@ namespace EntityFrameworkApp.Data
             //this.eventTextByState = BuildEventTexts(states);
             //this.eventDatabyState = BuildEventData();
             this.keyboards = new Keyboards(buttonsData,states);
-            this.buttonsTextByState = buttonsData.ToDictionary(bd => bd.stateName, bd => bd.buttonText);
+            this.buttonsTextByState = buttonsData.ToDictionary(bd => bd.stateName, bd => bd.button.Text);
             this.eventTextByState = new EventText(states).eventTextByState;
         }
 
@@ -129,15 +129,18 @@ namespace EntityFrameworkApp.Data
         public class ButtonData
         {
             public string stateName { get; init; }
-            public string emoji { get; init; }
-            public string buttonText { get; init; }
-            public IKeyboardButton button { get; init; }
-            public ButtonData(string state, string emoji = default!)
+            public string emoji { get; set; }
+            //public string buttonText { get; init; }
+            public IKeyboardButton button { get; set; }
+            public ButtonData(string state, string emoji = default!,string buttonText = default!)
             {
                 this.stateName = state;
                 this.emoji = emoji;
-                this.buttonText = state + emoji;
-                button = new KeyboardButton(buttonText);
+                //this.buttonText = state + emoji;
+                if(buttonText is null)
+                    button = new KeyboardButton(state+emoji);
+                else 
+                    button = new KeyboardButton(buttonText);
             }
         }
         public class EventText
