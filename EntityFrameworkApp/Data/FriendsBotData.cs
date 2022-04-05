@@ -442,7 +442,7 @@ namespace EntityFrameworkApp.Data
                 { states.findPerson,null},
                 { states.findAll,new(states.findAll,"")}
             };
-            var keyboardBuilder = new FrontendData.KeyboardBuilder(buttonsByState.Values.ToHashSet());
+            var keyboardBuilder = new FrontendData.KeyboardBuilder(buttonsByState.Values.Where(b=>b is not null).ToHashSet());
             //
             var mainKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
             {
@@ -472,7 +472,7 @@ namespace EntityFrameworkApp.Data
             };
 
             // Transitions
-            var buttonsTextByState = buttonsByState.ToDictionary(k=> k.Key, v=> v.Value.buttonText);
+            var buttonsTextByState = buttonsByState.Where(b => b.Value is not null).ToDictionary(k=> k.Key, v=> v.Value.buttonText);
             var tr = (string s1, string s2) => { return s1 + ':' + s2; };
             predicateByTransition = new Dictionary<string, Predicate<string>> {
                 { tr(states.home,states.find),(string s) => {return s == buttonsTextByState[states.find]; } },
@@ -488,7 +488,7 @@ namespace EntityFrameworkApp.Data
                 { tr(states.findAll,states.home),(string s) => {return s == buttonsTextByState[states.home]; } }
             };
         }
-        public StateDataSet[] BuildStatesDataSet(string stateName) 
+        public StateDataSet[] BuildStatesDataSet() 
         {
 
             return (from s in actionsByState

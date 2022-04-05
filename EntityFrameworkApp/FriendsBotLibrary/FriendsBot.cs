@@ -48,8 +48,13 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             var fd = new FrontendData(smd.states);
             var fbd = new FriendsBotData(smd.states, fd);
 
-            var statesData = StateDataSetBuilder(fbd);
-            var transitionsData = TrasitionDataSetBuilder(fbd);
+            //var statesData = StateDataSetBuilder(fbd);
+            //var transitionsData = TrasitionDataSetBuilder(fbd);
+            //test
+            var fbdn = new FriendsBotDataNew();
+            var statesData = fbdn.BuildStatesDataSet();
+            var transitionsData = fbdn.BuildTrasitionsDataSet();
+
             var factory = new TelegramStateMashineFactory(statesData, transitionsData, smd.states.home);
             return new StateMachine(factory);
         }
