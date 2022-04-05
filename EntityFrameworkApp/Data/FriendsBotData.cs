@@ -400,4 +400,128 @@ namespace EntityFrameworkApp.Data
             this.message = message;
         }
     }
+    public class FriendsBotDataNew
+    {
+        private States states { get; }
+        private Dictionary<string, string> eventTextByState { get; }
+        private Dictionary<string, FunctionHandler> actionsByState { get; }
+        private Dictionary<string, FrontendData.ButtonData> buttonsByState { get; }
+        private Dictionary<string, ReplyKeyboardMarkup> keyboardsByState { get; }
+        private Dictionary<string, Predicate<string>> predicateByTransition { get; }
+        public FriendsBotDataNew()
+        {
+            //var states = new { home = "home",find = "find",edit = "edit",help="help",findPerson = "findPerson",findAll = "findAll" };
+
+            states = new States();
+            // States
+            eventTextByState = new Dictionary<string, string>
+            {
+                { states.home,$"Choose mode: {states.home} {states.find} {states.edit} {states.help}"},
+                { states.find,"Write person name, If you want see all persons write \"ALL\""},
+                { states.edit,"EDIT Write person name, If you want add or edit person" },
+                { states.help,"HELP Its a friendBot, Here you can add informations about your friends"},
+                { states.findPerson,"Person not found, try again or return home"},
+                { states.findAll,"Persons not found"}
+            };
+            var act = new FriendsBotData.StateTelegramActions();
+            actionsByState = new Dictionary<string, FunctionHandler> 
+            {
+                { states.home,act.DefaultCase},
+                { states.find,act.DefaultCase},
+                { states.edit,act.DefaultCase },
+                { states.help,act.DefaultCase},
+                { states.findPerson,act.CaseFindPerson},
+                { states.findAll,act.CaseFindAll}
+            };
+            buttonsByState = new Dictionary<string, FrontendData.ButtonData> 
+            {
+                { states.home,new(states.home,J3QQ4.Emoji.House)},
+                { states.find,new(states.find,J3QQ4.Emoji.Mag_Right)},
+                { states.edit,new(states.edit,J3QQ4.Emoji.Pencil)},
+                { states.help,new(states.help,J3QQ4.Emoji.Books)},
+                { states.findPerson,null},
+                { states.findAll,new(states.findAll,"")}
+            };
+            var keyboardBuilder = new FrontendData.KeyboardBuilder(buttonsByState.Values.ToHashSet());
+            //
+            var mainKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
+            {
+                states.home,
+                states.find,
+                states.edit,
+                states.help
+            });
+            var homeKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
+            {
+                states.home,
+            });
+            var homeFindAllKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
+            {
+                states.home,
+                states.findAll
+            });
+            //
+            keyboardsByState = new Dictionary<string, ReplyKeyboardMarkup>
+            {
+                { states.home,mainKeyboard },
+                { states.find,homeKeyboard},
+                { states.edit,homeKeyboard},
+                { states.help,homeKeyboard},
+                { states.findPerson,homeKeyboard},
+                { states.findAll,homeFindAllKeyboard}
+            };
+
+            // Transitions
+            var buttonsTextByState = buttonsByState.ToDictionary(k=> k.Key, v=> v.Value.buttonText);
+            var tr = (string s1, string s2) => { return s1 + ':' + s2; };
+            predicateByTransition = new Dictionary<string, Predicate<string>> {
+                { tr(states.home,states.find),(string s) => {return s == buttonsTextByState[states.find]; } },
+                { tr(states.home,states.edit),(string s) => {return s == buttonsTextByState[states.edit]; } },
+                { tr(states.home,states.help),(string s) => {return s == buttonsTextByState[states.help]; } },
+                { tr(states.find,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
+                { tr(states.edit,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
+                { tr(states.help,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
+                { tr(states.findPerson,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
+                { tr(states.find,states.findPerson),
+                    (string s) => {return (s != buttonsTextByState[states.home]) && (s!=buttonsTextByState[states.findAll]); } },
+                { tr(states.find,states.findAll),(string s) => {return s == buttonsTextByState[states.home]; } },
+                { tr(states.findAll,states.home),(string s) => {return s == buttonsTextByState[states.home]; } }
+            };
+        }
+        public StateDataSet[] BuildStatesDataSet(string stateName) 
+        {
+
+            return (from s in actionsByState
+                    let name = s.Key
+                    select new StateDataSet(
+                        name,
+                        eventTextByState[name],
+                        actionsByState[name],
+                        keyboardsByState[name],
+                        new(null, null) ) )
+                    .ToArray();
+
+            //return new StateDataSet(
+            //    stateName,
+            //    eventTextByState[stateName],
+            //    actionsByState[stateName],
+            //    keyboardsByState[stateName],
+            //    new(null, null));
+        }
+        public TrasitionDataSet[] BuildTrasitionsDataSet() 
+        {
+            return (from t in predicateByTransition
+                    select new TrasitionDataSet(t.Key, t.Value))
+                    .ToArray();
+        }
+        public record class States
+        {
+            public readonly string home = "home";
+            public readonly string find = "find";
+            public readonly string edit  = "edit";
+            public readonly string help  = "help";
+            public readonly string findPerson = "findPerson";
+            public readonly string findAll = "findAll";
+        }
+    }
 }

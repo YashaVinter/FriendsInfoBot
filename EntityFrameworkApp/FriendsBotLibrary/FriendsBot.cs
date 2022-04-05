@@ -50,12 +50,8 @@ namespace EntityFrameworkApp.FriendsBotLibrary
 
             var statesData = StateDataSetBuilder(fbd);
             var transitionsData = TrasitionDataSetBuilder(fbd);
-            //var smb = new StateMashineBuilder(statesData, transitionsData, smd.states.home);
-            // test 
-            var tsmf = new TelegramStateMashineFactory(statesData, transitionsData, smd.states.home);
-            return new StateMachine(tsmf);
-            //
-            //return smb.Build();
+            var factory = new TelegramStateMashineFactory(statesData, transitionsData, smd.states.home);
+            return new StateMachine(factory);
         }
         //private StateMachine BuildStateMachine()
         //{
@@ -246,5 +242,15 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             trasitionsData.Add(findAllhome);
             return trasitionsData;
         }
+        //private IEnumerable<StateDataSet> StateDataSetBuilderNew()
+        //{
+        //    var states = new { home = "home" };
+        //    var eventTextByState = new Dictionary<string, string> 
+        //    {
+        //        { states.home,"Choose mode"}
+        //    };
+
+        //    throw new();
+        //}
     }
 }
