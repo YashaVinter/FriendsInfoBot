@@ -54,14 +54,6 @@ namespace EntityFrameworkApp
         }
         private void ConnectStatesAndTransitions(ref IState[] states, ref ITransition[] transitions)
         {
-            //var v1 = from s in states
-            //         join t in transitions on s.stateModel.name equals t.transitionModel.entryState.name
-            //         where s.stateModel.transitions.Add(t.transitionModel)
-            //         select s;
-            //var v2 = from t in transitions
-            //         join s in states on t.transitionModel.entryState equals s.stateModel
-            //         where t.transitionModel.entryState = s
-            //         select s;
             foreach (var s in states)
             {
                 var tr = from t in transitions
@@ -74,8 +66,6 @@ namespace EntityFrameworkApp
                 t.transitionModel.entryState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[0]).stateModel;
                 t.transitionModel.endState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[1]).stateModel;
             }
-            //
-            //states.Aggregate(var v = new { one = "" }, (v, r) => v. );
         }
         public string BuildStartState()
         {
