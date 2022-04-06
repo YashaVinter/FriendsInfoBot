@@ -21,8 +21,8 @@ namespace EntityFrameworkApp.FriendsBotLibrary
 
     public sealed class FriendsBot
     {
-        private static TelegramBotClient telegramBotClient { get; set; }
-        private static StateMachine stateMachine { get; set; }
+        private static TelegramBotClient telegramBotClient { get; set; } = null!;
+        private static StateMachine stateMachine { get; set; } = null!;
         public FriendsBot(string token)
         {
             telegramBotClient = new TelegramBotClient(token);

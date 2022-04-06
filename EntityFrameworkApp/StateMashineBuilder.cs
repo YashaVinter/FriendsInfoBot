@@ -58,13 +58,13 @@ namespace EntityFrameworkApp
             {
                 var tr = from t in transitions
                          where t.transitionModel.name.Split(':')[0] == s.stateModel.name
-                         select t.transitionModel;
+                         select t;
                 s.stateModel.transitions = tr.ToHashSet();
             }
             foreach (var t in transitions)
             {
-                t.transitionModel.entryState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[0]).stateModel;
-                t.transitionModel.endState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[1]).stateModel;
+                t.transitionModel.entryState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[0]);
+                t.transitionModel.endState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[1]);
             }
         }
         public string BuildStartState()

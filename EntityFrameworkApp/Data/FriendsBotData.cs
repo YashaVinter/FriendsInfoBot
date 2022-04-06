@@ -478,14 +478,19 @@ namespace EntityFrameworkApp.Data
                 { tr(states.home,states.find),(string s) => {return s == buttonsTextByState[states.find]; } },
                 { tr(states.home,states.edit),(string s) => {return s == buttonsTextByState[states.edit]; } },
                 { tr(states.home,states.help),(string s) => {return s == buttonsTextByState[states.help]; } },
+
                 { tr(states.find,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
-                { tr(states.edit,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
-                { tr(states.help,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
-                { tr(states.findPerson,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
-                { tr(states.findPerson,states.findAll),(string s) => {return s == buttonsTextByState[states.findAll]; } },//
                 { tr(states.find,states.findPerson),
                     (string s) => {return (s != buttonsTextByState[states.home]) && (s!=buttonsTextByState[states.findAll]); } },
                 { tr(states.find,states.findAll),(string s) => {return s == buttonsTextByState[states.findAll]; } },
+
+                { tr(states.edit,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
+
+                { tr(states.help,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
+
+                { tr(states.findPerson,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
+                { tr(states.findPerson,states.findAll),(string s) => {return s == buttonsTextByState[states.findAll]; } },//
+
                 { tr(states.findAll,states.home),(string s) => {return s == buttonsTextByState[states.home]; } },
                 { tr(states.findAll,states.findPerson),(string s) => {return s != buttonsTextByState[states.home]; } },
             };
