@@ -39,7 +39,7 @@ namespace EntityFrameworkApp.DataBase
         public int Id { get; set; }
         public string? city { get; set; }
         public string? street { get; set; }
-        public int home { get; set; } // may be 124/5г as variant
+        public string home { get; set; } // may be 124/5г as variant
         public int flat { get; set; }
         public int floor { get; set; }
         public int entrance { get; set; }
@@ -65,7 +65,7 @@ namespace EntityFrameworkApp.DataBase
         }
         private static class DbData
         {
-            public static Address YanAdr = new Address { city = "Заречный", street = "Комунальная", entrance = 1, flat = 3, floor = 3, home = 1 };
+            public static Address YanAdr = new Address { city = "Заречный", street = "Комунальная", entrance = 1, flat = 3, floor = 3, home = "1" };
             public static Person Yan = new Person
             {
                 name = "Ян",
@@ -75,7 +75,7 @@ namespace EntityFrameworkApp.DataBase
                 notes = "Яня, Атомщик, опелевод",
                 photo = "https://sun9-53.userapi.com/sun9-66/impf/c846417/v846417975/148899/Q607m_E6GGM.jpg?size=807x563&quality=96&sign=166ea468ac706c2dfdc3a6f169c50478&type=album"
             };
-            public static Address PolinaAdr = new Address { city = "Екатеринбург", street = "Новгородцевой", entrance = 12, flat = 402, floor = 2, home = 11 };
+            public static Address PolinaAdr = new Address { city = "Екатеринбург", street = "Новгородцевой", entrance = 12, flat = 402, floor = 2, home = "11" };
             public static Person Polina = new Person
             {
                 name = "Полина",
@@ -85,7 +85,7 @@ namespace EntityFrameworkApp.DataBase
                 notes = "Веган, ветош",
                 photo = "https://sun9-51.userapi.com/impg/IP4LoYkuiLZg1IAgYZlINa95GH71_VaczqvT-Q/8FIpF2uicXA.jpg?size=1393x1920&quality=96&sign=2fce3dc29258a856f40441dd0d929020&type=album"
             };
-            public static Address ArtemAdr = new Address { city = "Екатеринбург", street = "Волгоградская", entrance = 1, flat = 39, floor = 5, home = 184 };
+            public static Address ArtemAdr = new Address { city = "Екатеринбург", street = "Волгоградская", entrance = 1, flat = 39, floor = 5, home = "184" };
             public static Person Artem = new Person
             {
                 name = "Артем",
@@ -140,7 +140,7 @@ namespace EntityFrameworkApp.DataBase
             return true;
         }
 
-        public Person? Find(string name) {
+        public static Person? Find(string name) {
             using (ApplicationContext db = new ApplicationContext())
             {
                 return db.Persons.Where(p => p.name == name).Include(p => p.address).FirstOrDefault();

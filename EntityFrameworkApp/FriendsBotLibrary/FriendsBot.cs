@@ -125,8 +125,8 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             //this.update = update;
             //this.botCommand.command = this.update?.Message?.Text;
             var inputData = new BotInputData(telegramBotClient, update.Message);
-
             stateMachine.Execute(inputData);
+
             await Task.Delay(0);
         }
         public async Task StartBot() {
@@ -145,7 +145,6 @@ namespace EntityFrameworkApp.FriendsBotLibrary
 
             var me = await telegramBotClient.GetMeAsync();
 
-
             Console.WriteLine($"Start listening for @{me.Username}");
             Console.ReadLine();
 
@@ -157,22 +156,22 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             // Only process Message updates: https://core.telegram.org/bots/api#message
             if (update.Type != UpdateType.Message)
                 return;
-            // Only process text messages
-            if (update.Message!.Type != MessageType.Text)
-                return;
 
-            string message = update.Message.Text;
-            Console.WriteLine($"Received a '{update.Message.Text}' message from {update.Message.From}");
-            // test
-            //string str = @"[Link](example.com) (test)";
-            //await botClient.SendTextMessageAsync(
-            //    chatId: update.Message.Chat.Id,
-            //    text: str,
-            //    parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown
-            //    );
+            string? message = update?.Message?.Text;
+            Console.WriteLine($"Received a '{update?.Message?.Text}' message from {update?.Message?.From}");
+            //test photo
+            //var file = botClient.GetFileAsync(update.Message.Photo.First().FileId);
+            //string? fileId = update.Message.Photo.First().FileId;
+            ////
+            //botClient.SendPhotoAsync(update.Message.Chat.Id, fileId);
+            //fileId ??= update.Message.Document.FileId;
+            //var file = botClient.GetFileAsync(fileId);
+            //string pathPhoto = @"C:\Users\User\source\repos\EntityFrameworkApp\EntityFrameworkApp\photo\photo.img";
+            //using Stream stream = new FileStream(pathPhoto,FileMode.Create);
+            //var v = botClient.DownloadFileAsync(file.Result.FilePath, stream);
             //
             await Answer(update);
-            Console.WriteLine($"Message '{update.Message.Text}'from {update.Message.From} send");
+            Console.WriteLine($"Message '{update?.Message?.Text}'from {update?.Message?.From} send");
         }
         private Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {

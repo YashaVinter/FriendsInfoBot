@@ -18,6 +18,13 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EntityFrameworkApp
 {
+    public static class ClassForTest
+    {
+        public static int Add(int a, int b)
+        {
+            return a + b;
+        }
+    }
     public class Test
     {
         public Test() {
@@ -340,6 +347,10 @@ namespace EntityFrameworkApp
             //task = Task.Run
 
             //res = (bool)ares.AsyncState;
+        }
+        public static int test14(int a,int b) 
+        {
+            return a+b;
         }
 
         public void test14StateMachine() 
