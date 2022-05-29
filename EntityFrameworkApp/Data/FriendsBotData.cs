@@ -24,115 +24,9 @@ namespace EntityFrameworkApp.Data
             this.actions = new StateTelegramActions();
             this.criteria = new Criteria();
         }
-        //public Dictionary<string, StateMachine.FunctionHandler> actionsDictionary;
-        //public Dictionary<string, Func<string, bool>> criteriaDictionary;
-        //private FrontendData frontendData { get; init; }
-        //private Criteria criteria { get; init; }
-        //private StateTelegramActions stateTelegramActions { get; init; }
-        //public Dictionary<string,EventDataBase> eventDatabyState { get => frontendData.eventDatabyState; }
-        //public Dictionary<string,FunctionHandler> actionByState { get => stateTelegramActions.actionByState; }
-        //public Dictionary<string, Predicate<string>> criteriaByTransition { get => criteria.criteriaByTransition; }
-        //public FriendsBotData(StateMachineData stateMachineData) {
-        //    var smd = stateMachineData;
-        //    //data for states
-        //    //this.frontendData = new FrontendData(smd.states);
-        //    //data for transitions
-        //    //this.stateTelegramActions = new StateTelegramActions();
-        //    //this.criteria = new Criteria();
-        //}
+
         public class Criteria
         {
-            //public Dictionary<string, Predicate<string>> criteriaByTransition { get; init; }
-            ////public Criteria(StateMachine stateMachine, StateMachineData.States states)
-            ////{ // TODO              
-            ////    criteriaDictionary = new Dictionary<string, Predicate<string>>();
-            ////    foreach (var transition in stateMachine.transitionDictionary.Values)
-            ////    {
-            ////        var criteria = this.getCriteria(transition.transitionModel.endState.name);
-            ////        if (criteria is null)
-            ////            throw new NotImplementedException("Dont implemented criteria");
-            ////        criteriaDictionary.Add(transition.transitionModel.name, criteria);
-            ////    }
-
-            ////    this.states = states;
-            ////    //stateToButtonText = FrontendData.ButtonData.getInstance(states).stateToButtonText;
-            ////    //stateToButtonText = new FrontendDataNew()
-            ////}
-            //public Criteria(StateMachineData stateMachineData, FrontendData frontendData)
-            //{
-            //    var transitions = stateMachineData.transitions;
-            //    var states = stateMachineData.states;
-            //    //var eventDatabyState = frontendDataNew.eventDatabyState;
-            //    // upcasting
-            //    var buttonsData = frontendData.buttonsData;
-                
-            //    //creating dictionary criteria for all buttons
-            //    var predicateByState = BuildPredicateByState(buttonsData);
-            //    // creating dictionary simple transitions criteria
-            //    var predicateByTransitionEqual = BuildEqualPredicates(transitions.transitionSets, predicateByState);
-            //    //creating dictionary criteria for findPerson button
-            //    var predicateByTransitionSpecial =
-            //        BuildNotEqualPredicates(transitions.transitionSets.Where(t=>t.Split(':')[1] == states.findPerson), states.home, buttonsData);
-
-            //    var predicateByTransition = new Dictionary<string, Predicate<string>>(
-            //            predicateByTransitionEqual.Union(predicateByTransitionSpecial));
-            //    if (predicateByTransition.Count() != transitions.transitionSets.Count)
-            //    {
-            //        throw new Exception("Not all transitions are assigned criteria");
-            //    }
-            //    criteriaByTransition = predicateByTransition;
-            //}
-            //private Dictionary<string, Predicate<string>> BuildPredicateByState
-            //    (IEnumerable<FrontendData.ButtonData> buttonsData)
-            //{
-            //    var predicateByState = from bd in buttonsData
-            //                           select new KeyValuePair<string, Predicate<string>>(
-            //                               bd.stateName, EqualPredicate(bd.buttonText));
-            //    return new Dictionary<string, Predicate<string>>(predicateByState);
-            //}
-            //private Dictionary<string, Predicate<string>> BuildEqualPredicates
-            //    (IEnumerable<string> transitions, Dictionary<string, Predicate<string>> predicateByState)
-            //{
-            //    //var dict = new Dictionary<string, Predicate<string>>();
-            //    //foreach (var transition in transitions)
-            //    //{
-            //    //    string endState = transition.Split(':')[1];
-            //    //    if(predicateByState.ContainsKey(endState))
-            //    //        dict.Add(transition, predicateByState[endState]);
-            //    //}
-            //    //return dict;
-            //    var predicateByTransition = from tr in transitions
-            //                                where predicateByState.ContainsKey(tr.Split(':')[1])
-            //                                select new KeyValuePair<string,Predicate<string>>(
-            //                                    tr,predicateByState[tr.Split(':')[1] ] );
-            //    return new Dictionary<string, Predicate<string>>(predicateByTransition);
-            //}
-            //private Dictionary<string, Predicate<string>> BuildNotEqualPredicates
-            //    (IEnumerable<string> transitions, string endState, IEnumerable<FrontendData.ButtonData> buttonsData)
-            //{
-            //    //var buttonText = buttonsData
-            //    //    .Where(b => b.stateName == endState)
-            //    //    .Select(b => b.buttonText)
-            //    //    .FirstOrDefault();
-
-            //    //var dict = new Dictionary<string, Predicate<string>>();
-
-            //    //foreach (var transition in transitions)
-            //    //{
-            //    //    dict.Add(transition, NotEqualPredicate(buttonText));
-            //    //}
-            //    //return dict;
-
-            //    var buttonText = (from bd in buttonsData
-            //              where bd.stateName == endState
-            //              select bd.buttonText)
-            //             .FirstOrDefault();
-            //    var predicateByTransition = from tr in transitions
-            //                                select new KeyValuePair<string, Predicate<string>>(
-            //                                    tr, NotEqualPredicate(buttonText));
-            //    return new Dictionary<string, Predicate<string>>(predicateByTransition);
-
-            //}
             public Predicate<string> EqualPredicate(string sample) 
             {
                 return (string input) => { return sample == input; };
@@ -144,145 +38,13 @@ namespace EntityFrameworkApp.Data
             public Predicate<string> AlwaysTruePredicate()
             {
                 return (string input) => { return true; };
-            }
-            //private FrontendData.ButtonData buttonData { get; init; } = new FrontendData.ButtonData();
-            //public StateMachineData.States states { get; set; }
-            //public Dictionary<string, string> stateToButtonText { get; set; }
-            //public Predicate<string>? getCriteria(string toStateName) {
-            //    StateMachineData.States states =
-            //        StateMachineData.States.getInstance();
-
-            //    if (toStateName == states.home)
-            //    {
-            //        return toHome;
-            //    }
-            //    else if (toStateName == states.find)
-            //    {
-            //        return toFind;
-            //    }
-            //    else if (toStateName == states.edit)
-            //    {
-            //        return toEdit;
-            //    }
-            //    else if (toStateName == states.help)
-            //    {
-            //        return toHelp;
-            //    }
-            //    else if (toStateName == states.findPerson)
-            //    {
-            //        return toFindPerson;
-            //    }
-            //    else
-            //    {
-            //        return null;
-            //    }
-            //}
-            //public bool toHome(string input)
-            //{
-            //    return input == stateToButtonText[states.home];
-            //}
-            //public bool toFind(string input)
-            //{
-            //    return input == stateToButtonText[states.find];
-            //}
-            //public bool toEdit(string input)
-            //{
-            //    return input == stateToButtonText[states.edit];
-            //}
-            //public bool toHelp(string input)
-            //{
-            //    return input == stateToButtonText[states.help];
-            //}
-            //public bool toFindPerson(string input)
-            //{
-            //    return input != stateToButtonText[states.home];
-            //}
-            //public bool toTest(string input) {
-            //    return input == stateToButtonText[states.home]; 
-            //}            
+            }           
         }
         public class StateTelegramActions
         {
             private DataBase.Person? person;
             private DataBase.Address? address;
             private static readonly RegexPattern pattern = new RegexPattern();
-
-            //public Dictionary<string,FunctionHandler> actionByState { get; set; }
-            //public StateTelegramActions(StateMachineData.States states)
-            //{
-            //    states = states;
-            //    //caseText = FrontendData.CaseText.getInstance(); ;
-
-            //    actionsDictionary = new Dictionary<string, FunctionHandler>();
-            //    foreach (var state in states.stateSets)
-            //    {
-            //        actionsDictionary.Add(state, this.getAction(state));
-            //    }
-            //}
-            //public StateTelegramActions(StateMachineData stateMachineData) // new 
-            //{
-            //    var states = stateMachineData.states;
-            //    var dict = new Dictionary<string, FunctionHandler> 
-            //    {
-            //        { states.home,DefaultCase },
-            //        { states.find,DefaultCase },
-            //        { states.edit,DefaultCase },
-            //        { states.help,DefaultCase },
-            //        { states.findPerson,CaseFindPerson},
-            //    };
-            //    actionByState = dict;
-            //}
-            //public FunctionHandler? getAction(string name) {
-            //    StateMachineData.States states =
-            //        StateMachineData.States.getInstance();
-
-            //    if (name == states.home)
-            //    {
-            //        return CaseHome;
-            //    }
-            //    else if (name == states.find)
-            //    {
-            //        return CaseFind;
-            //    }
-            //    else if (name == states.edit)
-            //    {
-            //        return CaseEdit;
-            //    }
-            //    else if (name == states.help)
-            //    {
-            //        return CaseHelp;
-            //    }
-            //    else if (name == states.findPerson)
-            //    {
-            //        return CaseFindPerson;
-            //    }
-            //    else
-            //    {
-            //        return null;
-            //    }
-            //    //switch (name)
-            //    //{
-            //    //    case nameof(states.home):
-            //    //        return CaseEdit;
-            //    //    default:
-            //    //        break;
-            //    //}
-            //}
-
-            //public static async Task<Message> CaseHome2(object sender, EventArgs e) // CaseHome to CaseHome2
-            //{ 
-            //    if (sender is null)
-            //        return null;
-            //    if (sender is FriendsBot bot)
-            //    {
-            //        //FriendsBot.BotCommand botCommand = e as FriendsBot.BotCommand;
-            //        //var command = botCommand.command;
-            //        string text = caseText.stateToCaseText[states.home];
-            //        long id =  (long) bot?.update?.Message?.Chat?.Id;
-            //        return await bot.SendTextMessageAsync(id, text, HomeButtons2());
-            //    }
-            //    return null;
-            //}
             public StateTelegramActions()
             {
                 person = new DataBase.Person();
@@ -565,14 +327,6 @@ namespace EntityFrameworkApp.Data
                         );
                     return ExitCode.EventError;
                 }
-
-                //var v1 = inputData.telegramBotClient.SendPhotoAsync(inputData.message.Chat.Id, fileId);
-                //var file = inputData.telegramBotClient.GetFileAsync(fileId);
-                //string pathPhoto = @"C:\Users\User\source\repos\EntityFrameworkApp\EntityFrameworkApp\photo\photo.img";
-                //using Stream stream = new FileStream(pathPhoto, FileMode.Create);
-                //var v = inputData.telegramBotClient.DownloadFileAsync(file.Result.FilePath, stream);
-
-
                 throw new();
             }
             public async Task<ExitCode> CaseFindPerson(IStateData stateData)

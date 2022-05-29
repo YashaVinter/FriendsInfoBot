@@ -10,16 +10,6 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EntityFrameworkApp
 {
-    //public interface StateMashineFactory
-    //{
-    //    //public Dictionary<string,IState> stateDictionary { get; set; }
-    //    //public Dictionary<string, ITransition> transitionDictionary { get; set; }
-    //    //public string startState { get; set; }
-    //    Dictionary<string, IState> BuildStateDictionary();
-    //    Dictionary<string, ITransition> BuildTransitionDictionary();
-    //    string BuildStartState();
-
-    //}
     public class TelegramStateMashineFactory : IStateMashineFactory
     {
         private IState[] states;
@@ -80,108 +70,6 @@ namespace EntityFrameworkApp
             return transitions.ToDictionary(t => t.transitionModel.name);
         }
     }
-    //public class StateMashineBuilder // working
-    //{
-    //    private StateDataSet[] statesData { get; set; }
-    //    private TrasitionDataSet[] transitionsData { get; set; }
-    //    private string startState { get; set; }
-    //    public StateMashineBuilder(IEnumerable<StateDataSet> statesData, IEnumerable<TrasitionDataSet> transitionsData, string startState)
-    //    {
-    //        this.statesData = statesData.ToArray();
-    //        this.transitionsData = transitionsData.ToArray();
-    //        this.startState = startState;
-    //    }
-    //    public StateMachine Build()
-    //    {
-    //        ValidateData(statesData, transitionsData);
-
-    //        var states = BuildStates(statesData);
-    //        var transitions = BuildTransitions(transitionsData);
-    //        ConnectStatesAndTransitions(ref states, ref transitions);
-    //        return new StateMachine(states, transitions, startState);
-    //    }
-    //    private void ValidateData(IEnumerable<StateDataSet> statesData, IEnumerable<TrasitionDataSet> transitionsData)
-    //    {
-    //        if (statesData.Count() != statesData.Distinct().Count())
-    //            throw new();
-    //        if (transitionsData.Count() != transitionsData.Distinct().Count())
-    //            throw new();         
-    //    }
-    //    private State[] BuildStates(IEnumerable<StateDataSet> statesData)
-    //    {
-    //        return (from sd in statesData
-    //                select new StateBuilder(sd).Build())
-    //               .ToArray();
-    //    }
-    //    private Transition[] BuildTransitions(IEnumerable<TrasitionDataSet> transitionsData) 
-    //    {
-    //        return (from td in transitionsData
-    //                select new TransitionBuilder(td).Build())
-    //               .ToArray();
-    //    }
-    //    private void ConnectStatesAndTransitions(ref State[] states, ref Transition[] transitions)
-    //    {
-    //        //var v1 = from s in states
-    //        //         join t in transitions on s.stateModel.name equals t.transitionModel.entryState.name
-    //        //         where s.stateModel.transitions.Add(t.transitionModel)
-    //        //         select s;
-    //        //var v2 = from t in transitions
-    //        //         join s in states on t.transitionModel.entryState equals s.stateModel
-    //        //         where t.transitionModel.entryState = s
-    //        //         select s;
-    //        foreach (var s in states)
-    //        {
-    //            var tr = from t in transitions
-    //                     where t.transitionModel.name.Split(':')[0] == s.stateModel.name
-    //                     select t.transitionModel;
-    //            s.stateModel.transitions = tr.ToHashSet();
-    //        }
-    //        foreach (var t in transitions)
-    //        {
-    //            t.transitionModel.entryState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[0]).stateModel;
-    //            t.transitionModel.endState = states.First(s => s.stateModel.name == t.transitionModel.name.Split(':')[1]).stateModel;
-    //        }
-    //        //
-    //        //states.Aggregate(var v = new { one = "" }, (v, r) => v. );
-    //    }
-    //    public void test()
-    //    {
-    //        // init data  
-    //        //string home = "home";
-    //        //ISet<ITransitionModel> transitionModels = null;
-    //        //FunctionHandler fh = (sd) => { return null; };
-    //        //string caseText = "";
-    //        //IReplyMarkup buttons = null;
-    //        //var inputdata = new BotInputData(null, null);
-    //        ////init 2
-    //        //var states = StateMachineData.States.getInstance();
-
-    //        //
-    //        //StateDataNew state1 = new StateDataNew() 
-    //        //{
-    //        //    name = "home",
-    //        //    transitions = null,
-    //        //    functionHandler = null,
-    //        //    caseText = "",
-    //        //    buttons = null,
-    //        //    botInputData = null
-    //        //};
-    //        //StateDataNew state2 = (StateDataNew)state1.Clone();
-    //        //state2.name = "find";
-    //        //state2.caseText = "text";
-    //        //TrasitionDataNew trasition1 = new TrasitionDataNew() 
-    //        //{
-    //        //    name = "",
-    //        //    entryState = null,
-    //        //    endState = null,
-    //        //    Criteria = null
-    //        //};
-    //        // test
-    //        //StateDataSetBase stateBase = new StateDataSetBase("base", null, null, null);
-    //        //StateDataSet state3 = new StateDataSet("find","write person name",stateBase); //(StateDataNew2)stateBase.Clone();
-
-    //    }
-    //}
     public class StateBuilder
     {
         public StateDataSet data { get; set; }
@@ -197,54 +85,6 @@ namespace EntityFrameworkApp
             return new State(stateModel, stateEvent, stateData);
         }
     }
-    //class StateModelBuilder
-    //{
-    //    public string stateName { get; }
-    //    public StateModelBuilder(string stateName)
-    //    {
-    //        this.stateModel = Build(stateName);
-    //    }
-    //    private StateModel Build(string stateName) {
-    //        return new StateModel(stateName);
-    //    }
-    //}
-    //class StateEventBuilder
-    //{
-    //    public StateEvent stateEvent { get; }
-    //    public StateEventBuilder(FunctionHandler functionHandler)
-    //    {
-    //        this.stateEvent = Build(functionHandler);
-    //    }
-    //    private StateEvent Build(FunctionHandler functionHandler) {
-    //        return new StateEvent(functionHandler);
-    //    }
-    //}
-    //class StateDataBuilder
-    //{
-    //    public StateData stateData { get; }
-    //    public StateDataBuilder(string caseText, IReplyMarkup buttons, InputDataBase inputData)
-    //    {
-    //        this.stateData = Build(caseText, buttons, inputData);
-    //    }
-    //    private StateData Build(string caseText, IReplyMarkup buttons, InputDataBase inputData)
-    //    {
-    //        var eventData = new EventData(caseText, buttons); 
-    //        return new StateData(eventData, inputData);
-    //    }
-    //}
-    //class StateEventDataBuilder
-    //{
-    //    public EventData eventData { get; }
-    //    public StateEventDataBuilder(string caseText, IReplyMarkup buttons)
-    //    {
-    //        this.eventData = Build(caseText, buttons);
-    //    }
-    //    private EventData Build(string caseText, IReplyMarkup buttons)
-    //    {
-    //        return new EventData(caseText, buttons);
-    //    }
-    //}
-    //
     public class TransitionBuilder
     {
         public TrasitionDataSet data { get; }
@@ -305,26 +145,6 @@ namespace EntityFrameworkApp
         }
 
     }
-    //class StateDataNew : ICloneable
-    //{
-    //    public string name { get; set; }
-    //    public ISet<ITransitionModel> transitions { get; set; }
-    //    public FunctionHandler functionHandler { get; set; }
-    //    public string caseText { get; set; }
-    //    public IReplyMarkup buttons { get; set; }
-    //    public BotInputData botInputData { get; set; }
-    //    public object Clone()
-    //    {
-    //        return MemberwiseClone();
-    //    }
-    //}
-    //public class TrasitionDataNew
-    //{
-    //    public string name { get; set; }
-    //    public IStateModel entryState { get; set; }
-    //    public IStateModel endState { get; set; }
-    //    public Predicate<string> Criteria { get; set; }
-    //}
     public class TrasitionDataSet : NameBase
     {
         public IStateModel entryState { get; set; } = null!;
@@ -336,4 +156,3 @@ namespace EntityFrameworkApp
         }
     }
 }
-// test14StateMachine()

@@ -1,8 +1,4 @@
-﻿//using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
@@ -14,7 +10,6 @@ using EntityFrameworkApp.DataBase;
 using StateMachineLibrary;
 
 using EntityFrameworkApp.Data;
-using Program;
 
 namespace EntityFrameworkApp.FriendsBotLibrary
 {
@@ -29,19 +24,6 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             //StateMachineBuilder();
             stateMachine = BuildStateMachine();
         }
-        //public Update update { get; set; }
-
-        //private void StateMachineBuilder() {
-        //    var smd = StateMachineData.Instance();
-        //    stateMachine = new StateMachine(smd.states.stateSets, smd.transitions.transitionSets, smd.states.home);
-
-        //    var friendsBotData = new FriendsBotData(smd);
-        //    stateMachine.AddEventData(friendsBotData.eventDatabyState);
-        //    stateMachine.AddFunctionHandler(friendsBotData.actionByState);
-        //    stateMachine.AddCriteraRange(friendsBotData.criteriaByTransition);
-
-        //}
-
         private StateMachine BuildStateMachine()
         {
             var smd = StateMachineData.Instance();
@@ -58,72 +40,9 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             var factory = new TelegramStateMashineFactory(statesData, transitionsData, smd.states.home);
             return new StateMachine(factory);
         }
-        //private StateMachine BuildStateMachine()
-        //{
-        //    var smd = StateMachineData.Instance();
-        //    var states = smd.states;
-        //    var eventTexts = FrontendData.EventText.Instance(states);
-        //    var actions = new FriendsBotData.StateTelegramActions(smd);
-        //    var botInputData = new FriendsBotData.BotInputData(this, null);
-
-        //    var frontendData = new FrontendData(states);
-        //    var keyboardBuilder = new FrontendData.KeyboardBuilder(frontendData.buttonsData);
-        //    var mainKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
-        //    {
-        //        states.home,
-        //        states.find,
-        //        states.edit,
-        //        states.help
-        //    });
-        //    var homeKeyboard = keyboardBuilder.BuildKeyboard(new List<string>()
-        //    {
-        //        states.home,
-        //    });
-
-        //    StateDataSetBase defaultState = new StateDataSetBase("defultnName", actions.DefaultCase, homeKeyboard, botInputData);
-
-        //    StateDataSet home = new StateDataSet(states.home, eventTexts.home,actions.DefaultCase, mainKeyboard, botInputData);
-        //    StateDataSet find = new StateDataSet(states.find, eventTexts.find, defaultState);
-        //    StateDataSet edit = new StateDataSet(states.edit, eventTexts.edit, defaultState);
-        //    StateDataSet help = new StateDataSet(states.help, eventTexts.help, defaultState);
-        //    StateDataSet findPerson = new StateDataSet(states.findPerson, eventTexts.findPerson,actions.CaseFindPerson, homeKeyboard, botInputData);
-        //    var statesData = new List<StateDataSet> 
-        //    {
-        //        home,
-        //        find,
-        //        edit,
-        //        help,
-        //        findPerson
-        //    };
-        //    //
-        //    var tr = (string s1, string s2) => { return s1 + ':' + s2; };
-        //    var criteria = new FriendsBotData.Criteria(smd, frontendData);
-        //    var defaultTransitions = new List<string> 
-        //    {
-        //            tr(states.home,states.find),
-        //            tr(states.home,states.edit),
-        //            tr(states.home,states.help),
-        //            tr(states.find,states.home),
-        //            tr(states.findPerson,states.home),
-        //            tr(states.edit,states.home),
-        //            tr(states.help,states.home)
-        //    };
-
-        //    var trasitionsData = (from t in defaultTransitions
-        //             select new TrasitionDataSet(t, criteria.EqualPredicate(t.Split(':')[1]) )).ToList(); // EqualPredicate(t.Split(':')[1])
-
-
-        //    TrasitionDataSet tr1 = new TrasitionDataSet(tr(states.find, states.findPerson), criteria.NotEqualPredicate(states.home));
-        //    trasitionsData.Add(tr1);
-
-        //    var smb = new StateMashineBuilder(statesData, trasitionsData, states.home);
-        //    return smb.Build();
-        //}
         private async Task Answer(Update update)
         {
             string text = update?.Message?.Text;
-            //this.update = update;
-            //this.botCommand.command = this.update?.Message?.Text;
             var inputData = new BotInputData(telegramBotClient, update.Message);
             stateMachine.Execute(inputData);
 
@@ -159,17 +78,6 @@ namespace EntityFrameworkApp.FriendsBotLibrary
 
             string? message = update?.Message?.Text;
             Console.WriteLine($"Received a '{update?.Message?.Text}' message from {update?.Message?.From}");
-            //test photo
-            //var file = botClient.GetFileAsync(update.Message.Photo.First().FileId);
-            //string? fileId = update.Message.Photo.First().FileId;
-            ////
-            //botClient.SendPhotoAsync(update.Message.Chat.Id, fileId);
-            //fileId ??= update.Message.Document.FileId;
-            //var file = botClient.GetFileAsync(fileId);
-            //string pathPhoto = @"C:\Users\User\source\repos\EntityFrameworkApp\EntityFrameworkApp\photo\photo.img";
-            //using Stream stream = new FileStream(pathPhoto,FileMode.Create);
-            //var v = botClient.DownloadFileAsync(file.Result.FilePath, stream);
-            //
             await Answer(update);
             Console.WriteLine($"Message '{update?.Message?.Text}'from {update?.Message?.From} send");
         }
@@ -246,15 +154,5 @@ namespace EntityFrameworkApp.FriendsBotLibrary
             trasitionsData.Add(findAllhome);
             return trasitionsData;
         }
-        //private IEnumerable<StateDataSet> StateDataSetBuilderNew()
-        //{
-        //    var states = new { home = "home" };
-        //    var eventTextByState = new Dictionary<string, string> 
-        //    {
-        //        { states.home,"Choose mode"}
-        //    };
-
-        //    throw new();
-        //}
     }
 }

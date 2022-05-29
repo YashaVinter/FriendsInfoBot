@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.Common;
-
 
 using Microsoft.EntityFrameworkCore;
 
@@ -65,35 +59,35 @@ namespace EntityFrameworkApp.DataBase
         }
         private static class DbData
         {
-            public static Address YanAdr = new Address { city = "Заречный", street = "Комунальная", entrance = 1, flat = 3, floor = 3, home = "1" };
-            public static Person Yan = new Person
+            public static Address IvanAdr = new Address { city = "Заречный", street = "Ленина", entrance = 1, flat = 3, floor = 3, home = "1" };
+            public static Person Ivan = new Person
             {
-                name = "Ян",
+                name = "Ivan",
                 age = 24,
                 debt = 10580,
-                address = YanAdr,
-                notes = "Яня, Атомщик, опелевод",
-                photo = "https://sun9-53.userapi.com/sun9-66/impf/c846417/v846417975/148899/Q607m_E6GGM.jpg?size=807x563&quality=96&sign=166ea468ac706c2dfdc3a6f169c50478&type=album"
+                address = IvanAdr,
+                notes = "Ivan, Атомщик, владелец опеля",
+                photo = "https://w7.pngwing.com/pngs/6/214/png-transparent-silhouette-silhouette-animals-monochrome-man-silhouette.png"
             };
-            public static Address PolinaAdr = new Address { city = "Екатеринбург", street = "Новгородцевой", entrance = 12, flat = 402, floor = 2, home = "11" };
-            public static Person Polina = new Person
+            public static Address AnnAdr = new Address { city = "Екатеринбург", street = "Ленина", entrance = 12, flat = 402, floor = 2, home = "11" };
+            public static Person Ann = new Person
             {
-                name = "Полина",
+                name = "Ann",
                 age = 22,
                 debt = 0,
-                address = PolinaAdr,
+                address = AnnAdr,
                 notes = "Веган, ветош",
-                photo = "https://sun9-51.userapi.com/impg/IP4LoYkuiLZg1IAgYZlINa95GH71_VaczqvT-Q/8FIpF2uicXA.jpg?size=1393x1920&quality=96&sign=2fce3dc29258a856f40441dd0d929020&type=album"
+                photo = "https://w7.pngwing.com/pngs/6/214/png-transparent-silhouette-silhouette-animals-monochrome-man-silhouette.png"
             };
-            public static Address ArtemAdr = new Address { city = "Екатеринбург", street = "Волгоградская", entrance = 1, flat = 39, floor = 5, home = "184" };
-            public static Person Artem = new Person
+            public static Address BobAdr = new Address { city = "Екатеринбург", street = "Ленина", entrance = 1, flat = 39, floor = 5, home = "184" };
+            public static Person Bob = new Person
             {
-                name = "Артем",
+                name = "Bob",
                 age = 24,
                 debt = 0,
-                address = ArtemAdr,
-                notes = "Программист, ТНН, АртБабБек",
-                photo = "http://sun9-3.userapi.com/s/v1/ig2/frNJIc-HZBxVxJlmGCjpyqgwvHLyd8RcHrkvecwcUQsXohlCc21ksRqYLovjAJlkvXxRBGyXPRl3ENemvD65xlEL.jpg?size=400x598&quality=95&crop=68,0,280,419&ava=1"
+                address = BobAdr,
+                notes = "Программист, ТНН",
+                photo = "https://w7.pngwing.com/pngs/6/214/png-transparent-silhouette-silhouette-animals-monochrome-man-silhouette.png"
             };
         }
 
@@ -106,7 +100,7 @@ namespace EntityFrameworkApp.DataBase
                 // adding all persons in DbData
                 var persons = new List<Person> 
                 { 
-                    DbData.Yan, DbData.Polina, DbData.Artem
+                    DbData.Ivan, DbData.Ann, DbData.Bob
                 };
                 db.Persons.AddRange(persons);
                 db.SaveChanges();
@@ -155,12 +149,11 @@ namespace EntityFrameworkApp.DataBase
         public void test(string st="") {
             using (ApplicationContext db = new ApplicationContext())
             {
-                string name = "Ян";
+                string name = "Ivan";
                 var q1 = db.Persons.Where(p => p.name == name).Include(p => p.address);
                 var q2 = db.Persons.Where(p => p.name == name);
                 var q3 = db.Persons.Where(p => p.name == name).Include(p => p.address).Select(p => p.address.flat);
                 var q4 = db.Persons.EntityType.FullName;
-                //q4.age = 10;
 
                 var ans1 = q1.ToQueryString();
                 var ans2 = q2.ToQueryString();
@@ -168,8 +161,6 @@ namespace EntityFrameworkApp.DataBase
                 Console.WriteLine(@ans1);
                 Console.WriteLine(@ans2);
                 Console.WriteLine(@ans3);
-                //var sql = ((System.Data.Objects.ObjectQuery)q1).ToTraceString();
-                //var ans1 = db.GetCommand(q1).CommandText;
             }
         }
     }
