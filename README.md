@@ -1,7 +1,11 @@
-### FriendsInfoBot
-**FriendsInfoBot** - telegram bot for recording data about your friends and acquaintances so that they are always at hand
-
-Application features
+# FriendsInfoBot
+**FriendsInfoBot** - Telegram bot for recording data about your friends and acquaintances so that they are always at hand
+### The following technologies are used in the app
+ - Telegram Bot API
+ - DB - SQLite
+ - ORM - Entity Framework
+ - [FSM](https://en.wikipedia.org/wiki/Finite-state_machine) - [StateMachineLibrary](https://github.com/YashaVinter/StateMachineLibrary)  
+## Application features
 - Home menu  
 ![home](https://github.com/YashaVinter/FriendsInfoBot/blob/master/resources/demonstration/img/home.jpg?raw=true)
 - Ability to add new person  
