@@ -2,15 +2,15 @@
 **FriendsInfoBot** - telegram bot for recording data about your friends and acquaintances so that they are always at hand
 
 Application features
-- home menu
-![home](resources\demonstration\img\home.jpg)
-- Возможность добавления новых person
-![addfriend](resources\demonstration\img\addfriend.jpg)
-- Валидация вновь доавляемых person
-![addvalidation](resources\demonstration\img\addvalidation.jpg)
-- Отображение всех записанных persons
-![allfriend](resources\demonstration\img\allfriends.jpg)
-- Отображение выбранной person
-![person](resources\demonstration\img\person.jpg)
-- окно помощи
-![help](resources\demonstration\img\help.jpg)
+- Home menu
+![home](https://github.com/YashaVinter/FriendsInfoBot/blob/master/resources/demonstration/img/home.jpg?raw=true)
+- Ability to add new person
+![addfriend](https://github.com/YashaVinter/FriendsInfoBot/blob/master/resources/demonstration/img/addfriend.jpg?raw=true)
+- Validation of newly added person
+![addvalidation](https://github.com/YashaVinter/FriendsInfoBot/blob/master/resources/demonstration/img/addvalidation.jpg?raw=true)
+- Displaying all recorded persons
+![allfriend](https://github.com/YashaVinter/FriendsInfoBot/blob/master/resources/demonstration/img/allfriend.jpg?raw=true)
+- Displaying the selected person
+![person](https://github.com/YashaVinter/FriendsInfoBot/blob/master/resources/demonstration/img/person.jpg?raw=true)
+- Help view
+![help](https://github.com/YashaVinter/FriendsInfoBot/blob/master/resources/demonstration/img/help.jpg?raw=true)
