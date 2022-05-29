@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\EmojiList\EmojiList\EmojiList.csproj" />
-    <ProjectReference Include="..\..\StateMachineLibrary\StateMachineLibrary\StateMachineLibrary.csproj" />
+    <ProjectReference Include="..\..\..\EmojiList\EmojiList\EmojiList.csproj" />
+    <ProjectReference Include="..\..\..\StateMachineLibrary\StateMachineLibrary\StateMachineLibrary.csproj" />
   </ItemGroup>
 
 </Project>

@@ -9,7 +9,7 @@ namespace EntityFrameworkApp.DataBase
         public DbSet<User> Users => Set<User>();
         public DbSet<Person> Persons { get; set; } = null!;
         public DbSet<Address> Addresses { get; set; } = null!;
-        public string dbPath = @"C:\Users\User\source\repos\EntityFrameworkApp\EntityFrameworkApp\TelegramBotDB.db";
+        public string dbPath = @"C:\Users\User\source\repos\FriendsInfoBot\database\TelegramBotDB.db";
         public ApplicationContext() => Database.EnsureCreated();
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -20,8 +20,6 @@ namespace EntityFrameworkApp.DataBase
             modelBuilder.Entity<Person>().HasIndex(a => a.name).IsUnique();
         }
     }
-
-
     public class User
     {
         public int Id { get; set; }
@@ -64,7 +62,7 @@ namespace EntityFrameworkApp.DataBase
             {
                 name = "Ivan",
                 age = 24,
-                debt = 10580,
+                debt = 1000,
                 address = IvanAdr,
                 notes = "Ivan, Атомщик, владелец опеля",
                 photo = "https://w7.pngwing.com/pngs/6/214/png-transparent-silhouette-silhouette-animals-monochrome-man-silhouette.png"
@@ -76,8 +74,8 @@ namespace EntityFrameworkApp.DataBase
                 age = 22,
                 debt = 0,
                 address = AnnAdr,
-                notes = "Веган, ветош",
-                photo = "https://w7.pngwing.com/pngs/6/214/png-transparent-silhouette-silhouette-animals-monochrome-man-silhouette.png"
+                notes = "Веган",
+                photo = "https://previews.123rf.com/images/jemastock/jemastock1804/jemastock180408399/100468063-young-woman-cartoon-with-casual-clothes-icon.jpg"
             };
             public static Address BobAdr = new Address { city = "Екатеринбург", street = "Ленина", entrance = 1, flat = 39, floor = 5, home = "184" };
             public static Person Bob = new Person
@@ -87,7 +85,7 @@ namespace EntityFrameworkApp.DataBase
                 debt = 0,
                 address = BobAdr,
                 notes = "Программист, ТНН",
-                photo = "https://w7.pngwing.com/pngs/6/214/png-transparent-silhouette-silhouette-animals-monochrome-man-silhouette.png"
+                photo = "https://thumbs.dreamstime.com/b/smiling-man-cartoon-style-character-isolated-white-background-smiling-man-cartoon-style-179530902.jpg"
             };
         }
 
