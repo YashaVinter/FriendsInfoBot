@@ -89,4 +89,4 @@ TODO переделать актионы как класс с переопред
  
  */
 
-//before deliting unuseful elenemts
+//all worked, before refactoring
