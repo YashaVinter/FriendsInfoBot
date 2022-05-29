@@ -636,7 +636,7 @@ namespace EntityFrameworkApp.Data
             public readonly string help  = "help";
             public readonly string findPerson = "findPerson";
             public readonly string findAll = "findAll";
-            public readonly string myFriends = "myFriends";
+            public readonly string myFriends = "friends";
             public readonly string add = "Add";
             public readonly string addPerson = "addPerson";
             public readonly string addPersonAge = "addPersonAge";
