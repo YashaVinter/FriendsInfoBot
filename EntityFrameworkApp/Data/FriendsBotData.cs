@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
 using Telegram.Bot;
@@ -11,8 +8,6 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
 using StateMachineLibrary;
-using EntityFrameworkApp.FriendsBotLibrary;
-using EntityFrameworkApp.Data;
 
 namespace EntityFrameworkApp.Data
 {

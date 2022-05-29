@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkApp", "EntityFrameworkApp\EntityFrameworkApp.csproj", "{5AFEF506-C7D6-43F0-8F41-F8DAB45A5B90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FriendsInfoBotCore", "EntityFrameworkApp\FriendsInfoBotCore.csproj", "{5AFEF506-C7D6-43F0-8F41-F8DAB45A5B90}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateMachineLibrary", "..\StateMachineLibrary\StateMachineLibrary\StateMachineLibrary.csproj", "{6E82A676-BB22-402C-9BF7-5E413576D657}"
 EndProject
