@@ -4,7 +4,7 @@ namespace Program
 {
     internal class Program
     {
-        private const string token = "5156337859:AAFswaM91RTFckRSgA45jrhyKmYA77E0k14";
+        private const string token = "";
         static async Task Main(string[] args)
         {
             // start test
